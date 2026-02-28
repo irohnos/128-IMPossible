@@ -57,7 +57,7 @@ export default function AppSidebar() {
                         <SidebarMenuButton size="lg" asChild>
                             <Link href="/">
                             <div className = "flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                                {/* Replace with actual logo image */ }
+                                {/* Replace with actual logo */ }
                                 <Image src="/im-logo.png" alt="IM Logo" width={16} height={16} className="h-4 w-4" />
                             </div>
                             <div className = "grid flex-1 text-left text-sm leading-tight">
