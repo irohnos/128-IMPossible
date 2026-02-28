@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { 
+  BookOpen,
   LayoutDashboard, 
   LibraryBig,
   ClipboardCheck, 
@@ -36,6 +37,11 @@ const items = [
         title: "Student Checklist",
         url: "/checklist",
         icon: <ClipboardCheck size={18} />
+    },
+    {
+        title: "Handbook",
+        url: "/handbook",
+        icon: <BookOpen size={18} />
     },
     {
         title: "Analytics",
