@@ -3,8 +3,10 @@
 import type { Metadata } from "next";
 import "./globals.css";import { use } from "react";
 import { Inter } from "next/font/google";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "./components/app-sidebar";
+import { Separator } from "@/components/ui/separator";
+import App from "next/app";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,18 +16,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.className}>
       <body>
-        <SidebarProvider>
-          <div className="flex min-h-screen w-full">
-            <AppSidebar />
-            <main className="flex-1 p-6 bg-slate-50/50">
-              <SidebarTrigger className="mb-4" />
-              {children}
-            </main>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 px-4
+        transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger size="sm" variant="ghost" className="data-[state=open]:bg-transparent" />
+              <Separator orientation="vertical" className="mx-0 h-4" />
+              <h1 className="text-sm font-medium">Dashboard</h1>
           </div>
-        </SidebarProvider>
-      </body>
+        </header>
+
+        {/*main content sidebar*/ }
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          {children}
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+    </body>
     </html>
   );
 }
