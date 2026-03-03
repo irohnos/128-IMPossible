@@ -12,10 +12,10 @@ import {
 
 const links = [
   { name: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon },
-  { name: 'Student Papers', href: '/papers', icon: RectangleStackIcon },
-  { name: 'Student Checklist', href: '/checklist', icon: ClipboardDocumentCheckIcon },
-  { name: 'Handbook', href: '/handbook', icon: BookOpenIcon },
-  { name: 'Analytics', href: '/analytics', icon: ChartBarIcon }
+  { name: 'Student Papers', href: '/dashboard/papers', icon: RectangleStackIcon },
+  { name: 'Student Checklist', href: '/dashboard/checklist', icon: ClipboardDocumentCheckIcon },
+  { name: 'Handbook', href: '/dashboard/handbook', icon: BookOpenIcon },
+  { name: 'Analytics', href: '/dashboard/analytics', icon: ChartBarIcon }
 ];
 
 export default function NavLinks() {
