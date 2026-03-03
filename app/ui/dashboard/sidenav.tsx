@@ -34,7 +34,7 @@ export default function SideNav() {
           <p>Profile</p>
         </Link>
         
-        <form action={async () => { 'use server'; /* Logout logic */ }}>
+        <form action={async () => { 'use server';}}>
           <button className="flex h-[48px] w-full items-center gap-4 px-6 text-sm font-medium text-zinc-200 hover:bg-zinc-500 hover:text-white transition-colors">
             <ArrowLeftOnRectangleIcon className="w-6" />
             <p>Logout</p>
