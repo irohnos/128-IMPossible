@@ -33,11 +33,10 @@ You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](http
 ## Run locally
 1. Remove im-possible folder from app.
 2. Use `cd` to change into the app's directory
-3. Install project packages using:
-   pnpm i
-4. You can now run the Next.js local development server:
-   npm run dev
-   The app should now be running on [localhost:3000/dashboard](http://localhost:3000/dashboard).
+3. Install project packages using `pnpm i`
+4. You can now run the Next.js local development server: `npm run dev`
+
+The app should now be running on [localhost:3000/dashboard](http://localhost:3000/dashboard).
 
 > Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
 
