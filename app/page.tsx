@@ -1,30 +1,79 @@
-import { DeployButton } from "@/components/deploy-button";
-import { EnvVarWarning } from "@/components/env-var-warning";
-import { AuthButton } from "@/components/auth-button";
-import { Hero } from "@/components/hero";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
-import { SignUpUserSteps } from "@/components/tutorial/sign-up-user-steps";
-import { hasEnvVars } from "@/lib/utils";
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { EyeOff, Eye } from "lucide-react";
 import Link from "next/link";
-import { Suspense } from "react";
 
 export default function Home() {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
-    <main className="min-h-screen flex flex-col items-center">
-      <div className="w-[1280px] h-[720px] relative bg-white overflow-hidden">
-        <div className="w-[618px] h-[694px] left-[11px] top-[13px] absolute bg-zinc-300 rounded-[10px]" />
-        <div className="w-24 h-14 left-[276px] top-[360px] absolute justify-start text-black text-xs font-normal font-['Inter']">IM PIC (maybe)</div>
-        <div className="w-96 h-16 left-[732px] top-[239px] absolute text-justify justify-start text-black text-xs font-light font-['Inter'] leading-4">To sign into your account, enter your email and password</div>
-        <div className="w-96 h-12 left-[731px] top-[163px] absolute justify-start text-black text-3xl font-bold font-['Inter'] leading-8">Institution of Management System</div>
-        <div className="w-96 h-12 left-[731px] top-[347px] absolute bg-zinc-300 rounded" />
-        <div className="w-96 h-12 left-[731px] top-[462px] absolute bg-zinc-300 rounded" />
-        <div className="left-[731px] top-[313px] absolute text-justify justify-start text-black text-xl font-semibold font-['Inter'] leading-4">Your Email</div>
-        <div className="left-[760px] top-[363px] absolute text-justify justify-start text-neutral-400 text-sm font-medium font-['Inter'] leading-4">juandelacruz@ up.edu.ph</div>
-        <div className="left-[760px] top-[481px] absolute text-justify justify-start text-neutral-400 text-sm font-medium font-['Inter'] leading-3">●●●●●●●●●●●●●●●●●</div>
-        <div className="left-[731px] top-[428px] absolute text-justify justify-start text-black text-xl font-semibold font-['Inter'] leading-4">Password</div>
-        <div className="w-5 h-5 left-[1097px] top-[476px] absolute overflow-hidden">
-          <div className="w-4 h-3.5 left-[2.32px] top-[3.50px] absolute outline outline-2 outline-offset-[-1px] outline-neutral-400" />
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="flex flex-col md:flex-row w-full max-w-6xl bg-white rounded-2xl shadow-xl overflow-hidden min-h-[700px]">
+        
+        <div className="hidden md:flex md:w-1/2 bg-zinc-100 items-center justify-center p-12">
+          <div className="relative w-full h-full max-w-[400px] max-h-[400px]">
+            <Image
+              src="/IMLogo.jpg"
+              alt="IM Logo"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+        </div>
+
+        <div className="w-full md:w-1/2 flex flex-col justify-center px-8 lg:px-24 py-12">
+          <div className="mb-10">
+            <h1 className="text-4xl font-bold text-slate-900 leading-tight mb-4">
+              Institution of Management System
+            </h1>
+            <p className="text-slate-500 font-light">
+              To sign into your account, enter your email and password
+            </p>
+          </div>
+
+          <form className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-lg font-semibold text-slate-800">Your Email</label>
+              <input 
+                type="email" 
+                placeholder="juandelacruz@up.edu.ph"
+                className="w-full p-4 bg-zinc-100 text-black border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-lg font-semibold text-slate-800">Password</label>
+              <div className="relative">
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="•••••••••••••••••"
+                  className="w-full p-4 bg-zinc-100 text-black border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 focus:outline-none"
+                >
+                  {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <button className="w-full bg-slate-900 text-white py-4 rounded-lg font-bold hover:bg-slate-800 transition-colors shadow-lg mt-4">
+              Sign In
+            </button>
+
+            <div className="text-center mt-6">
+              <Link href="#" className="text-sm text-blue-600 hover:underline">
+                Forgot password?
+              </Link>
+            </div>
+          </form>
         </div>
       </div>
     </main>
