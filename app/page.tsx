@@ -17,7 +17,7 @@ export default function Home() {
         <div className="hidden md:flex md:w-1/2 bg-zinc-100 items-center justify-center p-12">
           <div className="relative w-full h-full max-w-[400px] max-h-[400px]">
             <Image
-              src="/IMLogo.jpg"
+              src="/IM-TRANSPARENT.png"
               alt="IM Logo"
               fill
               className="object-contain"
@@ -28,9 +28,16 @@ export default function Home() {
 
         <div className="w-full md:w-1/2 flex flex-col justify-center px-8 lg:px-24 py-12">
           <div className="mb-10">
-            <h1 className="text-4xl font-bold text-slate-900 leading-tight mb-4">
-              Institution of Management System
-            </h1>
+            <div className="flex items-center gap-4 mb-2">
+              {/* 
+              <img src="/IM-TRANSPARENT.png" 
+                alt="IM Logo" 
+                className="w-12 h-12 object-contain flex-shrink-0" />
+                */}
+              <h1 className="text-3xl font-bold text-slate-900 tracking-tight leading-tight ">
+                Institution of Management System
+              </h1>
+            </div>
             <p className="text-slate-500 font-light">
               To sign into your account, enter your email and password
             </p>
