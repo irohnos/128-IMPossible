@@ -1,4 +1,5 @@
 'use client';
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
@@ -18,7 +19,7 @@ const links = [
   { name: 'Analytics', href: '/dashboard/analytics', icon: ChartBarIcon }
 ];
 
-export default function NavLinks() {
+export default function NavLinks({ isCollapsed }: { isCollapsed: boolean }) {
   const pathname = usePathname();
 
   return (
@@ -31,16 +32,22 @@ export default function NavLinks() {
           <Link
             key={link.name}
             href={link.href}
+            title={isCollapsed ? link.name : ''}
             className={clsx(
-              'flex h-[52px] items-center gap-4 px-6 text-sm font-medium transition-all',
+              'flex h-[52px] items-center gap-4 px-6 text-sm font-medium transition-all duration-300',
               {
                 'bg-white text-zinc-800 shadow-sm': isActive,
                 'text-zinc-200 hover:bg-zinc-500 hover:text-white': !isActive,
               },
             )}
           >
-            <LinkIcon className="w-6" />
-            <p>{link.name}</p>
+            <LinkIcon className="w-6 shrink-0" />
+            
+            {!isCollapsed && (
+              <p className="whitespace-nowrap opacity-100 transition-opacity duration-300">
+                {link.name}
+              </p>
+            )}
           </Link>
         );
       })}
