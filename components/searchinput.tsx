@@ -13,11 +13,9 @@ export default function SearchInput({ placeholder = "Search..." }: SearchInputPr
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  // Initialize with the value from the URL (if it exists)
   const [searchTerm, setSearchTerm] = useState(searchParams.get("query") || "");
 
   useEffect(() => {
-    // 1. Set a timer to update the URL after 300ms of no typing
     const delayDebounceFn = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
       
@@ -30,12 +28,11 @@ export default function SearchInput({ placeholder = "Search..." }: SearchInputPr
       // Reset to page 1 when the user types a new search
       params.delete("page"); 
 
-      // 2. Update the URL without a full page reload
+
       replace(`${pathname}?${params.toString()}`, { scroll: false });
     }, 300);
 
-    // 3. Cleanup: if the user types again before 300ms, cancel the previous timer
-    return () => clearTimeout(delayDebounceFn);
+=    return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, pathname, replace, searchParams]);
 
   return (
@@ -49,7 +46,6 @@ export default function SearchInput({ placeholder = "Search..." }: SearchInputPr
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       
-      {/* Optional: Add a small loading spinner here if you want to show when data is fetching */}
-    </div>
+=    </div>
   );
 }
