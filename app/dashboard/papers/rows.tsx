@@ -5,6 +5,7 @@ import {
   ChevronDownIcon, 
   ArrowsUpDownIcon 
 } from "@heroicons/react/24/outline";
+import Modal from "./modal";
 
 interface RowProps {
   searchParams: Promise<{ sort?: string; order?: "asc" | "desc" }>;
@@ -15,21 +16,28 @@ export default async function PaperRows({ searchParams }: RowProps) {
   
   const supabase = await createClient();
   const { data: papers, error } = await supabase
-    .from("academic_papers")
-    .select(`
-      paper_id, 
-      paper_title, 
-      paper_year_submitted, 
-      paper_references, 
-      paper_pages, 
-      adviser (
-        adviser_fname, 
-        adviser_mname, 
-        adviser_lname, 
-        adviser_suffix
-      )
-    `)
-    .order(sort, { ascending: order === "asc" });
+  .from("academic_papers")
+  .select(`
+    paper_id,
+    paper_title,
+    paper_summary,
+    paper_year_submitted,
+    paper_references,
+    paper_pages,
+    adviser (
+      adviser_fname,
+      adviser_mname,
+      adviser_lname,
+      adviser_suffix
+    ),
+    author (
+      author_fname,
+      author_mname,
+      author_lname,
+      author_suffix
+    )
+  `)
+  .order(sort, { ascending: order === "asc" });
 
   if (error) {
     console.error("Error fetching papers:", error);
@@ -66,12 +74,12 @@ export default async function PaperRows({ searchParams }: RowProps) {
                 Title <SortIcon column="paper_title" />
               </Link>
             </th>
+            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Author/s</th>
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
               <Link href={getSortLink("paper_year_submitted")} className="group flex items-center hover:text-zinc-900 transition-colors">
                 Year <SortIcon column="paper_year_submitted" />
               </Link>
             </th>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">References</th>
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Pages</th>
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Adviser</th>
           </tr>
@@ -84,11 +92,21 @@ export default async function PaperRows({ searchParams }: RowProps) {
               ? `${adv.adviser_fname} ${middleInitial} ${adv.adviser_lname}${adv.adviser_suffix ? `, ${adv.adviser_suffix}` : ""}`
               : "N/A";
 
+            const formattedAuthors = paper.author?.length 
+              ? paper.author.map((a: any) => {
+                  const mInitial = a.author_mname ? `${a.author_mname.charAt(0)}. ` : "";
+                  const suffix = a.author_suffix ? `, ${a.author_suffix}` : "";
+                  return `${a.author_fname} ${mInitial}${a.author_lname}${suffix}`;
+                }).join(", ")
+              : "Unknown";
+
             return (
               <tr key={paper.paper_id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 text-sm font-medium text-gray-900 leading-tight">{paper.paper_title}</td>
+                <td className="px-6 py-4 text-sm font-medium leading-tight">
+                  <Modal title={paper.paper_title} summary={paper.paper_summary} references={paper.paper_references} />
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate"> {formattedAuthors} </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_year_submitted}</td>
-                <td className="px-6 py-4 text-sm text-gray-500 italic truncate max-w-xs">{paper.paper_references || "None"}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_pages}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">{formattedAdviser}</td>
               </tr>
