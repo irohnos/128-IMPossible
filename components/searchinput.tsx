@@ -32,7 +32,7 @@ export default function SearchInput({ placeholder = "Search..." }: SearchInputPr
       replace(`${pathname}?${params.toString()}`, { scroll: false });
     }, 300);
 
-=    return () => clearTimeout(delayDebounceFn);
+   return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, pathname, replace, searchParams]);
 
   return (
