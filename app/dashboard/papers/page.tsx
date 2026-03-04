@@ -57,11 +57,11 @@ export default async function AcademicPapersPage() {
                 // Name Concatenation Logic: "First M. Last, Suffix"
                 const adv = Array.isArray(paper.adviser) ? paper.adviser[0] : paper.adviser;
                 const middleInitial = adv?.adviser_mname 
-                  ? '${adv.adviser_mname.charAt(0)}. '
+                  ? `${adv.adviser_mname.charAt(0)}. `
                   : "";
                 
                 const formattedAdviser = adv 
-                  ? '${adv.adviser_fname} ${middleInitial} ${adv.adviser_lname}${adv.adviser_suffix ? , ${adv.adviser_suffix}` : ""}`'
+                  ? `${adv.adviser_fname} ${middleInitial} ${adv.adviser_lname}${adv.adviser_suffix ? `, ${adv.adviser_suffix}` : ""}`
                   : "N/A";
 
                 return (
