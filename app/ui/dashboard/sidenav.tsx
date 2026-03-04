@@ -17,7 +17,7 @@ export default function SideNav() {
     <div className={`relative flex h-full flex-col bg-zinc-600 py-6 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'}`}>
       <button 
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-10 flex h-6 w-6 items-center justify-center rounded-full bg-zinc-800 text-white border border-zinc-500 hover:bg-zinc-700 transition-colors"
+        className="absolute -right-3 top-5 flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-white border border-zinc-500 hover:bg-zinc-800 transition-colors"
       >
         {isCollapsed ? <PanelLeftIcon className="w-4" /> : <PanelLeftIcon className="w-4" />}
       </button>
