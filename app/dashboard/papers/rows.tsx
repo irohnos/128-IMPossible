@@ -17,7 +17,6 @@ interface RowProps {
 }
 
 export default async function PaperRows({ searchParams }: RowProps) {
-  // Extract query from params
   const { sort = "paper_title", order = "asc", query = "" } = await searchParams;
   
   const supabase = await createClient();
@@ -45,40 +44,47 @@ export default async function PaperRows({ searchParams }: RowProps) {
       )  
     `);
 
-  if (query) {
-    const isNumber = !isNaN(Number(query)) && query.trim() !== "";
-
-    if (!isNumber) {
-      supabaseQuery = supabaseQuery.or(
-        `paper_title.ilike.%${query}%,paper_references.ilike.%${query}%`
-      );
-    }
-  }
-
   const { data: rawPapers, error } = await supabaseQuery.order(sort, { ascending: order === "asc" });
 
   let papers = rawPapers;
 
-  if (!error && query) {
-    const isNumber = !isNaN(Number(query)) && query.trim() !== "";
+  if (!error && query){
+    const q = query.toLowerCase();
 
-    if (isNumber) {
-      papers = rawPapers?.filter(p =>
-        p.paper_title?.toLowerCase().includes(query.toLowerCase()) ||
-        p.paper_references?.toLowerCase().includes(query.toLowerCase()) ||
-        p.paper_year_submitted?.toString().includes(query) ||
-        p.paper_pages?.toString().includes(query)
-      ) ?? [];
-    }
-  }
-  
-  if (error) {
-    console.error("Error fetching papers:", error);
-    return (
-      <div className="flex justify-center items-center h-64 text-center">
-        <p className="text-red-500 font-medium">Error loading papers. Please try again later.</p>
-      </div>
-    );
+    papers = rawPapers?.filter((paper) => {
+
+      // Titles and references
+      if (paper.paper_title.toLowerCase().includes(q) || paper.paper_references.toLowerCase().includes(q)) {
+        return true;
+      }
+
+      // Numbers (Years and pages)
+      if (paper.paper_year_submitted.toString().includes(q) || paper.paper_pages.toString().includes(q)) {
+        return true;
+      }
+
+      // Adviser
+      const adviser = Array.isArray(paper.adviser) ? paper.adviser[0] : paper.adviser;
+      if (adviser) {
+        const fullName = `${adviser.adviser_fname} ${adviser.adviser_mname ? adviser.adviser_mname.charAt(0) + ". " : ""}${adviser.adviser_lname}${adviser.adviser_suffix ? `, ${adviser.adviser_suffix}` : ""}`;
+        if (fullName.toLowerCase().includes(q)) {
+          return true;
+        }
+      }
+
+      // Authors
+      const hasNoAuthors = !paper.author || (Array.isArray(paper.author) && paper.author.length === 0); 
+      if (!hasNoAuthors && "unknown".includes(q)) {
+        return true;
+      }
+
+      const authorMatch = paper.author?.some((a: any) => {
+        const fullName = `${a.author_fname} ${a.author_mname ? a.author_mname.charAt(0) + ". " : ""}${a.author_lname}${a.author_suffix ? `, ${a.author_suffix}` : ""}`;
+        return fullName.toLowerCase().includes(q);
+      });
+
+      return !!authorMatch;
+    });
   }
 
   const getSortLink = (column: string) => {
