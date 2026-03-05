@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { uploadCsvAction } from "./actions";
+import { uploadCsvAction } from "./import";
 
 export default function UploadButton() {
   const fileInputRef = useRef<HTMLInputElement>(null);

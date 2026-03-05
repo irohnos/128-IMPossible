@@ -6,6 +6,7 @@ import {
   ArrowsUpDownIcon 
 } from "@heroicons/react/24/outline";
 import Modal from "./modal";
+import Actions from "./actions";
 
 interface RowProps {
   searchParams: Promise<{ 
@@ -116,6 +117,7 @@ export default async function PaperRows({ searchParams }: RowProps) {
             </th>
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Pages</th>
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Adviser</th>
+            <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -144,12 +146,13 @@ export default async function PaperRows({ searchParams }: RowProps) {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_year_submitted}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_pages}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">{formattedAdviser}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><Actions paper={paper} /></td>
                 </tr>
               );
             })
           ) : (
             <tr>
-              <td colSpan={5} className="px-6 py-10 text-center text-gray-500 italic">
+              <td colSpan={6} className="px-6 py-10 text-center text-gray-500 italic">
                 {query ? `No papers found matching "${query}"` : "No papers found in the archive."}
               </td>
             </tr>
