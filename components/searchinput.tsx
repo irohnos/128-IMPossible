@@ -13,7 +13,7 @@ export default function SearchInput({ placeholder = "Search..." }: SearchInputPr
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("query") || "");
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("query")?.toString() || "");
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -33,7 +33,7 @@ export default function SearchInput({ placeholder = "Search..." }: SearchInputPr
     }, 300);
 
    return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm, pathname, replace, searchParams]);
+  }, [searchTerm]);
 
   return (
     <div className="relative flex-grow">
@@ -46,6 +46,6 @@ export default function SearchInput({ placeholder = "Search..." }: SearchInputPr
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       
-=    </div>
+   </div>
   );
 }
