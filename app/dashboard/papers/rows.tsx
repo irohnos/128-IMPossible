@@ -73,11 +73,11 @@ export default async function PaperRows({ searchParams }: RowProps) {
       }
 
       // Authors
-      const hasNoAuthors = !paper.author || (Array.isArray(paper.author) && paper.author.length === 0); 
-      if (!hasNoAuthors && "unknown".includes(q)) {
+      const hasNoAuthors = !paper.author || (Array.isArray(paper.author) && paper.author.length === 0);
+
+      if (hasNoAuthors && "unknown".includes(q)) {
         return true;
       }
-
       const authorMatch = paper.author?.some((a: any) => {
         const fullName = `${a.author_fname} ${a.author_mname ? a.author_mname.charAt(0) + ". " : ""}${a.author_lname}${a.author_suffix ? `, ${a.author_suffix}` : ""}`;
         return fullName.toLowerCase().includes(q);
@@ -90,7 +90,6 @@ export default async function PaperRows({ searchParams }: RowProps) {
   const getSortLink = (column: string) => {
     const newOrder = sort === column && order === "asc" ? "desc" : "asc";
     const base = `?sort=${column}&order=${newOrder}`;
-    // If there is a search query, append it to the link so sorting doesn't clear the search
     return query ? `${base}&query=${encodeURIComponent(query)}` : base;
   };
 
