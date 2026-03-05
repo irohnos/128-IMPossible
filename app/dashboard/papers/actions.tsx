@@ -239,7 +239,7 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
 
 return (
     <>
-      <button onClick={() => setIsOpen(true)} className="flex items-center gap-2 bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-black transition-all active:scale-95">
+      <button onClick={() => setIsOpen(true)} className="flex items-center gap-2 bg-[#7b1113] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#5a0d0f] transition-all active:scale-95">
         <PlusIcon className="w-5 h-5" /> Add Paper
       </button>
 

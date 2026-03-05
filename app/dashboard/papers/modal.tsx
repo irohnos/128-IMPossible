@@ -13,7 +13,7 @@ export default function PaperModal({ title, summary, references }: ModalProps) {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="text-blue-600 hover:underline text-left font-medium transition-colors">{title}</button>
+      <button onClick={() => setOpen(true)} className="text-[#7b1113] hover:underline text-left font-medium transition-colors">{title}</button>
 
       {open && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">

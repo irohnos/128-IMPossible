@@ -41,7 +41,7 @@ export default function SearchInput({ placeholder = "Search..." }: SearchInputPr
       <input
         type="text"
         placeholder={placeholder}
-        className="flex h-9 w-full rounded-md border border-[#d1d5db] bg-transparent pl-9 pr-3 py-1 text-sm shadow-sm transition-colors placeholder:text-[#6b7280] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#8C9657]"
+        className="flex h-9 w-full rounded-md border border-[#d1d5db] bg-transparent pl-9 pr-3 py-1 text-sm shadow-sm transition-colors placeholder:text-[#6b7280] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#7b1113] hover:border-[#7b1113] focus:border-[#7b1113]"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />

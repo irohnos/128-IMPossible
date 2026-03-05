@@ -43,8 +43,7 @@ export default function UploadButton() {
       <button
         onClick={() => fileInputRef.current?.click()}
         disabled={isUploading}
-        className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-sm"
-      >
+        className="flex items-center gap-2 bg-[#7b1113] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#5a0d0f] transition-all active:scale-95">
         {isUploading ? "Uploading..." : "Upload Excel"}
       </button>
     </div>
