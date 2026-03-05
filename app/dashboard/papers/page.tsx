@@ -37,7 +37,7 @@ export default async function AcademicPapersPage({ searchParams }: SearchProps) 
     <div className="max-w-auto mx-auto py-10 px-4">
       <header className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Academic Papers</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-[#7b1113]">Academic Papers</h1>
           <p className="text-gray-600 mt-2">
             Collection of BSME Theses and MM Strategic Papers for the Institute of Management.
           </p>
@@ -48,7 +48,7 @@ export default async function AcademicPapersPage({ searchParams }: SearchProps) 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
         <div className=" w-full max-w-3xl">
           <Suspense fallback={<div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />}>
-            <SearchInput placeholder="Search papers..." />
+            <SearchInput placeholder="Search Titles, Authors, Etc..." />
           </Suspense>
         </div>
 

@@ -23,7 +23,7 @@ export default function NavLinks({ isCollapsed }: { isCollapsed: boolean }) {
   const pathname = usePathname();
 
   return (
-    <>
+    <div className="flex flex-col gap-1">
       {links.map((link) => {
         const LinkIcon = link.icon;
         const isActive = pathname === link.href;
@@ -34,23 +34,41 @@ export default function NavLinks({ isCollapsed }: { isCollapsed: boolean }) {
             href={link.href}
             title={isCollapsed ? link.name : ''}
             className={clsx(
-              'flex h-[52px] items-center gap-4 px-6 text-sm font-medium transition-all duration-300',
+              'group relative flex h-[52px] items-center gap-4 transition-all duration-200 ease-in-out',
               {
-                'bg-white text-zinc-800 shadow-sm': isActive,
-                'text-zinc-200 hover:bg-zinc-500 hover:text-white': !isActive,
-              },
+                'bg-[#7b1113] text-white shadow-md': isActive,
+                'text-[#3b0708] hover:bg-[#7b1113]/10 hover:text-[#7b1113]': !isActive,
+                'px-6': !isCollapsed,
+                'justify-center px-0': isCollapsed,
+              }
             )}
           >
-            <LinkIcon className="w-6 shrink-0" />
+            {isActive && !isCollapsed && (
+              <div className="absolute left-0 h-full w-1.5 bg-[#3b0708]/30" />
+            )}
+
+            <LinkIcon 
+              className={clsx('w-6 shrink-0 transition-colors', {
+                'text-white': isActive,
+                'text-[#7b1113]': !isActive
+              })} 
+            />
             
             {!isCollapsed && (
-              <p className="whitespace-nowrap opacity-100 transition-opacity duration-300">
+              <p className={clsx(
+                "whitespace-nowrap text-sm transition-all duration-300",
+                isActive ? "font-bold" : "font-medium"
+              )}>
                 {link.name}
               </p>
+            )}
+
+            {isActive && isCollapsed && (
+              <div className="absolute left-0 h-8 w-1 rounded-r-full bg-white/50" />
             )}
           </Link>
         );
       })}
-    </>
+    </div>
   );
 }
