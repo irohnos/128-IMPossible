@@ -37,12 +37,32 @@ export default async function PaperRows({ searchParams }: RowProps) {
     `);
 
   if (query) {
-    // Searches for the term in the title or references
-    supabaseQuery = supabaseQuery.or(`paper_title.ilike.%${query}%,paper_references.ilike.%${query}%`);
+    const isNumber = !isNaN(Number(query)) && query.trim() !== "";
+
+    if (!isNumber) {
+      supabaseQuery = supabaseQuery.or(
+        `paper_title.ilike.%${query}%,paper_references.ilike.%${query}%`
+      );
+    }
   }
 
-  const { data: papers, error } = await supabaseQuery.order(sort, { ascending: order === "asc" });
+  const { data: rawPapers, error } = await supabaseQuery.order(sort, { ascending: order === "asc" });
 
+  let papers = rawPapers;
+
+  if (!error && query) {
+    const isNumber = !isNaN(Number(query)) && query.trim() !== "";
+
+    if (isNumber) {
+      papers = rawPapers?.filter(p =>
+        p.paper_title?.toLowerCase().includes(query.toLowerCase()) ||
+        p.paper_references?.toLowerCase().includes(query.toLowerCase()) ||
+        p.paper_year_submitted?.toString().includes(query) ||
+        p.paper_pages?.toString().includes(query)
+      ) ?? [];
+    }
+  }
+  
   if (error) {
     console.error("Error fetching papers:", error);
     return (
