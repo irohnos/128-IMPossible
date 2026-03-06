@@ -66,8 +66,10 @@ export default async function PaperRows({ searchParams }: RowProps) {
       // Adviser
       const adviser = Array.isArray(paper.adviser) ? paper.adviser[0] : paper.adviser;
       if (adviser) {
+
+        const simpleName = `${adviser.adviser_fname} ${adviser.adviser_lname}`;
         const fullName = `${adviser.adviser_fname} ${adviser.adviser_mname ? adviser.adviser_mname.charAt(0) + ". " : ""}${adviser.adviser_lname}${adviser.adviser_suffix ? `, ${adviser.adviser_suffix}` : ""}`;
-        if (fullName.toLowerCase().includes(q)) {
+        if (simpleName.toLowerCase().includes(q) || fullName.toLowerCase().includes(q)) {
           return true;
         }
       }
@@ -79,8 +81,9 @@ export default async function PaperRows({ searchParams }: RowProps) {
         return true;
       }
       const authorMatch = paper.author?.some((a: any) => {
+        const simpleName = `${a.author_fname} ${a.author_lname}`;
         const fullName = `${a.author_fname} ${a.author_mname ? a.author_mname.charAt(0) + ". " : ""}${a.author_lname}${a.author_suffix ? `, ${a.author_suffix}` : ""}`;
-        return fullName.toLowerCase().includes(q);
+        return simpleName.toLowerCase().includes(q) || fullName.toLowerCase().includes(q);
       });
 
       return !!authorMatch;
@@ -153,10 +156,14 @@ export default async function PaperRows({ searchParams }: RowProps) {
                   <td className="px-6 py-4 text-sm font-medium leading-tight">
                     <Modal title={paper.paper_title} summary={paper.paper_summary} references={paper.paper_references} />
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate"> {formattedAuthors} </td>
+                  <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAuthors}>
+                    {formattedAuthors}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_year_submitted}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_pages}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">{formattedAdviser}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAdviser}>
+                    {formattedAdviser}
+                  </td>                  
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><Actions paper={paper} /></td>
                 </tr>
               );
