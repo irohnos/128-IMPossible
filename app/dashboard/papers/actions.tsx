@@ -353,7 +353,7 @@ return (
                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Year</label>
                     <input name="paper_year_submitted" type="number" 
                       onInput={(e) => {const input = e.target as HTMLInputElement; if (input.value.length > 4) input.value = input.value.slice(0, 4);}}
-                      min={2010} max={new Date().getFullYear()} placeholder="2024" className="w-full bg-gray-50 px-3 py-2 rounded-md border border-gray-200 outline-none" />
+                      min={2000} max={new Date().getFullYear()} placeholder="2024" className="w-full bg-gray-50 px-3 py-2 rounded-md border border-gray-200 outline-none" />
                   </div>
                   <div className="sm:col-span-1">
                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Total Pages</label>
