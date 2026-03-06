@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "IM Possible",
   description: "The fastest way to build apps with Next.js and Supabase",
+  icons: "/IM-TRANSPARENT.png",
+
 };
 
 const geistSans = Geist({
