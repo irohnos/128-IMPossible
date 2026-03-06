@@ -98,9 +98,9 @@ export default async function PaperRows({ searchParams }: RowProps) {
       return <ArrowsUpDownIcon className="ml-2 h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />;
     }
     return order === "asc" ? (
-      <ChevronUpIcon className="ml-2 h-4 w-4 text-[#8C9657]" />
+      <ChevronUpIcon className="ml-2 h-4 w-4 text-gray-500" />
     ) : (
-      <ChevronDownIcon className="ml-2 h-4 w-4 text-[#8C9657]" />
+      <ChevronDownIcon className="ml-2 h-4 w-4 text-gray-500" />
     );
   };
 
