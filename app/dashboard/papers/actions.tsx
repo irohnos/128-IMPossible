@@ -358,7 +358,7 @@ return (
                   <div className="sm:col-span-1">
                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Total Pages</label>
                     <input name="paper_pages" type="number" 
-                      onInput={(e) => {const input = e.target as HTMLInputElement; if (input.value.length > 4) input.value = input.value.slice(0, 4);}}
+                      onInput={(e) => {const input = e.target as HTMLInputElement; if (input.value.length > 4) input.value = input.value.slice(0, 4);}} min={1}
                       placeholder="0" className="w-full bg-gray-50 px-3 py-2 rounded-md border border-gray-200 outline-none" />
                   </div>
                 </div>
