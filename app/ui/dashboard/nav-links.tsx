@@ -16,7 +16,7 @@ const links = [
   { name: 'Student Papers', href: '/dashboard/papers', icon: RectangleStackIcon },
   { name: 'Student Checklist', href: '/dashboard/checklist', icon: ClipboardDocumentCheckIcon },
   { name: 'Handbook', href: '/dashboard/handbook', icon: BookOpenIcon },
-  { name: 'Analytics', href: '/dashboard/analytics', icon: ChartBarIcon }
+  // { name: 'Analytics', href: '/dashboard/analytics', icon: ChartBarIcon }
 ];
 
 export default function NavLinks({ isCollapsed }: { isCollapsed: boolean }) {
