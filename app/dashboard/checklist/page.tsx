@@ -10,7 +10,7 @@ export default function StudentChecklistPage({
 }) {
   return (
     <div className="bg-white min-h-screen">
-      <div className="bg-[#7b1113] h-14 w-full shadow-sm mb-10 rounded-md" />
+      
       
       <div className="px-10">
         <div className="flex items-center justify-between mb-12">
