@@ -145,11 +145,17 @@ export default function PaperActions({ paper }: { paper: any }) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="text-left">
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Year Submitted</label>
-                  <input name="paper_year_submitted" type="number" defaultValue={paper.paper_year_submitted} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none" />
+                  <input name="paper_year_submitted" type="number" defaultValue={paper.paper_year_submitted} 
+                      onKeyDown={(e) => {if (["-", ".", "e", "E", "+", "/"].includes(e.key)) {e.preventDefault();}}}
+                      min={1998} max={new Date().getFullYear()} 
+                      onInput={(e) => {const input = e.target as HTMLInputElement; if (input.value.length > 4) input.value = input.value.slice(0, 4);}}className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none" />
                 </div>
                 <div className="text-left">
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Total Pages</label>
-                  <input name="paper_pages" type="number" defaultValue={paper.paper_pages} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none" />
+                  <input name="paper_pages" type="number" defaultValue={paper.paper_pages} 
+                      min={1}
+                      onKeyDown={(e) => {if (["-", ".", "e", "E", "+", "/"].includes(e.key)) {e.preventDefault();}}}
+                      onInput={(e) => {const input = e.target as HTMLInputElement; if (input.value.length > 4) input.value = input.value.slice(0, 4);}}className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none" />
                 </div>
               </div>
 
@@ -352,8 +358,8 @@ return (
                   <div className="sm:col-span-1">
                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Year</label>
                     <input name="paper_year_submitted" type="number" 
-                      onKeyDown={(e) => {if (["-", ".", "e", "E"].includes(e.key)) {e.preventDefault();}}}
                       onInput={(e) => {const input = e.target as HTMLInputElement; if (input.value.length > 4) input.value = input.value.slice(0, 4);}}
+                      onKeyDown={(e) => {if (["-", ".", "e", "E", "+","/"].includes(e.key)) {e.preventDefault();}}}
                       min={1988} max={new Date().getFullYear()} placeholder="2024" className="w-full bg-gray-50 px-3 py-2 rounded-md border border-gray-200 outline-none" />
                   </div>
                   <div className="sm:col-span-1">
@@ -361,6 +367,7 @@ return (
                     <input name="paper_pages" type="number" 
                       onInput={(e) => {const input = e.target as HTMLInputElement; if (input.value.length > 4) input.value = input.value.slice(0, 4);}}
                       min={1} max={1000}
+                      onKeyDown={(e) => {if (["-", ".", "e", "E", "+","/"].includes(e.key)) {e.preventDefault();}}}
                       placeholder="0" className="w-full bg-gray-50 px-3 py-2 rounded-md border border-gray-200 outline-none" />
                   </div>
                 </div>
