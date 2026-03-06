@@ -3,8 +3,8 @@ export default async function HandbookPage() {
     <div className="flex flex-col h-[calc(100vh-120px)] p-6">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Student Handbook</h1>
-          <p className="text-sm text-slate-500">Bachelor of Science in Management Economics</p>
+          <h1 className="text-3xl font-bold tracking-tight text-[#7b1113]">Student Handbook</h1>
+          <p className="text-gray-600 mt-2">Bachelor of Science in Management Economics</p>
         </div>
       </div>
 
