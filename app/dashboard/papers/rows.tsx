@@ -110,6 +110,11 @@ export default async function PaperRows({ searchParams }: RowProps) {
         <thead className="bg-gray-50">
           <tr>
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <Link href={getSortLink("paper_id")} className="group flex items-center hover:text-zinc-900 transition-colors">
+                ID <SortIcon column="paper_id" />
+              </Link>
+            </th>
+            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
               <Link href={getSortLink("paper_title")} className="group flex items-center hover:text-zinc-900 transition-colors">
                 Title <SortIcon column="paper_title" />
               </Link>
@@ -144,13 +149,14 @@ export default async function PaperRows({ searchParams }: RowProps) {
 
               return (
                 <tr key={paper.paper_id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 text-sm text-gray-800 max-w-xs truncate"> {paper.paper_id} </td>
                   <td className="px-6 py-4 text-sm font-medium leading-tight">
                     <Modal title={paper.paper_title} summary={paper.paper_summary} references={paper.paper_references} />
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate"> {formattedAuthors} </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_year_submitted}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_pages}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">{formattedAdviser}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">{formattedAdviser}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><Actions paper={paper} /></td>
                 </tr>
               );
