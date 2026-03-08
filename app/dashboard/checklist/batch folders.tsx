@@ -38,7 +38,7 @@ export default async function Folder({
     <div className="grid grid-cols-5 gap-y-12 gap-x-6">
       {uniqueYears.map((year) => (
         <Link href={`/dashboard/checklist/${year}`} key={year}>
-          <div className="group flex flex-col items-center cursor-pointer">
+          <div className="group flex flex-col items-start px-4 cursor-pointer">
             <div className="relative w-20 h-16 mb-3 transition-transform duration-200 group-hover:-translate-y-1">
               <div className="absolute top-0 left-0 w-8 h-2 bg-[#7b1113] rounded-t-sm transition-colors group-hover:bg-[#7b1113]" />
               <div className="absolute bottom-0 w-full h-14 bg-[#7B1113] opacity-50 rounded-tr-sm rounded-b-sm shadow-sm transition-all duration-300 group-hover:opacity-100 group-hover:h-12" />

@@ -1,14 +1,15 @@
 import SideNav from '@/app/ui/dashboard/sidenav';
+import TopNav from '@/app/ui/dashboard/topnav';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen flex-col md:flex-row md:overflow-hidden bg-white">
-      <div className="w-full flex-none md:w-auto">
-        <SideNav />
-      </div>
-      
-      <div className="flex-grow p-6 md:overflow-y-auto md:p-12 bg-white text-zinc-800">
-        {children}
+    <div className="flex h-screen overflow-hidden">
+      <SideNav />
+      <div className="flex flex-1 flex-col">
+        <TopNav />
+        <main className="flex-1 overflow-y-auto py-10 px-6 bg-white text-zinc-800">
+          {children}
+        </main>
       </div>
     </div>
   );

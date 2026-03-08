@@ -32,7 +32,7 @@ export default function NavLinks({ isCollapsed }: { isCollapsed: boolean }) {
             href={link.href}
             title={isCollapsed ? link.name : ''}
             className={clsx(
-              'group relative flex h-[52px] items-center gap-4 transition-all duration-200 ease-in-out',
+              'group relative flex h-[60px] items-center gap-4 transition-all duration-200 ease-in-out',
               {
                 'bg-[#7b1113] text-white shadow-md': isActive,
                 'text-[#3b0708] hover:bg-[#7b1113]/10 hover:text-[#7b1113]': !isActive,
@@ -46,7 +46,7 @@ export default function NavLinks({ isCollapsed }: { isCollapsed: boolean }) {
             )}
 
             <LinkIcon 
-              className={clsx('w-6 shrink-0 transition-colors', {
+              className={clsx('w-7 h-7 shrink-0 transition-colors', {
                 'text-white': isActive,
                 'text-[#7b1113]': !isActive
               })} 
@@ -62,7 +62,7 @@ export default function NavLinks({ isCollapsed }: { isCollapsed: boolean }) {
             )}
 
             {isActive && isCollapsed && (
-              <div className="absolute left-0 h-8 w-1 rounded-r-full bg-white/50" />
+              <div className="absolute left-0 h-10 w-1.5 rounded-r-full bg-white/60" />
             )}
           </Link>
         );
