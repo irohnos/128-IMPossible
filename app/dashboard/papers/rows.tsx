@@ -12,12 +12,13 @@ interface RowProps {
   searchParams: Promise<{ 
     sort?: string; 
     order?: "asc" | "desc"; 
-    query?: string 
+    query?: string;
+    type?: string
   }>;
 }
 
 export default async function PaperRows({ searchParams }: RowProps) {
-  const { sort = "paper_title", order = "asc", query = "" } = await searchParams;
+  const { sort = "paper_title", order = "asc", query = "", type="all" } = await searchParams;
   
   const supabase = await createClient();
   
@@ -29,7 +30,8 @@ export default async function PaperRows({ searchParams }: RowProps) {
       paper_summary,
       paper_year_submitted, 
       paper_references, 
-      paper_pages, 
+      paper_type, 
+      paper_pages,
       adviser!inner (
         adviser_fname, 
         adviser_mname, 
@@ -47,6 +49,11 @@ export default async function PaperRows({ searchParams }: RowProps) {
   const { data: rawPapers, error } = await supabaseQuery.order(sort, { ascending: order === "asc" });
 
   let papers = rawPapers;
+
+  if (papers && type !== "all") {
+    const targetType = type === "thesis" ? "Thesis" : "Strategic Paper";
+    papers = papers.filter(p => p.paper_type === targetType);
+  }
 
   if (!error && query){
     const q = query.toLowerCase();
@@ -92,7 +99,12 @@ export default async function PaperRows({ searchParams }: RowProps) {
 
   const getSortLink = (column: string) => {
     const newOrder = sort === column && order === "asc" ? "desc" : "asc";
-    const base = `?sort=${column}&order=${newOrder}`;
+    const base = `?sort=${column}&order=${newOrder}&type=${type}`;
+    return query ? `${base}&query=${encodeURIComponent(query)}` : base;
+  };
+
+  const getTabLink = (newType: string) => {
+    const base = `?type=${newType}&sort=${sort}&order=${order}`;
     return query ? `${base}&query=${encodeURIComponent(query)}` : base;
   };
 
@@ -108,75 +120,108 @@ export default async function PaperRows({ searchParams }: RowProps) {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              <Link href={getSortLink("paper_id")} className="group flex items-center hover:text-zinc-900 transition-colors">
-                ID <SortIcon column="paper_id" />
-              </Link>
-            </th>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              <Link href={getSortLink("paper_title")} className="group flex items-center hover:text-zinc-900 transition-colors">
-                Title <SortIcon column="paper_title" />
-              </Link>
-            </th>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Author/s</th>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              <Link href={getSortLink("paper_year_submitted")} className="group flex items-center hover:text-zinc-900 transition-colors">
-                Year <SortIcon column="paper_year_submitted" />
-              </Link>
-            </th>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Pages</th>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Adviser</th>
-            <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {papers && papers.length > 0 ? (
-            papers.map((paper) => {
-              const adv = Array.isArray(paper.adviser) ? paper.adviser[0] : paper.adviser;
-              const middleInitial = adv?.adviser_mname ? `${adv.adviser_mname.charAt(0)}. ` : "";
-              const formattedAdviser = adv 
-                ? `${adv.adviser_fname} ${middleInitial} ${adv.adviser_lname}${adv.adviser_suffix ? `, ${adv.adviser_suffix}` : ""}`
-                : "N/A";
+    <div className="space-y-4">
+      <div className="flex items-center gap-8 border-b border-[#7b1113]/30 mb-6">
+        {[
+          { label: "All Papers", value: "all" },
+          { label: "Theses", value: "thesis" },
+          { label: "Strategic Papers", value: "strategic" },
+        ].map((tab) => {
+          const isActive = type === tab.value;
+          
+          return (
+            <Link
+              key={tab.value}
+              href={getTabLink(tab.value)}
+              className={`
+                relative pb-4 text-sm font-medium transition-all duration-200 ease-in-out
+                ${isActive 
+                  ? "text-[#7b1113]" 
+                  : "text-gray-500 hover:text-[#7b1113]/70"
+                }
+              `}
+            >
+              {tab.label}
 
-              const formattedAuthors = paper.author?.length 
-                ? paper.author.map((a: any) => {
-                    const mInitial = a.author_mname ? `${a.author_mname.charAt(0)}. ` : "";
-                    const suffix = a.author_suffix ? `, ${a.author_suffix}` : "";
-                    return `${a.author_fname} ${mInitial}${a.author_lname}${suffix}`;
-                  }).join(", ")
-                : "Unknown";
-
-              return (
-                <tr key={paper.paper_id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-gray-800 max-w-xs truncate"> {paper.paper_id} </td>
-                  <td className="px-6 py-4 text-sm font-medium leading-tight">
-                    <Modal title={paper.paper_title} summary={paper.paper_summary} references={paper.paper_references} />
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAuthors}>
-                    {formattedAuthors}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_year_submitted}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_pages}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAdviser}>
-                    {formattedAdviser}
-                  </td>                  
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><Actions paper={paper} /></td>
-                </tr>
-              );
-            })
-          ) : (
+              {isActive && (
+                <span 
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7b1113] rounded-t-full" 
+                  aria-hidden="true"
+                />
+              )}
+            </Link>
+          );
+        })}
+      </div>
+    
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
             <tr>
-              <td colSpan={6} className="px-6 py-10 text-center text-gray-500 italic">
-                {query ? `No papers found matching "${query}"` : "No papers found in the archive."}
-              </td>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <Link href={getSortLink("paper_title")} className="group flex items-center hover:text-zinc-900 transition-colors">
+                  Title <SortIcon column="paper_title" />
+                </Link>
+              </th>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Author/s</th>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <Link href={getSortLink("paper_year_submitted")} className="group flex items-center hover:text-zinc-900 transition-colors">
+                  Year <SortIcon column="paper_year_submitted" />
+                </Link>
+              </th>
+              {type === "all" && (
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Type</th>
+              )}
+              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Adviser</th>
+              <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {papers && papers.length > 0 ? (
+              papers.map((paper) => {
+                const adv = Array.isArray(paper.adviser) ? paper.adviser[0] : paper.adviser;
+                const middleInitial = adv?.adviser_mname ? `${adv.adviser_mname.charAt(0)}. ` : "";
+                const formattedAdviser = adv 
+                  ? `${adv.adviser_fname} ${middleInitial} ${adv.adviser_lname}${adv.adviser_suffix ? `, ${adv.adviser_suffix}` : ""}`
+                  : "N/A";
+
+                const formattedAuthors = paper.author?.length 
+                  ? paper.author.map((a: any) => {
+                      const mInitial = a.author_mname ? `${a.author_mname.charAt(0)}. ` : "";
+                      const suffix = a.author_suffix ? `, ${a.author_suffix}` : "";
+                      return `${a.author_fname} ${mInitial}${a.author_lname}${suffix}`;
+                    }).join(", ")
+                  : "Unknown";
+
+                return (
+                  <tr key={paper.paper_id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-sm font-medium leading-tight">
+                      <Modal id={paper.paper_id} title={paper.paper_title} type={paper.paper_type} pages={paper.paper_pages} summary={paper.paper_summary} references={paper.paper_references} />
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAuthors}>
+                      {formattedAuthors}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_year_submitted}</td>
+                    {type === "all" && (
+                      <td className="px-6 py-4 text-sm text-gray-600">{paper.paper_type}</td>
+                    )}
+                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAdviser}>
+                      {formattedAdviser}
+                    </td>                  
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><Actions paper={paper} /></td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={type === "all" ? 6 : 5} className="px-6 py-10 text-center text-gray-500 italic">
+                  {query ? `No papers found matching "${query}"` : "No papers found in the archive."}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

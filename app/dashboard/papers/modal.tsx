@@ -3,13 +3,22 @@
 import { useState } from "react";
 
 interface ModalProps {
+  id: number;
   title: string;
+  type: string;
+  pages: number;
   summary: string;
   references: string;
 }
 
-export default function PaperModal({ title, summary, references }: ModalProps) {
+export default function PaperModal({ id, title, type, pages, summary, references }: ModalProps) {
   const [open, setOpen] = useState(false);
+
+  const getSummaryLabel = () => {
+    if (type === "Thesis") return "Abstract";
+    if (type === "Strategic Paper") return "Executive Summary";
+    return "Summary";
+  };
 
   return (
     <>
@@ -21,7 +30,7 @@ export default function PaperModal({ title, summary, references }: ModalProps) {
           
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <h2 className="text-xl font-bold text-gray-900">Paper Details</h2>
+              <h2 className="text-xl font-bold text-gray-900">Paper Details — #{id}</h2>
               <button onClick={() => setOpen(false)} className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">✕</button>
             </div>
 
@@ -30,9 +39,11 @@ export default function PaperModal({ title, summary, references }: ModalProps) {
                 <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-2">Title</h3>
                 <p className="text-lg font-semibold text-gray-900 leading-snug">{title}</p>
               </div>
-
+              
               <div>
-                <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-2">Summary</h3>
+                <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-2">
+                  {getSummaryLabel()}
+                </h3>
                 <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{summary || "No summary available."}</p>
               </div>
 
@@ -41,6 +52,11 @@ export default function PaperModal({ title, summary, references }: ModalProps) {
                 <div className="bg-zinc-50 border border-zinc-100 p-4 rounded-xl">
                   <p className="text-sm text-gray-600 whitespace-pre-wrap">{references || "No references listed."}</p>
                 </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-2">Number of Pages</h3>
+                <p className="text-gray-900 font-medium">{pages}</p>
               </div>
             </div>
 
