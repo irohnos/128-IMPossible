@@ -42,6 +42,7 @@ const { data: paperData, error: paperError } = await supabase
     paper_pages: data.paper_pages,
     paper_summary: data.paper_summary,
     paper_references: data.paper_references || "",
+    paper_type: data.paper_type,
     adviser_id: data.adviser_id ? Number(data.adviser_id) : null,
   }])
   .select()   

@@ -223,6 +223,7 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
       paper_pages: parseInt(formData.get("paper_pages") as string),
       paper_summary: formData.get("paper_summary"),
       paper_references: formData.get("paper_references"), 
+      paper_type: formData.get("paper_type"),
       adviser_id: formData.get("adviser_id") ? Number(formData.get("adviser_id")) : null,
       authors: authors.map(a => ({
         author_fname: a.author_fname,
@@ -345,7 +346,7 @@ return (
                   <input name="paper_title" required placeholder="Enter full title..." className="w-full bg-gray-50 px-4 py-2 rounded-md border border-gray-200 outline-none focus:border-zinc-500" />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
                   <div className="sm:col-span-1">
                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Adviser</label>
                     <select name="adviser_id" required className="w-full bg-gray-50 px-3 py-2.5 rounded-md border border-gray-200 outline-none focus:border-zinc-500 text-sm">
@@ -355,6 +356,7 @@ return (
                       ))}
                     </select>
                   </div>
+
                   <div className="sm:col-span-1">
                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Year</label>
                     <input name="paper_year_submitted" type="number" 
@@ -362,6 +364,7 @@ return (
                       onKeyDown={(e) => {if (["-", ".", "e", "E", "+","/"].includes(e.key)) {e.preventDefault();}}}
                       min={1988} max={new Date().getFullYear()} placeholder="2024" className="w-full bg-gray-50 px-3 py-2 rounded-md border border-gray-200 outline-none" />
                   </div>
+
                   <div className="sm:col-span-1">
                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Total Pages</label>
                     <input name="paper_pages" type="number" 
@@ -369,6 +372,16 @@ return (
                       min={1} max={1000}
                       onKeyDown={(e) => {if (["-", ".", "e", "E", "+","/"].includes(e.key)) {e.preventDefault();}}}
                       placeholder="0" className="w-full bg-gray-50 px-3 py-2 rounded-md border border-gray-200 outline-none" />
+                  </div>
+
+                  <div className="sm:col-span-1">
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Paper Type</label>
+                    <select name="paper_type" required defaultValue="" className="w-full bg-gray-50 px-3 py-2.5 rounded-md border border-gray-200 outline-none focus:border-zinc-500 text-sm">
+                      <option value="" disabled>Select Type</option>
+                      <option value="Thesis">Thesis</option>
+                      <option value="Strategic Paper">Strategic Paper</option>
+                    </select>
+                    
                   </div>
                 </div>
 
