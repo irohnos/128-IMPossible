@@ -11,6 +11,7 @@ const routeTitles: Record<string, string> = {
   '/dashboard/checklist': 'Student Checklist',
   '/dashboard/handbook': 'Student Handbook',
   '/dashboard/profile': 'My Profile',
+  '/dashboard/about' : 'About US'
 };
 
 export default function TopNav() {
