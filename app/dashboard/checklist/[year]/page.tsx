@@ -66,7 +66,7 @@ export default async function BatchChecklistPage({
             return (
               <Link 
                 key={student.student_number} 
-                href={`/dashboard/checklist/student`}
+                href={`/dashboard/checklist/student/${student.student_number}`}
                 className="group relative flex items-center justify-between p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#7b1113]/30 transition-all duration-200"
               >
                 <div className="flex items-center gap-4 overflow-hidden">
