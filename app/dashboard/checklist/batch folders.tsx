@@ -44,8 +44,8 @@ export default async function Folder({
               <div className="absolute bottom-0 w-full h-14 bg-[#7B1113] opacity-50 rounded-tr-sm rounded-b-sm shadow-sm transition-all duration-300 group-hover:opacity-100 group-hover:h-12" />
               <div className="absolute bottom-0 w-full h-12 bg-[#BD8889] rounded-b-sm origin-bottom transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:skew-x-[-15deg] group-hover:scale-y-[1.1]" />
             </div>
-            <p className="text-[15px] font-medium text-[#374151] tracking-tight transition-colors group-hover:text-black text-center leading-relaxed">
-              Batch '{year.substring(2)} - '{parseInt(year.substring(2)) + 1}
+            <p className="text-sm font-medium text-[#7b1113] opacity-70 text-center transition-colors text-center leading-relaxed">
+              Batch {year}
             </p>
           </div>
         </Link>

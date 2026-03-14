@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Suspense } from "react";
 import SearchInput from "@/components/searchinput";
 import Link from "next/link";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, UserIcon } from "@heroicons/react/24/outline";
 
 export default async function BatchChecklistPage({ 
   params, 
@@ -16,80 +16,96 @@ export default async function BatchChecklistPage({
   const supabase = await createClient();
 
   const startRange = parseInt(`${year}000`);
-  const endRange = parseInt(`${year}9999`);
+  const endRange = parseInt(`${year}999`);
 
-  const { data: rawData, error } = await supabase
-    .from('checklist')
+  const { data: students, error } = await supabase
+    .from('student')
     .select('*')
     .gte('student_number', startRange)
-    .lte('student_number', endRange);
+    .lte('student_number', endRange)
+    .order('student_lname', { ascending: true });
 
-  let checklist = rawData;
+  let filteredStudents = students || [];
+
   if (!error && query) {
     const lowerQuery = query.toLowerCase();
-    checklist = rawData?.filter(row => 
-      row.course_id?.toLowerCase().includes(lowerQuery) ||
-      row.student_number?.toString().includes(query) ||
-      row.term_taken?.toString().includes(query) ||
-      row.grade?.toString().includes(query)
-    ) ?? [];
+    filteredStudents = filteredStudents.filter(s => 
+      s.student_fname?.toLowerCase().includes(lowerQuery) ||
+      s.student_lname?.toLowerCase().includes(lowerQuery) ||
+      s.student_number?.toString().includes(query) ||
+      s.student_sais_id?.toString().includes(query)
+    );
   }
 
   if (error) {
-    return <div className="p-10 text-red-500 font-sans">Database Error: {error.message}</div>;
+    return (
+      <div className="p-10 text-center">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg inline-block">
+          <p className="font-bold">Database Error</p>
+          <p className="text-sm">{error.message}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="p-10 bg-white min-h-screen font-sans">
-      <div className="bg-[#4b4b4b] h-14 w-full shadow-sm mb-10 rounded-md" />
-      
-      <div className="flex items-center gap-4 mb-8">
-        <Link 
-          href="/dashboard/checklist" 
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors group"
-        >
-          <ArrowLeftIcon className="h-6 w-6 text-gray-500 group-hover:text-black" />
-        </Link>
-        <h1 className="text-2xl font-bold text-[#374151]">Batch {year} Academic Checklist</h1>
+    <div className="max-w-auto mx-auto">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+        <div className="w-full max-w-3xl">
+          <Suspense fallback={<div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />}>
+            <SearchInput placeholder="Search by Name, Student Number, etc." />
+          </Suspense>
+        </div>
       </div>
 
-      <div className="w-full max-w-lg mb-8">
-        <Suspense fallback={<div className="h-10 w-full rounded-md bg-gray-200 animate-pulse" />}>
-          <SearchInput placeholder="Search by Student Number, Course, etc." />
-        </Suspense>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {filteredStudents.length > 0 ? (
+          filteredStudents.map((student) => {
+            const initials = `${student.student_fname?.[0] || ''}${student.student_lname?.[0] || ''}`;
+            
+            return (
+              <Link 
+                key={student.student_number} 
+                href={`/dashboard/checklist/student`}
+                className="group relative flex items-center justify-between p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#7b1113]/30 transition-all duration-200"
+              >
+                <div className="flex items-center gap-4 overflow-hidden">
+                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-[#7b1113] font-bold text-sm group-hover:bg-[#7b1113] group-hover:text-white transition-colors">
+                    {initials || <UserIcon className="h-5 w-5" />}
+                  </div>
+
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="text-[15px] text-[#3b0708] font-bold truncate group-hover:text-[#7b1113] transition-colors">
+                      {student.student_lname}, {student.student_fname} {student.student_mname}
+                    </span>
+                    <div className="flex flex-col text-[12px] text-gray-500 mt-0.5">
+                      <span className="font-medium">SN: {student.student_number}</span>
+                      <span className="italic opacity-80">SAIS ID: {student.student_sais_id || "N/A"}</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })
+        ) : (
+          <div className="col-span-full flex flex-col items-center justify-center py-24 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-200">
+            <p className="text-gray-400 italic text-lg">
+              {query ? `No results for "${query}"` : "No student records found."}
+            </p>
+          </div>
+        )}
       </div>
-      
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Student Number</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Course ID</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Grade</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Term</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {checklist && checklist.length > 0 ? (
-              checklist.map((row, index) => (
-                <tr key={index} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{row.student_number}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{row.course_id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 font-semibold">
-                    {row.grade ? Number(row.grade).toFixed(2) : "N/A"}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{row.term_taken}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-gray-500 italic">
-                  {query ? `No results for "${query}" in Batch ${year}` : "No records found."}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+
+      <div className="mt-8">
+        <Link 
+          href="/dashboard/checklist" 
+          className="inline-flex items-center gap-2 text-gray-400 hover:text-[#7b1113] transition-colors group"
+        >
+          <div className="p-2 rounded-full group-hover:bg-[#7b1113]/5">
+            <ArrowLeftIcon className="h-4 w-4" />
+          </div>
+          <span className="text-sm font-semibold uppercase tracking-wider">Back to Batch Folders</span>
+        </Link>
       </div>
     </div>
   );
