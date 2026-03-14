@@ -54,6 +54,7 @@ export default async function AcademicPapersPage({ searchParams }: SearchProps) 
 
       <Suspense fallback={<RowSkeleton />}>
         <PaperRows searchParams={searchParams} />
+        
       </Suspense>
     </div>
   );
