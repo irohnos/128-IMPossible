@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import NavLinks from '@/app/ui/dashboard/nav-links';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
@@ -32,13 +31,9 @@ export default function SideNav() {
         {isCollapsed ? <ChevronRightIcon className="w-4 h-4" /> : <ChevronLeftIcon className="w-4 h-4" />}
       </button>
 
-      <Link 
-        href="/dashboard/about" 
-        className={`flex h-16 items-center border-b border-[#7b1113]/10 transition-all duration-300 hover:bg-[#7b1113]/5 active:opacity-80 ${
-          isCollapsed ? 'justify-center px-0' : 'justify-start px-6 gap-4'
-          
-        }`}
-      >
+      <div className={`flex h-16 items-center border-b border-[#7b1113]/10 transition-all duration-300 ${
+        isCollapsed ? 'justify-center px-0' : 'justify-start px-6 gap-4'
+      }`}>
         <div className="shrink-0 flex items-center justify-center">
           <Image 
             src="/IM-TRANSPARENT.png" 
@@ -60,7 +55,7 @@ export default function SideNav() {
             </h1>
           </div>
         )}
-      </Link>
+      </div>
 
       <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden py-4">
         <div className="px-6 mb-2">

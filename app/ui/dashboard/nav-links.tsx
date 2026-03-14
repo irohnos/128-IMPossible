@@ -7,7 +7,8 @@ import {
   Squares2X2Icon, 
   BookOpenIcon, 
   ClipboardDocumentCheckIcon, 
-  RectangleStackIcon
+  RectangleStackIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 
 const links = [
@@ -15,6 +16,7 @@ const links = [
   { name: 'Student Papers', href: '/dashboard/papers', icon: RectangleStackIcon },
   { name: 'Student Checklist', href: '/dashboard/checklist', icon: ClipboardDocumentCheckIcon },
   { name: 'Handbook', href: '/dashboard/handbook', icon: BookOpenIcon },
+  { name: 'About Us', href: '/dashboard/about', icon: InformationCircleIcon},
 ];
 
 export default function NavLinks({ isCollapsed }: { isCollapsed: boolean }) {
