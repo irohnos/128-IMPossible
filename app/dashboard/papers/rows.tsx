@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { 
@@ -125,15 +124,15 @@ export default async function PaperRows({ searchParams }: RowProps) {
       return <ArrowsUpDownIcon className="ml-2 h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />;
     }
     return order === "asc" ? (
-      <ChevronUpIcon className="ml-2 h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />
+      <ChevronUpIcon className="ml-2 h-4 w-4 text-gray-500" />
     ) : (
-      <ChevronDownIcon className="ml-2 h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />
+      <ChevronDownIcon className="ml-2 h-4 w-4 text-gray-500" />
     );
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-8 border-b border-[#7b1113]/10 mb-6">
+    <div className="space-y-4 min-w-0 w-full">
+      <div className="flex items-center gap-4 sm:gap-8 border-b border-[#7b1113]/30 mb-6 overflow-x-auto scrollbar-none">
         {[
           { label: "All Papers", value: "all" },
           { label: "Theses", value: "thesis" },
@@ -146,7 +145,7 @@ export default async function PaperRows({ searchParams }: RowProps) {
               key={tab.value}
               href={getTabLink(tab.value)}
               className={`
-                relative pb-4 text-sm font-medium transition-all duration-200 ease-in-out
+                relative pb-4 text-sm font-medium transition-all duration-200 ease-in-out whitespace-nowrap shrink-0
                 ${isActive 
                   ? "text-[#7b1113]" 
                   : "text-gray-500 hover:text-[#7b1113]/70"
@@ -167,27 +166,29 @@ export default async function PaperRows({ searchParams }: RowProps) {
       </div>
     
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto w-full">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <Link href={getSortLink("paper_title")} className="group flex items-center hover:text-[#7b1113] transition-colors">
+              <th scope="col" className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[200px]">
+                <Link href={getSortLink("paper_title")} className="group flex items-center hover:text-zinc-900 transition-colors whitespace-nowrap">
                   Title <SortIcon column="paper_title" />
                 </Link>
               </th>
-              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Author/s</th>
-              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <Link href={getSortLink("paper_year_submitted")} className="group flex items-center hover:text-[#7b1113] transition-colors">
-                  Year <SortIcon column="paper_year_submitted"/>
+              <th scope="col" className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[180px]">Author/s</th>
+              <th scope="col" className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                <Link href={getSortLink("paper_year_submitted")} className="group flex items-center hover:text-zinc-900 transition-colors whitespace-nowrap">
+                  Year <SortIcon column="paper_year_submitted" />
                 </Link>
               </th>
               {type === "all" && (
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Type</th>
+                <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap hidden md:table-cell">Type</th>
               )}
-              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Adviser</th>
-              <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+              <th scope="col" className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap min-w-[180px]">Adviser</th>
+              <th scope="col" className="px-4 sm:px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Actions</th>
             </tr>
           </thead>
+
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedPapers.length > 0 ? (
               paginatedPapers.map((paper) => {
@@ -207,20 +208,30 @@ export default async function PaperRows({ searchParams }: RowProps) {
 
                 return (
                   <tr key={paper.paper_id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium leading-tight">
-                      <Modal id={paper.paper_id} title={paper.paper_title} type={paper.paper_type} pages={paper.paper_pages} summary={paper.paper_summary} references={paper.paper_references} />
+                    <td className="px-4 sm:px-6 py-4 text-sm font-medium">
+                      <div className="max-w-[200px] sm:max-w-xs lg:max-w-sm break-all" title={paper.paper_title}>
+                        <Modal 
+                          id={paper.paper_id} 
+                          title={paper.paper_title} 
+                          type={paper.paper_type} 
+                          pages={paper.paper_pages} 
+                          summary={paper.paper_summary} 
+                          references={paper.paper_references} 
+                          author={formattedAuthors} 
+                          adviser={formattedAdviser} />
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAuthors}>
+                    <td className="px-4 sm:px-6 py-4 text-sm text-gray-600 min-w-[180px] max-w-[240px] break-words whitespace-normal" title={formattedAuthors}>
                       {formattedAuthors}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_year_submitted}</td>
                     {type === "all" && (
                       <td className="px-6 py-4 text-sm text-gray-600">{paper.paper_type}</td>
                     )}
-                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAdviser}>
+                    <td className="px-4 sm:px-6 py-4 text-sm text-gray-600 min-w-[180px] max-w-[240px] break-words whitespace-normal" title={formattedAdviser}>
                       {formattedAdviser}
                     </td>                  
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><Actions paper={paper} /></td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><Actions paper={paper} /></td>
                   </tr>
                 );
               })
@@ -233,6 +244,7 @@ export default async function PaperRows({ searchParams }: RowProps) {
             )}
           </tbody>
         </table>
+        </div>
 
         {/*Pagination footer*/}
         {totalItems > 0 && (

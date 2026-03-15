@@ -34,27 +34,26 @@ export default async function AcademicPapersPage({ searchParams }: SearchProps) 
   
   return (
     <div className="max-w-auto mx-auto">
-      {/* Action Bar: Search, Filters, Add, and Upload */}
+    {/* Action Bar: Search, Filters, Add, and Upload */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-        <div className="w-full max-w-3xl">
+ 
+        <div className="w-full sm:max-w-3xl">
           <Suspense fallback={<div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />}>
             <SearchInput placeholder="Search Titles, Authors, Etc..." />
           </Suspense>
         </div>
-
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+ 
+        <div className="flex flex-row items-center gap-2 w-full sm:w-auto justify-end shrink-0">
           <Suspense fallback={<div className="h-9 w-24 rounded-lg bg-gray-200 animate-pulse" />}>
             <AddPaperWrapper />
           </Suspense>
           <UploadButton />
         </div>
-      
       </div>
-
+ 
       <Suspense fallback={<RowSkeleton />}>
         <PaperRows searchParams={searchParams} />
       </Suspense>
     </div>
   );
 }
-
