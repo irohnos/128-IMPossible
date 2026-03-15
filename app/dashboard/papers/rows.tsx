@@ -125,15 +125,15 @@ export default async function PaperRows({ searchParams }: RowProps) {
       return <ArrowsUpDownIcon className="ml-2 h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />;
     }
     return order === "asc" ? (
-      <ChevronUpIcon className="ml-2 h-4 w-4 text-gray-500" />
+      <ChevronUpIcon className="ml-2 h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />
     ) : (
-      <ChevronDownIcon className="ml-2 h-4 w-4 text-gray-500" />
+      <ChevronDownIcon className="ml-2 h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />
     );
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-8 border-b border-[#7b1113]/30 mb-6">
+      <div className="flex items-center gap-8 border-b border-[#7b1113]/10 mb-6">
         {[
           { label: "All Papers", value: "all" },
           { label: "Theses", value: "thesis" },
@@ -171,14 +171,14 @@ export default async function PaperRows({ searchParams }: RowProps) {
           <thead className="bg-gray-50">
             <tr>
               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <Link href={getSortLink("paper_title")} className="group flex items-center hover:text-zinc-900 transition-colors">
+                <Link href={getSortLink("paper_title")} className="group flex items-center hover:text-[#7b1113] transition-colors">
                   Title <SortIcon column="paper_title" />
                 </Link>
               </th>
               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Author/s</th>
               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <Link href={getSortLink("paper_year_submitted")} className="group flex items-center hover:text-zinc-900 transition-colors">
-                  Year <SortIcon column="paper_year_submitted" />
+                <Link href={getSortLink("paper_year_submitted")} className="group flex items-center hover:text-[#7b1113] transition-colors">
+                  Year <SortIcon column="paper_year_submitted"/>
                 </Link>
               </th>
               {type === "all" && (
