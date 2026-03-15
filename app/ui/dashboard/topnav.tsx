@@ -16,7 +16,18 @@ const routeTitles: Record<string, string> = {
 
 export default function TopNav() {
   const pathname = usePathname();
-  const currentTitle = routeTitles[pathname] || 'Management System';
+
+  const currentTitle = () => {
+    if (routeTitles[pathname]) return routeTitles[pathname];
+    if (pathname.startsWith('/dashboard/checklist/student/')) return 'Student Profile';
+    if (pathname.startsWith('/dashboard/checklist/')) {
+      const segments = pathname.split('/');
+      const lastSegment = segments[segments.length - 1];
+      return `Batch ${lastSegment} Profiles`;
+    }
+
+    return 'Management System';
+  };
 
   const navItemClassName = (isActive: boolean) =>
     clsx(
@@ -31,7 +42,7 @@ export default function TopNav() {
     <header className="flex h-16 items-center justify-between border-b border-[#7b1113]/10 bg-[#faf7f5] px-6">
       <div className="flex items-center">
         <h2 className="text-2xl font-bold tracking-tight text-[#7b1113]">
-          {currentTitle}
+          {currentTitle()}
         </h2>
       </div>
 
@@ -50,7 +61,7 @@ export default function TopNav() {
           onClick={() => {}}
           className={navItemClassName(false)}
         >
-          <ArrowLeftOnRectangleIcon className="w-6 h-6 text-[#7b1113] group-hover:text-[#7b1113]" />
+          <ArrowLeftOnRectangleIcon className="w-6 h-6 text-[#7b1113]" />
           <span className="hidden md:inline">Logout</span>
         </button>
       </div>
