@@ -1,0 +1,209 @@
+import { createClient } from '@/lib/supabase/server';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { 
+  ArrowLeftIcon,
+  IdentificationIcon, 
+  PhoneIcon,
+  EnvelopeIcon, 
+  AcademicCapIcon, 
+  CalendarIcon
+} from "@heroicons/react/24/outline";
+
+export default async function StudentProfilePage({ params } : { params: Promise<{ student_number: string }> }) {
+  const { student_number } = await params;
+  const supabase = await createClient();
+
+  const { data: student, error: studentError } = await supabase
+    .from('student')
+    .select(`
+      *, 
+      adviser:adviser_id (adviser_fname, adviser_lname),
+      admission_term:term_admitted (semester, academic_year)
+    `)
+    .eq('student_number', student_number)
+    .single();
+
+  if (studentError || !student) return notFound();
+
+  const { data: records } = await supabase
+    .from('checklist')
+    .select(`
+      *,
+      course:course_id (
+        course_units,
+        course_category
+      ),
+      term:term_taken (
+        semester,
+        academic_year
+      )
+    `)
+    .eq('student_number', student_number)
+    .order('term_taken', { ascending: true });
+
+  const groupedRecords: Record<string, { 
+    courses: any[], 
+    termUnits: number, 
+    termWeightedPoints: number,
+    termMetadata?: { semester: string; academic_year: number }
+  }> = {};
+  
+  let totalUnits = 0;
+  let weightedPoints = 0;
+
+  records?.forEach((record) => {
+    const termKey = `${record.term_taken}`;
+    if (!groupedRecords[termKey]) {
+      groupedRecords[termKey] = { courses: [], termUnits: 0, termWeightedPoints: 0, termMetadata: record.term };
+    }
+    
+    groupedRecords[termKey].courses.push(record);
+
+    const courseId = record.course_id.toUpperCase();
+    const isExcluded = courseId.includes('PE') || courseId.includes('NSTP');
+
+    if (!isExcluded) {
+      const grade = parseFloat(record.grade);
+      const units = record.course?.course_units || 0;
+
+      if (!isNaN(grade)) {
+        groupedRecords[termKey].termUnits += units;
+        groupedRecords[termKey].termWeightedPoints += (grade * units);
+
+        totalUnits += units;
+        weightedPoints += (grade * units);
+      }
+    }
+  });
+
+  const overallGwa = totalUnits > 0 ? (weightedPoints / totalUnits).toFixed(2) : "0.00";
+  const suffix = student.student_suffix ? ` ${student.student_suffix}` : "";
+
+  return (
+    <div className="max-w-auto mx-auto">
+      <div className="mb-8">
+        <Link href={`/dashboard/checklist/${student.admission_term?.academic_year}`} className="inline-flex items-center gap-2 text-gray-400 hover:text-[#7b1113] transition-colors group">
+          <ArrowLeftIcon className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-xs font-bold uppercase tracking-widest"> Back to Batch {student.admission_term?.academic_year} </span>
+        </Link>
+      </div>
+
+      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8 mb-10">
+        <div className="flex flex-col lg:flex-row gap-10 items-center">
+          <div className="flex-1 space-y-4">
+            <div>
+              <h1 className="text-3xl font-black text-[#3b0708] tracking-tight uppercase">
+                {student.student_lname}{suffix}, {student.student_fname} {student.student_mname}
+              </h1>
+              <p className="text-[#7b1113] font-bold flex items-center gap-2 mt-1 text-sm">
+                <IdentificationIcon className="h-4 w-4" />
+                Student Number: {student.student_number}
+                <span className="text-gray-300 mx-2">|</span>
+                SAIS ID: {student.student_sais_id}
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+              <div className="flex items-center gap-3 text-sm text-gray-600">
+                <PhoneIcon className="h-4 w-4" />
+                {student.student_contact_no || 'N/A'}
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <EnvelopeIcon className="h-4 w-4" />
+                <span>{student.student_email || 'N/A'}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+              <div className="flex items-center gap-3 text-sm text-gray-600">
+                <CalendarIcon className="h-4 w-4" />
+                {student.admission_term 
+                  ? `${student.admission_term.semester}, AY ${student.admission_term.academic_year}`
+                  : 'N/A'}
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <AcademicCapIcon className="h-4 w-4" />
+                <span>{student.adviser ? `Prof. ${student.adviser.adviser_fname} ${student.adviser.adviser_lname}` : 'No Adviser'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="bg-[#7b1113] text-white p-6 rounded-3xl text-center min-w-[120px]">
+              <p className="text-[10px] uppercase font-bold opacity-80 mb-1">Overall GWA</p>
+              <p className="text-3xl font-black">{overallGwa}</p>
+            </div>
+            <div className="bg-gray-50 border border-gray-100 p-6 rounded-3xl text-center min-w-[120px]">
+              <p className="text-[10px] uppercase font-bold text-gray-400 mb-1">Total Units</p>
+              <p className="text-3xl font-black text-[#3b0708]">{totalUnits}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-8">
+        {Object.keys(groupedRecords).length > 0 ? (
+          Object.entries(groupedRecords).map(([term, data]) => {
+            const termGwa = data.termUnits > 0 
+              ? (data.termWeightedPoints / data.termUnits).toFixed(2) 
+              : "0.00";
+
+            return (
+              <div key={term} className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
+                <div className="px-8 py-4 bg-[#faf7f5]/50 border-b border-gray-100 flex justify-between items-center">
+                  <h3 className="font-black text-[#7b1113] text-sm uppercase tracking-widest">
+                    {data.termMetadata 
+                      ? `${data.termMetadata.semester}, AY ${data.termMetadata.academic_year}`
+                      : `Term ${term}`}
+                  </h3>
+                  <div className="flex gap-6 text-[10px] font-black uppercase tracking-widest">
+                    <span className="text-sm text-gray-400">Total Units: <span className="text-[#3b0708]">{data.termUnits}</span></span>
+                    <span className="text-sm text-gray-400">GWA: <span className="text-[#3b0708]">{termGwa}</span></span>
+                  </div>
+                </div>
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-[10px] uppercase tracking-widest text-gray-400 font-black border-b border-gray-50">
+                      <th className="px-8 py-3">Course ID</th>
+                      <th className="px-8 py-3 text-center">Units</th>
+                      <th className="px-8 py-3 text-right">Grade</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {data.courses.map((record) => {
+                      const numericGrade = parseFloat(record.grade);
+                      const isPassing = !isNaN(numericGrade) && numericGrade < 3;
+                      
+                      return (
+                        <tr key={record.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-8 py-4 font-bold text-sm text-[#3b0708]">
+                            {record.course_id}
+                          </td>
+                          <td className="px-8 py-4 text-center text-sm text-gray-500">{record.course?.course_units}</td>
+                          <td className="px-8 py-4 text-right">
+                            <span className={`font-mono font-bold rounded-lg transition-colors ${
+                              isPassing 
+                                ? "bg-green-50 text-green-600"
+                                : "bg-[#7b1113]/5 text-[#7b1113]"
+                            }`}>
+                              {record.grade}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-20 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
+            <p className="text-gray-400 font-medium">No academic records found.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

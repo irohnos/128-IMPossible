@@ -23,7 +23,7 @@ export default function TopNav() {
     if (pathname.startsWith('/dashboard/checklist/')) {
       const segments = pathname.split('/');
       const lastSegment = segments[segments.length - 1];
-      return `Batch ${lastSegment} Profiles`;
+      return `Batch ${lastSegment}`;
     }
 
     return 'Management System';
