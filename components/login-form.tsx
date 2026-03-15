@@ -44,7 +44,7 @@ export function LoginForm({
   return (
     <form onSubmit={handleLogin} className={cn("space-y-6", className)} {...props}>
       <div className="space-y-2">
-        <label className="text-lg font-semibold text-slate-800">Your Email</label>
+        <label className="text-lg font-semibold text-[#7b1113]">Your Email</label>
         <Input
           id="email"
           type="email"
@@ -52,12 +52,12 @@ export function LoginForm({
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-4 bg-zinc-100 text-black border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+          className="w-full p-4 bg-gray-50 text-gray-700 border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
         />
       </div>
 
       <div className="space-y-2">
-        <label className="text-lg font-semibold text-slate-800">Password</label>
+        <label className="text-lg font-semibold text-[#7b1113]">Password</label>
         <div className="relative">
           <Input
             id="password"
@@ -66,30 +66,30 @@ export function LoginForm({
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-4 bg-zinc-100 text-black border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+            className="w-full p-4 bg-gray-50 text-gray-700 border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 focus:outline-none"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
           >
             {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
           </button>
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-[#8e171a]">{error}</p>}
 
       <Button 
         type="submit" 
-        className="w-full bg-slate-900 text-white py-4 rounded-lg font-bold hover:bg-slate-800 transition-colors shadow-lg" 
+        className="w-full bg-[#7b1113] text-white py-4 rounded-lg font-bold hover:bg-[#8e171a] transition-colors shadow-lg" 
         disabled={isLoading}
       >
         {isLoading ? "Signing In..." : "Sign In"}
       </Button>
 
       <div className="text-center mt-6">
-        <Link href="/auth/sign-up" className="text-sm text-blue-600 hover:underline">
+        <Link href="/auth/sign-up" className="text-sm text-[#7b1113] hover:underline">
           Don&apos;t have an account? Sign up
         </Link>
       </div>
