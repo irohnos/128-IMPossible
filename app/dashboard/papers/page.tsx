@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import PaperRows, { RowSkeleton } from "./rows";
 import UploadButton from "./upload-button";
 import SearchInput from "@/components/searchinput";
-import Pagination from "@/components/pagination";
 import { AddPaperActions } from "./actions";
 import { createClient } from "@/lib/supabase/server";
 
@@ -27,12 +26,12 @@ export type SearchProps = {
     sort?: string; 
     order?: "asc" | "desc";
     query?: string;
-    page?: number;
-    itemsPerPage?: number;}>;
+    page?: string;
+    itemsPerPage?: string;}>;
 };
 
 export default async function AcademicPapersPage({ searchParams }: SearchProps) {
-
+  
   return (
     <div className="max-w-auto mx-auto">
       {/* Action Bar: Search, Filters, Add, and Upload */}
@@ -54,7 +53,6 @@ export default async function AcademicPapersPage({ searchParams }: SearchProps) 
 
       <Suspense fallback={<RowSkeleton />}>
         <PaperRows searchParams={searchParams} />
-        
       </Suspense>
     </div>
   );

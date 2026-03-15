@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { 
@@ -7,19 +8,23 @@ import {
 } from "@heroicons/react/24/outline";
 import Modal from "./modal";
 import Actions from "./actions";
+import PaginationController from "@/components/pagination-controller";
 
 interface RowProps {
   searchParams: Promise<{ 
     sort?: string; 
     order?: "asc" | "desc"; 
     query?: string;
-    type?: string
+    type?: string;
+    page?: string;
   }>;
 }
 
 export default async function PaperRows({ searchParams }: RowProps) {
-  const { sort = "paper_title", order = "asc", query = "", type="all" } = await searchParams;
+  const { sort = "paper_title", order = "asc", query = "", type="all", page= "1" } = await searchParams;
   
+  const currentPage = Number(page);
+  const itemsPerPage = 10;
   const supabase = await createClient();
   
   let supabaseQuery = supabase
@@ -48,14 +53,14 @@ export default async function PaperRows({ searchParams }: RowProps) {
 
   const { data: rawPapers, error } = await supabaseQuery.order(sort, { ascending: order === "asc" });
 
-  let papers = rawPapers;
+  let papers = rawPapers || [];
 
-  if (papers && type !== "all") {
+  if (papers.length > 0 && type !== "all") {
     const targetType = type === "thesis" ? "Thesis" : "Strategic Paper";
     papers = papers.filter(p => p.paper_type === targetType);
   }
 
-  if (!error && query){
+  if (!error && query && papers.length > 0){
     const q = query.toLowerCase();
 
     papers = rawPapers?.filter((paper) => {
@@ -97,9 +102,16 @@ export default async function PaperRows({ searchParams }: RowProps) {
     });
   }
 
+  // Calculation for pagination
+  const totalItems = papers.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedPapers = papers.slice(startIndex, startIndex + itemsPerPage);
+
   const getSortLink = (column: string) => {
     const newOrder = sort === column && order === "asc" ? "desc" : "asc";
-    const base = `?sort=${column}&order=${newOrder}&type=${type}`;
+    const base = `?sort=${column}&order=${newOrder}&type=${type}&page=1`;
     return query ? `${base}&query=${encodeURIComponent(query)}` : base;
   };
 
@@ -177,8 +189,8 @@ export default async function PaperRows({ searchParams }: RowProps) {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {papers && papers.length > 0 ? (
-              papers.map((paper) => {
+            {paginatedPapers.length > 0 ? (
+              paginatedPapers.map((paper) => {
                 const adv = Array.isArray(paper.adviser) ? paper.adviser[0] : paper.adviser;
                 const middleInitial = adv?.adviser_mname ? `${adv.adviser_mname.charAt(0)}. ` : "";
                 const formattedAdviser = adv 
@@ -221,6 +233,18 @@ export default async function PaperRows({ searchParams }: RowProps) {
             )}
           </tbody>
         </table>
+
+        {/*Pagination footer*/}
+        {totalItems > 0 && (
+          <div className="px-6 py-4 border-t border-gray-200 bg-[#faf7f5]">
+            <PaginationController 
+              currentPage = {currentPage}
+              totalPages = {totalPages}
+              totalItems = {totalItems}
+              itemsPerPage = {itemsPerPage}
+            />
+          </div> 
+        )}
       </div>
     </div>
   );
