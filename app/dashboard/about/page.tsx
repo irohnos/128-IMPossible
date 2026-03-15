@@ -48,7 +48,7 @@ export default async function Page() {
               ].map((item, index) => (
                 <li key={index} className="flex items-start gap-3">
                   <span className={`mt-1.5 h-2 w-2 rounded-full ${theme.primaryBg} shrink-0`} />
-                  <span className="text-sm text-[#3b0708]/80">{item}</span>
+                  <span className="text-[#3b0708]/80">{item}</span>
                 </li>
               ))}
             </ul>

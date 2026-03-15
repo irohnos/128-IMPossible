@@ -62,6 +62,7 @@ export default async function BatchChecklistPage({
         {filteredStudents.length > 0 ? (
           filteredStudents.map((student) => {
             const initials = `${student.student_fname?.[0] || ''}${student.student_lname?.[0] || ''}`;
+            const suffix = student.student_suffix ? ` ${student.student_suffix}` : "";
             
             return (
               <Link 
@@ -76,7 +77,7 @@ export default async function BatchChecklistPage({
 
                   <div className="flex flex-col overflow-hidden">
                     <span className="text-[15px] text-[#3b0708] font-bold truncate group-hover:text-[#7b1113] transition-colors">
-                      {student.student_lname}, {student.student_fname} {student.student_mname}
+                      {student.student_lname}{suffix}, {student.student_fname} {student.student_mname}
                     </span>
                     <div className="flex flex-col text-[12px] text-gray-500 mt-0.5">
                       <span className="font-medium">SN: {student.student_number}</span>
@@ -97,14 +98,9 @@ export default async function BatchChecklistPage({
       </div>
 
       <div className="mt-8">
-        <Link 
-          href="/dashboard/checklist" 
-          className="inline-flex items-center gap-2 text-gray-400 hover:text-[#7b1113] transition-colors group"
-        >
-          <div className="p-2 rounded-full group-hover:bg-[#7b1113]/5">
-            <ArrowLeftIcon className="h-4 w-4" />
-          </div>
-          <span className="text-sm font-semibold uppercase tracking-wider">Back to Batch Folders</span>
+        <Link href="/dashboard/checklist" className="inline-flex items-center gap-2 text-gray-400 hover:text-[#7b1113] transition-colors group">
+          <ArrowLeftIcon className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-xs font-bold uppercase tracking-widest">Back to Batch Folders</span>
         </Link>
       </div>
     </div>
