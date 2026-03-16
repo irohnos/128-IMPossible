@@ -1,9 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Image from 'next/image';
 import NavLinks from '@/app/ui/dashboard/nav-links';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+
+function NavLinksSkeleton(){
+  return <div className="animate-pulse bg-[#7b1113] w-full rounded-md" />
+}
 
 export default function SideNav() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -56,7 +60,9 @@ export default function SideNav() {
         </div>
         
         <nav className="space-y-1">
-          <NavLinks isCollapsed={isCollapsed} />
+          <Suspense fallback = {<NavLinksSkeleton />}>
+            <NavLinks isCollapsed={isCollapsed} />
+          </Suspense>
         </nav>
       </div>
     </aside>
