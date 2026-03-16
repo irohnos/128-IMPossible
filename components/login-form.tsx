@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 // import { Label } from "@/components/ui/label";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { EyeOff, Eye } from "lucide-react";
@@ -87,12 +86,6 @@ export function LoginForm({
       >
         {isLoading ? "Signing In..." : "Sign In"}
       </Button>
-
-      <div className="text-center mt-6">
-        <Link href="/auth/sign-up" className="text-sm text-maroon hover:underline">
-          Don&apos;t have an account? Sign up
-        </Link>
-      </div>
     </form>
   );
 }
