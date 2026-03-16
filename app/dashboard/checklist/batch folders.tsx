@@ -40,11 +40,11 @@ export default async function Folder({
         <Link href={`/dashboard/checklist/${year}`} key={year}>
           <div className="group flex flex-col items-start px-4 cursor-pointer">
             <div className="relative w-20 h-16 mb-3 transition-transform duration-200 group-hover:-translate-y-1">
-              <div className="absolute top-0 left-0 w-8 h-2 bg-[#7b1113] rounded-t-sm transition-colors group-hover:bg-[#7b1113]" />
-              <div className="absolute bottom-0 w-full h-14 bg-[#7B1113] opacity-50 rounded-tr-sm rounded-b-sm shadow-sm transition-all duration-300 group-hover:opacity-100 group-hover:h-12" />
-              <div className="absolute bottom-0 w-full h-12 bg-[#BD8889] rounded-b-sm origin-bottom transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:skew-x-[-15deg] group-hover:scale-y-[1.1]" />
+              <div className="absolute top-0 left-0 w-8 h-2 bg-maroon rounded-t-sm transition-colors group-hover:bg-maroon" />
+              <div className="absolute bottom-0 w-full h-14 bg-maroon opacity-50 rounded-tr-sm rounded-b-sm shadow-sm transition-all duration-300 group-hover:opacity-100 group-hover:h-12" />
+              <div className="absolute bottom-0 w-full h-12 bg-red-100 rounded-b-sm origin-bottom transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:skew-x-[-15deg] group-hover:scale-y-[1.1]" />
             </div>
-            <p className="text-sm font-medium text-[#7b1113] opacity-70 text-center transition-colors text-center leading-relaxed">
+            <p className="text-sm font-medium text-maroon opacity-70 text-center transition-colors text-center leading-relaxed">
               Batch {year}
             </p>
           </div>

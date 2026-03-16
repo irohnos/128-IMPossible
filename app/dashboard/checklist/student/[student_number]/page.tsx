@@ -83,7 +83,7 @@ export default async function StudentProfilePage({ params } : { params: Promise<
   return (
     <div className="max-w-auto mx-auto">
       <div className="mb-8">
-        <Link href={`/dashboard/checklist/${student.admission_term?.academic_year}`} className="inline-flex items-center gap-2 text-gray-400 hover:text-[#7b1113] transition-colors group">
+        <Link href={`/dashboard/checklist/${student.admission_term?.academic_year}`} className="inline-flex items-center gap-2 text-gray-400 hover:text-maroon transition-colors group">
           <ArrowLeftIcon className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
           <span className="text-xs font-bold uppercase tracking-widest"> Back to Batch {student.admission_term?.academic_year} </span>
         </Link>
@@ -93,10 +93,10 @@ export default async function StudentProfilePage({ params } : { params: Promise<
         <div className="flex flex-col lg:flex-row gap-10 items-center">
           <div className="flex-1 space-y-4">
             <div>
-              <h1 className="text-3xl font-black text-[#3b0708] tracking-tight uppercase">
+              <h1 className="text-3xl font-black text-maroon-900 tracking-tight uppercase">
                 {student.student_lname}{suffix}, {student.student_fname} {student.student_mname}
               </h1>
-              <p className="text-[#7b1113] font-bold flex items-center gap-2 mt-1 text-sm">
+              <p className="text-maroon font-bold flex items-center gap-2 mt-1 text-sm">
                 <IdentificationIcon className="h-4 w-4" />
                 Student Number: {student.student_number}
                 <span className="text-gray-300 mx-2">|</span>
@@ -130,13 +130,13 @@ export default async function StudentProfilePage({ params } : { params: Promise<
           </div>
 
           <div className="flex gap-4">
-            <div className="bg-[#7b1113] text-white p-6 rounded-3xl text-center min-w-[120px]">
+            <div className="bg-maroon text-white p-6 rounded-3xl text-center min-w-[120px]">
               <p className="text-[10px] uppercase font-bold opacity-80 mb-1">Overall GWA</p>
               <p className="text-3xl font-black">{overallGwa}</p>
             </div>
             <div className="bg-gray-50 border border-gray-100 p-6 rounded-3xl text-center min-w-[120px]">
               <p className="text-[10px] uppercase font-bold text-gray-400 mb-1">Total Units</p>
-              <p className="text-3xl font-black text-[#3b0708]">{totalUnits}</p>
+              <p className="text-3xl font-black text-maroon-900">{totalUnits}</p>
             </div>
           </div>
         </div>
@@ -151,15 +151,15 @@ export default async function StudentProfilePage({ params } : { params: Promise<
 
             return (
               <div key={term} className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
-                <div className="px-8 py-4 bg-[#faf7f5]/50 border-b border-gray-100 flex justify-between items-center">
-                  <h3 className="font-black text-[#7b1113] text-sm uppercase tracking-widest">
+                <div className="px-8 py-4 bg-red-50/50 border-b border-gray-100 flex justify-between items-center">
+                  <h3 className="font-black text-maroon text-sm uppercase tracking-widest">
                     {data.termMetadata 
                       ? `${data.termMetadata.semester}, AY ${data.termMetadata.academic_year}`
                       : `Term ${term}`}
                   </h3>
                   <div className="flex gap-6 text-[10px] font-black uppercase tracking-widest">
-                    <span className="text-sm text-gray-400">Total Units: <span className="text-[#3b0708]">{data.termUnits}</span></span>
-                    <span className="text-sm text-gray-400">GWA: <span className="text-[#3b0708]">{termGwa}</span></span>
+                    <span className="text-sm text-gray-400">Total Units: <span className="text-maroon-900">{data.termUnits}</span></span>
+                    <span className="text-sm text-gray-400">GWA: <span className="text-maroon-900">{termGwa}</span></span>
                   </div>
                 </div>
                 <table className="w-full text-left">
@@ -177,15 +177,15 @@ export default async function StudentProfilePage({ params } : { params: Promise<
                       
                       return (
                         <tr key={record.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-8 py-4 font-bold text-sm text-[#3b0708]">
+                          <td className="px-8 py-4 font-bold text-sm text-maroon-900">
                             {record.course_id}
                           </td>
                           <td className="px-8 py-4 text-center text-sm text-gray-500">{record.course?.course_units}</td>
                           <td className="px-8 py-4 text-right">
-                            <span className={`font-mono font-bold rounded-lg transition-colors ${
+                            <span className={`font-mono font-bold rounded-lg transition-colors p-1 ${
                               isPassing 
-                                ? "bg-green-50 text-green-600"
-                                : "bg-[#7b1113]/5 text-[#7b1113]"
+                                ? "bg-green/10 text-green"
+                                : "bg-maroon/10 text-maroon"
                             }`}>
                               {record.grade}
                             </span>

@@ -40,7 +40,7 @@ export default async function BatchChecklistPage({
   if (error) {
     return (
       <div className="p-10 text-center">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg inline-block">
+        <div className="bg-red-50 border border-red-100 text-red px-4 py-3 rounded-lg inline-block">
           <p className="font-bold">Database Error</p>
           <p className="text-sm">{error.message}</p>
         </div>
@@ -68,15 +68,15 @@ export default async function BatchChecklistPage({
               <Link 
                 key={student.student_number} 
                 href={`/dashboard/checklist/student/${student.student_number}`}
-                className="group relative flex items-center justify-between p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#7b1113]/30 transition-all duration-200"
+                className="group relative flex items-center justify-between p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-maroon/30 transition-all duration-200"
               >
                 <div className="flex items-center gap-4 overflow-hidden">
-                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-[#7b1113] font-bold text-sm group-hover:bg-[#7b1113] group-hover:text-white transition-colors">
+                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-maroon font-bold text-sm group-hover:bg-maroon group-hover:text-white transition-colors">
                     {initials || <UserIcon className="h-5 w-5" />}
                   </div>
 
                   <div className="flex flex-col overflow-hidden">
-                    <span className="text-[15px] text-[#3b0708] font-bold truncate group-hover:text-[#7b1113] transition-colors">
+                    <span className="text-[15px] text-maroon-900 font-bold truncate group-hover:text-maroon transition-colors">
                       {student.student_lname}{suffix}, {student.student_fname} {student.student_mname}
                     </span>
                     <div className="flex flex-col text-[12px] text-gray-500 mt-0.5">
@@ -98,7 +98,7 @@ export default async function BatchChecklistPage({
       </div>
 
       <div className="mt-8">
-        <Link href="/dashboard/checklist" className="inline-flex items-center gap-2 text-gray-400 hover:text-[#7b1113] transition-colors group">
+        <Link href="/dashboard/checklist" className="inline-flex items-center gap-2 text-gray-400 hover:text-maroon transition-colors group">
           <ArrowLeftIcon className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
           <span className="text-xs font-bold uppercase tracking-widest">Back to Batch Folders</span>
         </Link>

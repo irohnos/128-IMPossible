@@ -65,7 +65,7 @@ export function UpdatePasswordForm({
   return (
     <form onSubmit={handleForgotPassword} className={cn("space-y-6", className)} {...props}>
       <div className="space-y-2">
-        <label className="text-lg font-semibold text-[#7b1113]">New Password</label>
+        <label className="text-lg font-semibold text-maroon">New Password</label>
         <div className="relative">
           <Input
             id="password"
@@ -87,7 +87,7 @@ export function UpdatePasswordForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-lg font-semibold text-[#7b1113]">Confirm New Password</label>
+        <label className="text-lg font-semibold text-maroon">Confirm New Password</label>
         <div className="relative">
           <Input
             id="confirmPassword"
@@ -108,12 +108,12 @@ export function UpdatePasswordForm({
         </div>
       </div>
 
-      {error && <p className="text-sm text-[#8e171a]">{error}</p>}
-      {message && <p className="text-sm text-[#014421] font-medium">{message}</p>}
+      {error && <p className="text-sm text-red">{error}</p>}
+      {message && <p className="text-sm text-green font-medium">{message}</p>}
 
       <Button 
         type="submit" 
-        className="w-full bg-[#7b1113] text-white py-4 rounded-lg font-bold hover:bg-[#5a0d0f] transition-colors shadow-lg" 
+        className="w-full bg-maroon text-white py-4 rounded-lg font-bold hover:bg-maroon-800 transition-colors shadow-lg" 
         disabled={isLoading}
       >
         {isLoading ? "Saving New Password..." : "Save New Password"}

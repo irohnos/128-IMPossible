@@ -54,7 +54,7 @@ export function SignUpForm({
   return (
     <form onSubmit={handleSignUp} className={cn("space-y-6", className)} {...props}>
       <div className="space-y-2">
-        <label className="text-lg font-semibold text-[#7b1113]">Your Email</label>
+        <label className="text-lg font-semibold text-maroon">Your Email</label>
         <Input
           id="email"
           type="email"
@@ -67,7 +67,7 @@ export function SignUpForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-lg font-semibold text-[#7b1113]">Password</label>
+        <label className="text-lg font-semibold text-maroon">Password</label>
         <div className="relative">
           <Input
             id="password"
@@ -89,7 +89,7 @@ export function SignUpForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-lg font-semibold text-[#7b1113]">Confirm Password</label>
+        <label className="text-lg font-semibold text-maroon">Confirm Password</label>
         <div className="relative">
           <Input
             id="repeat-password"
@@ -110,18 +110,18 @@ export function SignUpForm({
         </div>
       </div>
 
-      {error && <p className="text-sm text-[#8e171a]">{error}</p>}
+      {error && <p className="text-sm text-red">{error}</p>}
 
       <Button 
         type="submit" 
-        className="w-full bg-[#7b1113] text-white py-4 rounded-lg font-bold hover:bg-[#5a0d0f] transition-colors shadow-lg" 
+        className="w-full bg-maroon text-white py-4 rounded-lg font-bold hover:bg-maroon-800 transition-colors shadow-lg" 
         disabled={isLoading}
       >
         {isLoading ? "Creating Account..." : "Sign Up"}
       </Button>
 
       <div className="text-center mt-6">
-        <Link href="/auth/login" className="text-sm text-[#7b1113] hover:underline">
+        <Link href="/auth/login" className="text-sm text-maroon hover:underline">
           Already have an account? Login
         </Link>
       </div>

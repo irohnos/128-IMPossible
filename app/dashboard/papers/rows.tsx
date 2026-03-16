@@ -133,7 +133,7 @@ export default async function PaperRows({ searchParams }: RowProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-8 border-b border-[#7b1113]/10 mb-6">
+      <div className="flex items-center gap-8 border-b border-maroon/10 mb-6">
         {[
           { label: "All Papers", value: "all" },
           { label: "Theses", value: "thesis" },
@@ -148,8 +148,8 @@ export default async function PaperRows({ searchParams }: RowProps) {
               className={`
                 relative pb-4 text-sm font-medium transition-all duration-200 ease-in-out
                 ${isActive 
-                  ? "text-[#7b1113]" 
-                  : "text-gray-500 hover:text-[#7b1113]/70"
+                  ? "text-maroon" 
+                  : "text-gray-500 hover:text-maroon/70"
                 }
               `}
             >
@@ -157,7 +157,7 @@ export default async function PaperRows({ searchParams }: RowProps) {
 
               {isActive && (
                 <span 
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7b1113] rounded-t-full" 
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-maroon rounded-t-full" 
                   aria-hidden="true"
                 />
               )}
@@ -171,13 +171,13 @@ export default async function PaperRows({ searchParams }: RowProps) {
           <thead className="bg-gray-50">
             <tr>
               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <Link href={getSortLink("paper_title")} className="group flex items-center hover:text-[#7b1113] transition-colors">
+                <Link href={getSortLink("paper_title")} className="group flex items-center hover:text-maroon transition-colors">
                   Title <SortIcon column="paper_title" />
                 </Link>
               </th>
               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Author/s</th>
               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <Link href={getSortLink("paper_year_submitted")} className="group flex items-center hover:text-[#7b1113] transition-colors">
+                <Link href={getSortLink("paper_year_submitted")} className="group flex items-center hover:text-maroon transition-colors">
                   Year <SortIcon column="paper_year_submitted"/>
                 </Link>
               </th>
@@ -236,7 +236,7 @@ export default async function PaperRows({ searchParams }: RowProps) {
 
         {/*Pagination footer*/}
         {totalItems > 0 && (
-          <div className="px-6 py-4 border-t border-gray-200 bg-[#faf7f5]">
+          <div className="px-6 py-4 border-t border-gray-200 bg-red-50">
             <PaginationController 
               currentPage = {currentPage}
               totalPages = {totalPages}

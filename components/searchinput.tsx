@@ -159,7 +159,7 @@ export default function SearchInput({
           regex.test(part) ? (
             <mark
               key={i}
-              className="bg-transparent text-[#014421] font-semibold"
+              className="bg-transparent text-green font-semibold"
             >
               {part}
             </mark>
@@ -184,7 +184,7 @@ export default function SearchInput({
         aria-expanded={isOpen}
         aria-controls="suggestions-listbox"
         placeholder={placeholder}
-        className="flex h-9 w-full rounded-md border border-[#d1d5db] bg-transparent pl-9 pr-8 py-1 text-sm shadow-sm transition-colors placeholder:text-[#6b7280] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#7b1113] hover:border-[#7b1113] focus:border-[#7b1113]"
+        className="flex h-9 w-full rounded-md border border-[#d1d5db] bg-transparent pl-9 pr-8 py-1 text-sm shadow-sm transition-colors placeholder:text-[#6b7280] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-maroon hover:border-maroon focus:border-maroon"
         value={searchTerm}
         onChange={(e) => {
           setSearchTerm(e.target.value);
@@ -206,7 +206,7 @@ export default function SearchInput({
             type="button"
             onClick={handleClear}
             aria-label="Clear search"
-            className="text-[#6b7280] hover:text-[#7b1113] transition-colors"
+            className="text-[#6b7280] hover:text-maroon transition-colors"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -233,7 +233,7 @@ export default function SearchInput({
             }}
             className={`
               flex items-center gap-2.5 px-3 py-2 text-sm cursor-pointer
-              transition-colors duration-75 select-none text-[#111827] hover:bg-[#fdf5f5] hover:text-[#7b1113]
+              transition-colors duration-75 select-none text-[#111827] hover:bg-[#fdf5f5] hover:text-maroon
               ${index !== suggestions.length - 1 ? "border-b border-[#f3f4f6]" : ""}
             `}
           >

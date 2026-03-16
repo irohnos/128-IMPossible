@@ -17,7 +17,7 @@ export default function StudentChecklistPage({
         </div>
       </div>
 
-      <Suspense fallback={<div className="text-center py-20 text-[#7b1113] opacity-40 italic">Loading batches...</div>}>
+      <Suspense fallback={<div className="text-center py-20 text-maroon/40 italic">Loading batches...</div>}>
         <FolderGrid searchParams={searchParams} />
       </Suspense>
     </div>

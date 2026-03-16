@@ -53,14 +53,14 @@ export default function PaperActions({ paper }: { paper: any }) {
     <div className="flex justify-end gap-3">
       <button 
         onClick={() => setIsEditOpen(true)} 
-        className="text-zinc-400 hover:text-[#f3aa2c] transition-colors"
+        className="text-zinc-400 hover:text-yellow transition-colors"
       >
         <PencilSquareIcon className="w-5 h-5" />
       </button>
 
       <button 
         onClick={() => setIsDeleteConfirmOpen(true)} 
-        className="text-zinc-400 hover:text-[#7b1113] transition-colors"
+        className="text-zinc-400 hover:text-maroon transition-colors"
       >
         <TrashIcon className="w-5 h-5" />
       </button>
@@ -73,22 +73,22 @@ export default function PaperActions({ paper }: { paper: any }) {
           />
 
           <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#7b1113] mb-4 shrink-0">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-maroon mb-4 shrink-0">
               <ExclamationTriangleIcon className="h-6 w-6 text-white" />
             </div>
             
-            <h3 className="text-lg font-bold text-[#7b1113] text-center">Confirm Deletion</h3>
+            <h3 className="text-lg font-bold text-maroon text-center">Confirm Deletion</h3>
 
             <div className="mt-2 w-full">
               <p className="text-sm text-gray-500 text-center leading-relaxed break-words">
                 Are you sure you want to delete <br />
-                <span className="text-[#3b0708] block my-1 px-2 italic">{paper.paper_title}?</span>
+                <span className="text-maroon-900 block my-1 px-2 italic">{paper.paper_title}?</span>
                 <span className="text-gray-500 block">This action cannot be undone.</span>
               </p>
             </div>
             
             {error && (
-              <p className="mt-3 w-full text-xs text-red-600 font-medium bg-red-50 p-2 rounded border border-red-100 break-words text-center">
+              <p className="mt-3 w-full text-xs text-red font-medium bg-red-50 p-2 rounded border border-red-100 break-words text-center">
                 {error}
               </p>
             )}
@@ -97,14 +97,14 @@ export default function PaperActions({ paper }: { paper: any }) {
               <button 
                 onClick={() => setIsDeleteConfirmOpen(false)}
                 disabled={isProcessing}
-                className="px-5 py-2 text-sm font-semibold text-gray-700 hover:text-[#7b1113] transition-colors"
+                className="px-5 py-2 text-sm font-semibold text-gray-700 hover:text-maroon transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleDelete}
                 disabled={isProcessing}
-                className="px-6 py-2 bg-[#7b1113] text-white rounded-lg text-sm font-bold hover:bg-[#5a0d0f] disabled:bg-zinc-400 transition-all active:scale-95 shadow-md"
+                className="px-6 py-2 bg-maroon text-white rounded-lg text-sm font-bold hover:bg-maroon-800 disabled:bg-zinc-400 transition-all active:scale-95 shadow-md"
               >
                 {isProcessing ? "Deleting..." : "Delete"}
               </button>
@@ -118,21 +118,21 @@ export default function PaperActions({ paper }: { paper: any }) {
           <div className="absolute inset-0 bg-zinc-900/40 backdrop-blur-sm" onClick={() => !isProcessing && setIsEditOpen(false)} />
           
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#faf7f5] shrink-0">
-              <h2 className="text-lg font-bold text-[#7b1113]">Update Paper Record — #{paper.paper_id}</h2>
-              <button onClick={() => setIsEditOpen(false)} className="p-2 text-gray-700 hover:text-white hover:bg-[#7b1113] rounded-lg transition-colors">✕</button>
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50 shrink-0">
+              <h2 className="text-lg font-bold text-maroon">Update Paper Record — #{paper.paper_id}</h2>
+              <button onClick={() => setIsEditOpen(false)} className="p-2 text-gray-700 hover:text-white hover:bg-maroon rounded-lg transition-colors">✕</button>
             </div>
 
             <form action={handleEdit} className="flex flex-col flex-1 overflow-hidden">
               <div className="flex-1 overflow-y-auto p-6 space-y-5">
                 {error && (
-                  <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100 break-words">
+                  <div className="p-3 bg-red-50 text-red text-sm rounded-lg border border-red-100 break-words">
                     {error}
                   </div>
                 )}
                 
                 <div className="text-left">
-                  <label className="block text-xs font-bold text-[#3b0708] uppercase tracking-widest mb-1.5">Paper Title</label>
+                  <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Paper Title</label>
                   <input 
                     name="paper_title"
                     defaultValue={paper.paper_title}
@@ -143,7 +143,7 @@ export default function PaperActions({ paper }: { paper: any }) {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="text-left">
-                    <label className="block text-xs font-bold text-[#3b0708] uppercase tracking-widest mb-1.5">Year Submitted</label>
+                    <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Year Submitted</label>
                     <input 
                       name="paper_year_submitted" 
                       type="number" 
@@ -155,7 +155,7 @@ export default function PaperActions({ paper }: { paper: any }) {
                     />
                   </div>
                   <div className="text-left">
-                    <label className="block text-xs font-bold text-[#3b0708] uppercase tracking-widest mb-1.5">Total Pages</label>
+                    <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Total Pages</label>
                     <input 
                       name="paper_pages" 
                       type="number" 
@@ -168,7 +168,7 @@ export default function PaperActions({ paper }: { paper: any }) {
                 </div>
 
                 <div className="text-left">
-                  <label className="block text-xs font-bold text-[#3b0708] uppercase tracking-widest mb-1.5">Summary</label>
+                  <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Summary</label>
                   <textarea 
                     name="paper_summary"
                     rows={5}
@@ -178,7 +178,7 @@ export default function PaperActions({ paper }: { paper: any }) {
                 </div>
 
                 <div className="text-left">
-                  <label className="block text-xs font-bold text-[#3b0708] uppercase tracking-widest mb-1.5">References</label>
+                  <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">References</label>
                   <textarea 
                     name="paper_references"
                     rows={5}
@@ -188,9 +188,9 @@ export default function PaperActions({ paper }: { paper: any }) {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-[#faf7f5] shrink-0">
-                <button type="button" onClick={() => setIsEditOpen(false)} className="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-[#7b1113] transition-colors">Cancel</button>
-                <button type="submit" disabled={isProcessing} className="px-6 py-2 bg-[#7b1113] text-white rounded-lg text-sm font-bold hover:bg-[#5a0d0f] disabled:bg-zinc-400 transition-all active:scale-95 shadow-md">
+              <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-red-50 shrink-0">
+                <button type="button" onClick={() => setIsEditOpen(false)} className="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-maroon transition-colors">Cancel</button>
+                <button type="submit" disabled={isProcessing} className="px-6 py-2 bg-maroon text-white rounded-lg text-sm font-bold hover:bg-maroon-800 disabled:bg-zinc-400 transition-all active:scale-95 shadow-md">
                   {isProcessing ? "Processing..." : "Save Updates"}
                 </button>
               </div>
@@ -255,7 +255,7 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
 
   return (
     <>
-      <button onClick={() => setIsOpen(true)} className="flex items-center gap-2 bg-[#7b1113] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#5a0d0f] transition-all active:scale-95 shadow-sm">
+      <button onClick={() => setIsOpen(true)} className="flex items-center gap-2 bg-maroon text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-maroon-800 transition-all active:scale-95 shadow-sm">
         <PlusIcon className="w-5 h-5" /> Add Paper
       </button>
 
@@ -271,7 +271,7 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
 
             <form action={handleAdd} className="flex flex-col flex-1 overflow-hidden">
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                {error && <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100">{error}</div>}
+                {error && <div className="p-3 bg-red-50 text-red text-sm rounded-lg border border-red-100">{error}</div>}
                 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-b pb-1">
@@ -279,7 +279,7 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
                     <button
                       type="button"
                       onClick={addAuthor}
-                      className="flex items-center gap-1 text-xs font-bold text-zinc-600 hover:text-[#014421] transition-colors"
+                      className="flex items-center gap-1 text-xs font-bold text-zinc-600 hover:text-green transition-colors"
                     >
                       <PlusIcon className="w-3.5 h-3.5" /> Add Author
                     </button>
@@ -290,7 +290,7 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
                       {authors.length > 1 && (
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-semibold text-zinc-400">Author {index + 1}</span>
-                          <button type="button" onClick={() => removeAuthor(index)} className="text-xs text-[#7b1113] hover:text-red-500">Remove</button>
+                          <button type="button" onClick={() => removeAuthor(index)} className="text-xs text-maroon hover:text-orange">Remove</button>
                         </div>
                       )}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -362,8 +362,8 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
               </div>
 
               <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 shrink-0">
-                <button type="button" onClick={() => setIsOpen(false)} className="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-[#7b1113] transition-colors">Cancel</button>
-                <button type="submit" disabled={isProcessing} className="px-6 py-2 bg-[#7b1113] text-white rounded-lg text-sm font-bold hover:bg-[#5a0d0f] disabled:bg-zinc-400 transition-all active:scale-95 shadow-md">
+                <button type="button" onClick={() => setIsOpen(false)} className="px-5 py-2 text-sm font-semibold text-gray-600 hover:text-maroon transition-colors">Cancel</button>
+                <button type="submit" disabled={isProcessing} className="px-6 py-2 bg-maroon text-white rounded-lg text-sm font-bold hover:bg-maroon-800 disabled:bg-zinc-400 transition-all active:scale-95 shadow-md">
                   {isProcessing ? "Saving..." : "Create Paper"}
                 </button>
               </div>

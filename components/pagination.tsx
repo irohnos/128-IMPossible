@@ -33,12 +33,12 @@ if (totalItems === 0) return null;
     return pages.filter((page, index) => page !== "..." || pages[index - 1] !== "...");
   };
 
-  const navBtnClass = "flex items-center justify-center h-9 w-9 rounded-full bg-[#7b1113] text-white border-2 border-[#7b1113] hover:bg-[#faf7f5] hover:text-[#7b1113] hover:border-[#7b1113] hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm";
+  const navBtnClass = "flex items-center justify-center h-9 w-9 rounded-full bg-maroon text-white border-2 border-maroon hover:bg-red-50 hover:text-maroon hover:border-maroon hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm";
   const numberBtnClass = "h-8 w-8 rounded-full flex items-center justify-center text-sm transition-all border";    
     
     return (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
-          <div className="text-sm text-[#7b1113]">
+          <div className="text-sm text-maroon">
             Showing <span className="font-semibold ">{startItem}</span> to{" "}
             <span className="font-semibold">{endItem}</span> of{" "}
             <span className="font-semibold">{totalItems}</span> results
@@ -53,7 +53,7 @@ if (totalItems === 0) return null;
             <ChevronLeft className="h-5 w-5" />
           </button>
 
-        <div className="flex items-center gap-1.5 bg-[#faf7f5]">
+        <div className="flex items-center gap-1.5 bg-red-50">
           {getPageNumbers().map((page, idx) => (
             <button
               key={idx}
@@ -61,8 +61,8 @@ if (totalItems === 0) return null;
               onClick={() => typeof page === "number" && onPageChange(page)}
               className={`${numberBtnClass} ${
                 currentPage === page
-                  ? "border-2 border-[#7b1113] text-[#7b1113] font-bold shadow-sm hover:bg-[#7b1113] hover:text-[#faf7f5] hover:scale-110"
-                  : "border-transparent text-[#7b1113]/50 hover:bg-[#7b1113]/10 hover:text-[#7b1113]/70 hover:font-semibold hover:scale-110" 
+                  ? "border-2 border-maroon text-maroon font-bold shadow-sm hover:bg-maroon hover:text-red-50 hover:scale-110"
+                  : "border-transparent text-maroon/50 hover:bg-maroon/10 hover:text-maroon/70 hover:font-semibold hover:scale-110" 
               } ${page === "..." ? "cursor-default border-none hover:bg-transparent" : ""}`}
             >
               {page}
