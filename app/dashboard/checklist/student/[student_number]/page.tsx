@@ -249,7 +249,6 @@ async function StudentProfileContent({ student_number }: { student_number: strin
 }
 
 export default async function StudentProfilePage({ params } : { params: Promise<{ student_number: string }> }) {
-  const { student_number } = await params;
 
   return (
     <div className="max-w-auto mx-auto">
@@ -258,8 +257,13 @@ export default async function StudentProfilePage({ params } : { params: Promise<
           <p className="text-maroon font-bold tracking-widest uppercase text-sm">Loading Student Data...</p>
         </div>
       }>
-        <StudentProfileContent student_number={student_number} />
+        <StudentProfileWrapper params={params} />
       </Suspense>
     </div>
   );
+}
+
+async function StudentProfileWrapper({params}: {params: Promise <{ student_number: string }>}){
+  const { student_number } = await params;
+  return <StudentProfileContent student_number={student_number} />;
 }
