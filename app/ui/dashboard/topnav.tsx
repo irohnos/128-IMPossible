@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import { UserCircleIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
+import { createBrowserClient } from '@supabase/ssr'
 
 const routeTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -16,6 +17,7 @@ const routeTitles: Record<string, string> = {
 
 export default function TopNav() {
   const pathname = usePathname();
+  const router = useRouter();
 
   const currentTitle = () => {
     if (routeTitles[pathname]) return routeTitles[pathname];
@@ -28,6 +30,23 @@ export default function TopNav() {
 
     return 'Management System';
   };
+
+  const handleLogout = async () => {
+  try {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+    )
+    
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
+
+    router.push('/auth/login')
+    router.refresh()
+  } catch (error) {
+    console.error('Failed to logout:', error)
+  }
+};
 
   const navItemClassName = (isActive: boolean) =>
     clsx(
@@ -58,7 +77,7 @@ export default function TopNav() {
         <div className="h-6 w-[1px] bg-maroon/20 mx-2" />
 
         <button
-          onClick={() => {}}
+          onClick={handleLogout}
           className={navItemClassName(false)}
         >
           <ArrowLeftOnRectangleIcon className="w-6 h-6 text-maroon" />
