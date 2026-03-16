@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { 
   ArrowLeftIcon,
   IdentificationIcon, 
@@ -10,8 +11,7 @@ import {
   CalendarIcon
 } from "@heroicons/react/24/outline";
 
-export default async function StudentProfilePage({ params } : { params: Promise<{ student_number: string }> }) {
-  const { student_number } = await params;
+async function StudentProfileContent({ student_number }: { student_number: string }) {
   const supabase = await createClient();
 
   const { data: student, error: studentError } = await supabase
@@ -77,11 +77,32 @@ export default async function StudentProfilePage({ params } : { params: Promise<
     }
   });
 
+  const groupedByAY: Record<string, Array<{ termId: string, data: typeof groupedRecords[string] }>> = {};
+  
+  Object.entries(groupedRecords).forEach(([termId, data]) => {
+    const termSem = data.termMetadata?.semester?.toLowerCase() || '';
+    const termYear = data.termMetadata?.academic_year;
+    let ayLabel = 'Unknown';
+
+    if (termYear) {
+      let baseYear = termYear;
+      if (termSem.includes('second') || termSem.includes('short')) {
+        baseYear -= 1;
+      }
+      ayLabel = `${baseYear}-${baseYear + 1}`;
+    }
+
+    if (!groupedByAY[ayLabel]) {
+      groupedByAY[ayLabel] = [];
+    }
+    groupedByAY[ayLabel].push({ termId, data });
+  });
+
   const overallGwa = totalUnits > 0 ? (weightedPoints / totalUnits).toFixed(2) : "0.00";
   const suffix = student.student_suffix ? ` ${student.student_suffix}` : "";
 
   return (
-    <div className="max-w-auto mx-auto">
+    <>
       <div className="mb-8">
         <Link href={`/dashboard/checklist/${student.admission_term?.academic_year}`} className="inline-flex items-center gap-2 text-gray-400 hover:text-maroon transition-colors group">
           <ArrowLeftIcon className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
@@ -142,59 +163,78 @@ export default async function StudentProfilePage({ params } : { params: Promise<
         </div>
       </div>
 
-      <div className="space-y-8">
-        {Object.keys(groupedRecords).length > 0 ? (
-          Object.entries(groupedRecords).map(([term, data]) => {
-            const termGwa = data.termUnits > 0 
-              ? (data.termWeightedPoints / data.termUnits).toFixed(2) 
-              : "0.00";
+      <div className="space-y-12">
+        {Object.keys(groupedByAY).length > 0 ? (
+          Object.entries(groupedByAY).map(([ayLabel, terms]) => {
+            
+            const gridCols = terms.length >= 3 
+              ? "grid-cols-1 lg:grid-cols-3" 
+              : terms.length === 2 
+                ? "grid-cols-1 lg:grid-cols-2" 
+                : "grid-cols-1";
 
             return (
-              <div key={term} className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
-                <div className="px-8 py-4 bg-red-50/50 border-b border-gray-100 flex justify-between items-center">
-                  <h3 className="font-black text-maroon text-sm uppercase tracking-widest">
-                    {data.termMetadata 
-                      ? `${data.termMetadata.semester}, AY ${data.termMetadata.academic_year}`
-                      : `Term ${term}`}
-                  </h3>
-                  <div className="flex gap-6 text-[10px] font-black uppercase tracking-widest">
-                    <span className="text-sm text-gray-400">Total Units: <span className="text-maroon-900">{data.termUnits}</span></span>
-                    <span className="text-sm text-gray-400">GWA: <span className="text-maroon-900">{termGwa}</span></span>
-                  </div>
+              <div key={ayLabel} className="space-y-4">
+                {ayLabel !== 'Unknown' && (
+                  <h2 className="text-xl font-black text-maroon-900 tracking-wider uppercase pl-3 border-l-4 border-maroon">
+                    Academic Year {ayLabel}
+                  </h2>
+                )}
+
+                <div className={`grid ${gridCols} gap-6 items-start`}>
+                  {terms.map(({ termId, data }) => {
+                    const termGwa = data.termUnits > 0 
+                      ? (data.termWeightedPoints / data.termUnits).toFixed(2) 
+                      : "0.00";
+
+                    return (
+                      <div key={termId} className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                        <div className="px-6 py-4 bg-red-50/50 border-b border-gray-100 flex flex-col 2xl:flex-row justify-between 2xl:items-center gap-2">
+                          <h3 className="font-black text-maroon text-sm uppercase tracking-widest leading-tight">
+                            {data.termMetadata 
+                              ? `${data.termMetadata.semester} ${data.termMetadata.academic_year}` 
+                              : `Term ${termId}`}
+                          </h3>
+                          <div className="flex gap-4 text-[10px] font-black uppercase tracking-widest">
+                            <span className="text-gray-400">Units: <span className="text-maroon-900 text-sm">{data.termUnits}</span></span>
+                            <span className="text-gray-400">GWA: <span className="text-maroon-900 text-sm">{termGwa}</span></span>
+                          </div>
+                        </div>
+                        
+                        <div className="overflow-x-auto flex-1">
+                          <table className="w-full text-left whitespace-nowrap">
+                            <thead>
+                              <tr className="text-[10px] uppercase tracking-widest text-gray-400 font-black border-b border-gray-50">
+                                <th className="px-5 py-3">Course</th>
+                                <th className="px-5 py-3 text-center">Units</th>
+                                <th className="px-5 py-3 text-right">Grade</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                              {data.courses.map((record) => {
+                                const numericGrade = parseFloat(record.grade);
+                                const isPassing = !isNaN(numericGrade) && numericGrade < 3;
+                                
+                                return (
+                                  <tr key={record.id} className="hover:bg-gray-50 transition-colors">
+                                    <td className="px-5 py-4 font-bold text-sm text-maroon-900">{record.course_id}</td>
+                                    <td className="px-5 py-4 text-center text-sm text-gray-500">{record.course?.course_units}</td>
+                                    <td className="px-5 py-4 text-right">
+                                      <span className={`font-mono font-bold rounded-lg transition-colors px-2 py-1 
+                                        ${isPassing ? "bg-green/10 text-green": "bg-maroon/10 text-maroon"}`}>
+                                        {record.grade}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="text-[10px] uppercase tracking-widest text-gray-400 font-black border-b border-gray-50">
-                      <th className="px-8 py-3">Course ID</th>
-                      <th className="px-8 py-3 text-center">Units</th>
-                      <th className="px-8 py-3 text-right">Grade</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {data.courses.map((record) => {
-                      const numericGrade = parseFloat(record.grade);
-                      const isPassing = !isNaN(numericGrade) && numericGrade < 3;
-                      
-                      return (
-                        <tr key={record.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-8 py-4 font-bold text-sm text-maroon-900">
-                            {record.course_id}
-                          </td>
-                          <td className="px-8 py-4 text-center text-sm text-gray-500">{record.course?.course_units}</td>
-                          <td className="px-8 py-4 text-right">
-                            <span className={`font-mono font-bold rounded-lg transition-colors p-1 ${
-                              isPassing 
-                                ? "bg-green/10 text-green"
-                                : "bg-maroon/10 text-maroon"
-                            }`}>
-                              {record.grade}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
               </div>
             );
           })
@@ -204,6 +244,22 @@ export default async function StudentProfilePage({ params } : { params: Promise<
           </div>
         )}
       </div>
+    </>
+  );
+}
+
+export default async function StudentProfilePage({ params } : { params: Promise<{ student_number: string }> }) {
+  const { student_number } = await params;
+
+  return (
+    <div className="max-w-auto mx-auto">
+      <Suspense fallback={
+        <div className="text-center py-20 animate-pulse">
+          <p className="text-maroon font-bold tracking-widest uppercase text-sm">Loading Student Data...</p>
+        </div>
+      }>
+        <StudentProfileContent student_number={student_number} />
+      </Suspense>
     </div>
   );
 }
