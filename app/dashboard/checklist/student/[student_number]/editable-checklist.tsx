@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateChecklist, deleteChecklistRecord } from '@/app/dashboard/checklist/student/[student_number]/actions';
 import { PencilSquareIcon, CheckIcon, XMarkIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { gradesOnly } from "@/lib/utils";
 
 export default function EditableTerm({ termId, data, studentNumber }: { termId: string, data: any, studentNumber: string }) {
   const router = useRouter();
@@ -18,7 +19,14 @@ export default function EditableTerm({ termId, data, studentNumber }: { termId: 
     startTransition(async () => {
       try {
         const updatePromises = Object.entries(editedGrades).map(([recordId, newGrade]) => updateChecklist(recordId, newGrade, studentNumber));
-        await Promise.all(updatePromises);
+        
+        const results = await Promise.all(updatePromises);
+        const failed = results.find(res => res?.error);
+        if (failed) {
+          alert(failed.error);
+          return; 
+        }
+
         setIsEditing(false);
         router.refresh();
       } catch (error) {
@@ -32,7 +40,12 @@ export default function EditableTerm({ termId, data, studentNumber }: { termId: 
     if (!courseToDelete) return;
     startTransition(async () => {
       try {
-        await deleteChecklistRecord(courseToDelete, studentNumber);
+        const res = await deleteChecklistRecord(courseToDelete, studentNumber);
+        if (res?.error) {
+          alert(res.error);
+          return;
+        }
+
         setCourseToDelete(null); 
         router.refresh();
       } catch (error) {
@@ -88,7 +101,7 @@ export default function EditableTerm({ termId, data, studentNumber }: { termId: 
                       <div className="flex items-center justify-end gap-4">
                         {isEditing ? (
                           <>
-                            <input type="text" value={currentGrade} onChange={(e) => handleGradeChange(record.id, e.target.value)}
+                            <input type="text" value={currentGrade} onKeyDown={gradesOnly} onChange={(e) => handleGradeChange(record.id, e.target.value.toUpperCase())}
                               className={`w-16 text-center text-sm font-mono font-bold rounded-lg border bg-gray-50 focus:bg-white outline-none px-2 py-1.5 transition-all shadow-sm
                                 ${isPassing ? "text-green border-gray-200 focus:border-green" : "text-maroon border-gray-200 focus:border-maroon"}`}
                             />

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PencilSquareIcon, TrashIcon, ExclamationTriangleIcon, PlusIcon, XMarkIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { updatePaperAction, deletePaperAction, addPaperAction } from "@/lib/actions";
+import { namesOnly, numbersOnly } from "@/lib/utils";
 
 export interface Person {
   id: number;
@@ -97,19 +98,19 @@ function FormFields({ authors, addAuthor, removeAuthor, updateAuthor, advisers, 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div className="sm:col-span-1 text-left">
                 <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">First Name</label>
-                <input value={a.author_fname} onChange={(e) => updateAuthor(index, "author_fname", e.target.value)} required placeholder="John" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+                <input value={a.author_fname} onKeyDown={namesOnly} onChange={(e) => updateAuthor(index, "author_fname", e.target.value)} required placeholder="John" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
               </div>
               <div className="sm:col-span-1 text-left">
                 <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Middle Name</label>
-                <input value={a.author_mname} onChange={(e) => updateAuthor(index, "author_mname", e.target.value)} placeholder="B." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+                <input value={a.author_mname}  onKeyDown={namesOnly} onChange={(e) => updateAuthor(index, "author_mname", e.target.value)} placeholder="Baron" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
               </div>
               <div className="sm:col-span-1 text-left">
                 <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Last Name</label>
-                <input value={a.author_lname} onChange={(e) => updateAuthor(index, "author_lname", e.target.value)} required placeholder="Cruz" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+                <input value={a.author_lname} onKeyDown={namesOnly} onChange={(e) => updateAuthor(index, "author_lname", e.target.value)} required placeholder="Cruz" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
               </div>
               <div className="sm:col-span-1 text-left">
                 <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Suffix</label>
-                <input value={a.author_suffix} onChange={(e) => updateAuthor(index, "author_suffix", e.target.value)} placeholder="Jr." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+                <input value={a.author_suffix} onKeyDown={namesOnly} onChange={(e) => updateAuthor(index, "author_suffix", e.target.value)} placeholder="Jr." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
               </div>
             </div>
           </div>
@@ -158,17 +159,15 @@ function FormFields({ authors, addAuthor, removeAuthor, updateAuthor, advisers, 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="text-left">
             <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Year Submitted</label>
-            <input name="paper_year_submitted" type="number" defaultValue={defaultValues.paper_year_submitted || ""} placeholder="e.g. 2024" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" 
-              onKeyDown={(e) => {if (["-", ".", "e", "E", "+", "/"].includes(e.key)) {e.preventDefault();}}}
+            <input name="paper_year_submitted" type="number" onKeyDown={numbersOnly} defaultValue={defaultValues.paper_year_submitted || ""} required placeholder="2024" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" 
               min={1998} 
               max={new Date().getFullYear()} 
             />
           </div>
           <div className="text-left">
             <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Total Pages</label>
-            <input name="paper_pages" type="number" defaultValue={defaultValues.paper_pages || ""} placeholder="e.g. 50" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" 
+            <input name="paper_pages" type="number" onKeyDown={numbersOnly} defaultValue={defaultValues.paper_pages || ""} placeholder="50" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" 
               min={1}
-              onKeyDown={(e) => {if (["-", ".", "e", "E", "+", "/"].includes(e.key)) {e.preventDefault();}}}
             />
           </div>
         </div>
@@ -177,7 +176,7 @@ function FormFields({ authors, addAuthor, removeAuthor, updateAuthor, advisers, 
           <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">
             {getSummaryLabel(paperType)}
           </label>
-          <textarea name="paper_summary" rows={5} defaultValue={defaultValues.paper_summary || ""} placeholder="Enter abstract or summary..." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 outline-none focus:border-maroon focus:bg-white transition-all resize-none whitespace-pre-wrap"/>
+          <textarea name="paper_summary" rows={5} defaultValue={defaultValues.paper_summary || ""} required placeholder="Enter abstract or summary..." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 outline-none focus:border-maroon focus:bg-white transition-all resize-none whitespace-pre-wrap"/>
         </div>
 
         <div className="text-left">
@@ -216,10 +215,14 @@ export function EditAction({ paper, advisers = [] }: { paper: any; advisers?: Pe
     };
 
     try {
-      await updatePaperAction(Number(paper.paper_id), updates);
+      const res = await updatePaperAction(Number(paper.paper_id), updates);
+      if (res?.error) {
+        setError(res.error);
+        return; 
+      }
       setIsOpen(false);
     } catch (err: any) {
-      setError("Update failed: " + err.message);
+      setError("An unexpected system error occurred.");
     } finally {
       setIsProcessing(false);
     }
@@ -264,10 +267,15 @@ export function DeleteAction({ paper }: { paper: any }) {
     setIsProcessing(true);
     setError(null);
     try {
-      await deletePaperAction(Number(paper.paper_id));
+      const res = await deletePaperAction(Number(paper.paper_id));
+      if (res?.error) {
+        setError(res.error);
+        return;
+      }
       setIsOpen(false);
     } catch (err: any) {
-      setError("Delete failed: " + err.message);
+      setError("An unexpected system error occurred.");
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -337,11 +345,15 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
     };
 
     try {
-      await addPaperAction(newPaper);
+      const res = await addPaperAction(newPaper);
+      if (res?.error) {
+        setError(res.error);
+        return;
+      }
       setIsOpen(false);
       setAuthors([{ author_fname: "", author_mname: "", author_lname: "", author_suffix: "" }]);
     } catch (err: any) {
-      setError("Add paper failed: " + err.message);
+      setError("An unexpected system error occurred.");
     } finally {
       setIsProcessing(false);
     }

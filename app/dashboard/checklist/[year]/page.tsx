@@ -7,8 +7,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { formatFullName } from "@/lib/utils";
 import { populateAdvisers } from "@/lib/data";
+import { parseDatabaseError } from "@/lib/error-handler";
+import RestrictedInput from "@/components/restricted-inputs";
 
-async function BatchChecklistContent({ params, searchParams }: { params: Promise<{ year: string }>, searchParams: Promise<{ query?: string; edit?: string; delete?: string }> }) {
+async function BatchChecklistContent({ params, searchParams }: { params: Promise<{ year: string }>, searchParams: Promise<{ query?: string; edit?: string; delete?: string; error?: string }> }) {
   const { year } = await params;
   const { query = "", edit, delete: deleteParam } = await searchParams;
   const supabase = await createClient();
@@ -21,10 +23,13 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
       .delete()
       .eq('student_number', studentNumber);
 
-    if (!error) {
+    if (error) {
+      const errMsg = parseDatabaseError(error);
+      redirect(`/dashboard/checklist/${year}?delete=${studentNumber}&error=${encodeURIComponent(errMsg)}${query ? `&query=${query}` : ''}`);
+    } else {
       revalidatePath(`/dashboard/checklist/${year}`); 
       redirect(`/dashboard/checklist/${year}${query ? `?query=${query}` : ''}`);
-    } else console.error("Failed to delete:", error);
+    }
   }
 
   async function updateStudent(formData: FormData) {
@@ -65,10 +70,13 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
       })
       .eq('student_number', studentNumber);
 
-    if (!error) {
+    if (error) {
+      const errMsg = parseDatabaseError(error);
+      redirect(`/dashboard/checklist/${year}?edit=${studentNumber}&error=${encodeURIComponent(errMsg)}${query ? `&query=${query}` : ''}`);
+    } else {
       revalidatePath(`/dashboard/checklist/${year}`);
       redirect(`/dashboard/checklist/${year}${query ? `?query=${query}` : ''}`);
-    } else console.error("Failed to update:", error);
+    }
   }
   
   const startRange = parseInt(`${year}000`);
@@ -212,30 +220,35 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                   <div className="sm:col-span-1 text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">First Name</label>
-                    <input type="text" name="student_fname" defaultValue={studentToEdit.student_fname || ""} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" required />
+                    <RestrictedInput restrictionType="name" type="text" name="student_fname" defaultValue={studentToEdit.student_fname || ""} placeholder="John" className="w-full bg-gray-50 text-black text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" required />
                   </div>
                   <div className="sm:col-span-1 text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Middle Name</label>
-                    <input type="text" name="student_mname" defaultValue={studentToEdit.student_mname || ""} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+                    <RestrictedInput restrictionType="name" type="text"  name="student_mname" defaultValue={studentToEdit.student_mname || ""} placeholder="Baron" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
                   </div>
                   <div className="sm:col-span-1 text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Last Name</label>
-                    <input type="text" name="student_lname" defaultValue={studentToEdit.student_lname || ""} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" required />
+                    <RestrictedInput restrictionType="name" type="text" name="student_lname" defaultValue={studentToEdit.student_lname || ""} placeholder="Cruz" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" required />
                   </div>
                   <div className="sm:col-span-1 text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Suffix</label>
-                    <input type="text" name="student_suffix" defaultValue={studentToEdit.student_suffix || ""} placeholder="e.g. Jr." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+                    <RestrictedInput restrictionType="name" type="text" name="student_suffix" defaultValue={studentToEdit.student_suffix || ""} placeholder="Jr." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Email</label>
-                    <input type="email" name="student_email" defaultValue={studentToEdit.student_email || ""} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+                    <input type="email" name="student_email" defaultValue={studentToEdit.student_email || ""} placeholder="jbcruz@university.edu.ph"className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" required />
                   </div>
                   <div className="text-left">
-                    <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Contact No.</label>
-                    <input type="tel" name="student_contact_no" defaultValue={studentToEdit.student_contact_no || ""} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+                    <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Contact Number</label>
+                    <RestrictedInput restrictionType="number" type="tel" name="student_contact_no" defaultValue={studentToEdit.student_contact_no || ""} placeholder="9007797147" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" 
+                      minLength={10}
+                      maxLength={10}
+                      pattern="[9]{1}[0-9]{9}"
+                      title="Contact number must be exactly 10 digits"
+                    />
                   </div>
                 </div>
 
