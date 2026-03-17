@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { 
@@ -6,8 +5,7 @@ import {
   ChevronDownIcon, 
   ArrowsUpDownIcon 
 } from "@heroicons/react/24/outline";
-import Modal from "./modal";
-import Actions from "./actions";
+import { EditAction, DeleteAction, Modal } from "./actions";
 import PaginationController from "@/components/pagination-controller";
 
 interface RowProps {
@@ -20,13 +18,29 @@ interface RowProps {
   }>;
 }
 
+function formatFullName(fname?: string, mname?: string, lname?: string, suffix?: string) {
+  if (!fname && !lname) return "Unknown";
+  const mInitial = mname ? `${mname.charAt(0)}. ` : "";
+  const suf = suffix ? `, ${suffix}` : "";
+  return `${fname || ""} ${mInitial}${lname || ""}${suf}`.trim();
+}
+
 export default async function PaperRows({ searchParams }: RowProps) {
   const { sort = "paper_title", order = "asc", query = "", type="all", page= "1" } = await searchParams;
-  
   const currentPage = Number(page);
   const itemsPerPage = 10;
   const supabase = await createClient();
   
+  const { data: rawAdvisers } = await supabase
+    .from("adviser")
+    .select("*")
+    .order("adviser_lname", { ascending: true });
+
+  const advisersList = (rawAdvisers || []).map((adv) => ({
+    id: adv.adviser_id,
+    name: formatFullName(adv.adviser_fname, adv.adviser_mname, adv.adviser_lname, adv.adviser_suffix)
+  }));
+
   let supabaseQuery = supabase
     .from("academic_papers")
     .select(`
@@ -37,22 +51,12 @@ export default async function PaperRows({ searchParams }: RowProps) {
       paper_references, 
       paper_type, 
       paper_pages,
-      adviser!inner (
-        adviser_fname, 
-        adviser_mname, 
-        adviser_lname, 
-        adviser_suffix
-      ),
-      author (
-        author_fname,
-        author_mname,
-        author_lname,
-        author_suffix
-      )  
+      adviser_id,
+      adviser!inner (adviser_fname, adviser_mname, adviser_lname, adviser_suffix),
+      author (author_fname, author_mname, author_lname, author_suffix)  
     `);
 
   const { data: rawPapers, error } = await supabaseQuery.order(sort, { ascending: order === "asc" });
-
   let papers = rawPapers || [];
 
   if (papers.length > 0 && type !== "all") {
@@ -62,50 +66,23 @@ export default async function PaperRows({ searchParams }: RowProps) {
 
   if (!error && query && papers.length > 0){
     const q = query.toLowerCase();
-
     papers = rawPapers?.filter((paper) => {
+      if (paper.paper_title.toLowerCase().includes(q) || paper.paper_references?.toLowerCase().includes(q)) return true;
+      if (paper.paper_year_submitted?.toString().includes(q) || paper.paper_pages?.toString().includes(q)) return true;
 
-      // Titles and references
-      if (paper.paper_title.toLowerCase().includes(q) || paper.paper_references.toLowerCase().includes(q)) {
-        return true;
-      }
-
-      // Numbers (Years and pages)
-      if (paper.paper_year_submitted.toString().includes(q) || paper.paper_pages.toString().includes(q)) {
-        return true;
-      }
-
-      // Adviser
       const adviser = Array.isArray(paper.adviser) ? paper.adviser[0] : paper.adviser;
-      if (adviser) {
+      if (adviser && formatFullName(adviser.adviser_fname, adviser.adviser_mname, adviser.adviser_lname, adviser.adviser_suffix).toLowerCase().includes(q)) return true;
 
-        const simpleName = `${adviser.adviser_fname} ${adviser.adviser_lname}`;
-        const fullName = `${adviser.adviser_fname} ${adviser.adviser_mname ? adviser.adviser_mname.charAt(0) + ". " : ""}${adviser.adviser_lname}${adviser.adviser_suffix ? `, ${adviser.adviser_suffix}` : ""}`;
-        if (simpleName.toLowerCase().includes(q) || fullName.toLowerCase().includes(q)) {
-          return true;
-        }
-      }
-
-      // Authors
       const hasNoAuthors = !paper.author || (Array.isArray(paper.author) && paper.author.length === 0);
-
-      if (hasNoAuthors && "unknown".includes(q)) {
-        return true;
-      }
-      const authorMatch = paper.author?.some((a: any) => {
-        const simpleName = `${a.author_fname} ${a.author_lname}`;
-        const fullName = `${a.author_fname} ${a.author_mname ? a.author_mname.charAt(0) + ". " : ""}${a.author_lname}${a.author_suffix ? `, ${a.author_suffix}` : ""}`;
-        return simpleName.toLowerCase().includes(q) || fullName.toLowerCase().includes(q);
-      });
-
+      if (hasNoAuthors && "unknown".includes(q)) return true;
+      
+      const authorMatch = paper.author?.some((a: any) => formatFullName(a.author_fname, a.author_mname, a.author_lname, a.author_suffix).toLowerCase().includes(q));
       return !!authorMatch;
     });
   }
 
-  // Calculation for pagination
   const totalItems = papers.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedPapers = papers.slice(startIndex, startIndex + itemsPerPage);
 
@@ -121,46 +98,27 @@ export default async function PaperRows({ searchParams }: RowProps) {
   };
 
   const SortIcon = ({ column }: { column: string }) => {
-    if (sort !== column) {
-      return <ArrowsUpDownIcon className="ml-2 h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />;
-    }
+    if (sort !== column) return <ArrowsUpDownIcon className="ml-1.5 h-3.5 w-3.5 opacity-30 group-hover:opacity-100 transition-opacity" />;
     return order === "asc" ? (
-      <ChevronUpIcon className="ml-2 h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />
+      <ChevronUpIcon className="ml-1.5 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
     ) : (
-      <ChevronDownIcon className="ml-2 h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />
+      <ChevronDownIcon className="ml-1.5 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
     );
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-8 border-b border-maroon/10 mb-6">
+      <div className="flex items-center gap-8 border-b border-gray-200 mb-6">
         {[
           { label: "All Papers", value: "all" },
           { label: "Theses", value: "thesis" },
           { label: "Strategic Papers", value: "strategic" },
         ].map((tab) => {
           const isActive = type === tab.value;
-          
           return (
-            <Link
-              key={tab.value}
-              href={getTabLink(tab.value)}
-              className={`
-                relative pb-4 text-sm font-medium transition-all duration-200 ease-in-out
-                ${isActive 
-                  ? "text-maroon" 
-                  : "text-gray-500 hover:text-maroon/70"
-                }
-              `}
-            >
+            <Link key={tab.value} href={getTabLink(tab.value)} className={`relative pb-4 text-sm font-medium transition-all duration-200 ease-in-out ${isActive ? "text-maroon font-bold" : "text-gray-500 hover:text-maroon/70"}`}>
               {tab.label}
-
-              {isActive && (
-                <span 
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-maroon rounded-t-full" 
-                  aria-hidden="true"
-                />
-              )}
+              {isActive && (<span className="absolute bottom-0 left-0 right-0 h-0.5 bg-maroon rounded-t-full" aria-hidden="true"/>)}
             </Link>
           );
         })}
@@ -168,81 +126,67 @@ export default async function PaperRows({ searchParams }: RowProps) {
     
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50/80">
             <tr>
-              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">
                 <Link href={getSortLink("paper_title")} className="group flex items-center hover:text-maroon transition-colors">
                   Title <SortIcon column="paper_title" />
                 </Link>
               </th>
-              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Author/s</th>
-              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Author/s</th>
+              <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">
                 <Link href={getSortLink("paper_year_submitted")} className="group flex items-center hover:text-maroon transition-colors">
                   Year <SortIcon column="paper_year_submitted"/>
                 </Link>
               </th>
-              {type === "all" && (
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Type</th>
-              )}
-              <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Adviser</th>
-              <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+              {type === "all" && ( <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Type</th> )}
+              <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Adviser</th>
+              <th scope="col" className="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-widest">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-gray-100">
             {paginatedPapers.length > 0 ? (
               paginatedPapers.map((paper) => {
                 const adv = Array.isArray(paper.adviser) ? paper.adviser[0] : paper.adviser;
-                const middleInitial = adv?.adviser_mname ? `${adv.adviser_mname.charAt(0)}. ` : "";
-                const formattedAdviser = adv 
-                  ? `${adv.adviser_fname} ${middleInitial} ${adv.adviser_lname}${adv.adviser_suffix ? `, ${adv.adviser_suffix}` : ""}`
-                  : "N/A";
-
+                const formattedAdviser = adv ? formatFullName(adv.adviser_fname, adv.adviser_mname, adv.adviser_lname, adv.adviser_suffix) : "N/A";
                 const formattedAuthors = paper.author?.length 
-                  ? paper.author.map((a: any) => {
-                      const mInitial = a.author_mname ? `${a.author_mname.charAt(0)}. ` : "";
-                      const suffix = a.author_suffix ? `, ${a.author_suffix}` : "";
-                      return `${a.author_fname} ${mInitial}${a.author_lname}${suffix}`;
-                    }).join(", ")
+                  ? paper.author.map((a: any) => formatFullName(a.author_fname, a.author_mname, a.author_lname, a.author_suffix)).join(", ")
                   : "Unknown";
 
                 return (
-                  <tr key={paper.paper_id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={paper.paper_id} className="hover:bg-red-50/30 transition-colors">
                     <td className="px-6 py-4 text-sm font-medium leading-tight">
                       <Modal id={paper.paper_id} title={paper.paper_title} type={paper.paper_type} pages={paper.paper_pages} summary={paper.paper_summary} references={paper.paper_references} />
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAuthors}>
-                      {formattedAuthors}
-                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAuthors}>{formattedAuthors}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{paper.paper_year_submitted}</td>
-                    {type === "all" && (
-                      <td className="px-6 py-4 text-sm text-gray-600">{paper.paper_type}</td>
-                    )}
-                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAdviser}>
-                      {formattedAdviser}
-                    </td>                  
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><Actions paper={paper} /></td>
+                    {type === "all" && ( <td className="px-6 py-4 text-sm text-gray-600">{paper.paper_type}</td> )}
+                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAdviser}>{formattedAdviser}</td>                  
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end gap-3">
+                        <EditAction paper={paper} advisers={advisersList} /><DeleteAction paper={paper} />
+                      </div>
+                    </td>
                   </tr>
                 );
               })
             ) : (
               <tr>
-                <td colSpan={type === "all" ? 6 : 5} className="px-6 py-10 text-center text-gray-500 italic">
-                  {query ? `No papers found matching "${query}"` : "No papers found in the archive."}
+                <td colSpan={type === "all" ? 6 : 5} className="px-6 py-14">
+                  <div className="flex flex-col items-center justify-center">
+                    <p className="text-maroon font-bold tracking-widest uppercase text-sm">
+                      {query ? `No results for "${query}"` : "No papers found in the archive."}
+                    </p>
+                  </div>
                 </td>
               </tr>
             )}
           </tbody>
         </table>
 
-        {/*Pagination footer*/}
         {totalItems > 0 && (
-          <div className="px-6 py-4 border-t border-gray-200 bg-red-50">
-            <PaginationController 
-              currentPage = {currentPage}
-              totalPages = {totalPages}
-              totalItems = {totalItems}
-              itemsPerPage = {itemsPerPage}
-            />
+          <div className="px-6 py-4 border-t border-red-100 bg-red-50">
+            <PaginationController currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} itemsPerPage={itemsPerPage} />
           </div> 
         )}
       </div>
@@ -253,12 +197,12 @@ export default async function PaperRows({ searchParams }: RowProps) {
 export function RowSkeleton() {
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-pulse">
-      <div className="h-12 bg-gray-50 border-b border-gray-200" />
+      <div className="h-14 bg-gray-50 border-b border-gray-200" />
       {[...Array(10)].map((_, i) => (
-        <div key={i} className="flex px-6 py-4 border-b border-gray-100 last:border-0 gap-4">
-          <div className="h-4 bg-gray-100 rounded w-1/2" />
-          <div className="h-4 bg-gray-100 rounded w-1/6" />
+        <div key={i} className="flex px-6 py-5 border-b border-gray-100 last:border-0 gap-4 items-center">
+          <div className="h-4 bg-gray-200 rounded w-1/3" />
           <div className="h-4 bg-gray-100 rounded w-1/4" />
+          <div className="h-4 bg-gray-100 rounded w-1/6" />
         </div>
       ))}
     </div>

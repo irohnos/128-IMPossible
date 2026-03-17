@@ -34,7 +34,7 @@ export default async function AcademicPapersPage({ searchParams }: SearchProps) 
   
   return (
     <div className="max-w-auto mx-auto">
-      {/* Action Bar: Search, Filters, Add, and Upload */}
+      {/* Action Bar: Search, Add */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
         <div className="w-full max-w-3xl">
           <Suspense fallback={<div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />}>
@@ -48,7 +48,6 @@ export default async function AcademicPapersPage({ searchParams }: SearchProps) 
           </Suspense>
           <UploadButton />
         </div>
-      
       </div>
 
       <Suspense fallback={<RowSkeleton />}>
