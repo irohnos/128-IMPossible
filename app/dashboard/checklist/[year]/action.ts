@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { parseDatabaseError } from "@/lib/error-handler";
 
 export async function addStudentAction(formData: FormData) {
   const supabase = await createClient();
@@ -21,17 +22,12 @@ export async function addStudentAction(formData: FormData) {
   };
 
   if (!newStudent.student_number || !newStudent.student_fname || !newStudent.student_lname || !newStudent.term_admitted) {
-    throw new Error("Missing required fields.");
+    return { error: "Missing required fields." };
   }
 
   const { error } = await supabase.from("student").insert(newStudent);
-
-  if (error) {
-    if (error.code === '23505') {
-      throw new Error("A student with this Student Number or SAIS ID already exists.");
-    }
-    throw new Error(error.message);
-  }
+  if (error) return { error: parseDatabaseError(error) };
 
   revalidatePath(`/dashboard/checklist/${batchYear}`);
+  return { success: true };
 }
