@@ -3,11 +3,7 @@ import Link from "next/link";
 import { createClient } from '@/lib/supabase/server';
 import SearchInput from "@/components/searchinput";
 
-async function Folder({ 
-  searchParams 
-}: { 
-  searchParams: Promise<{ query?: string }> 
-}) {
+async function Folder({ searchParams }: { searchParams: Promise<{ query?: string }> }) {
   const { query = "" } = await searchParams;
   const supabase = await createClient();
 
@@ -23,8 +19,7 @@ async function Folder({
 
   if (query) {
     uniqueYears = uniqueYears.filter(year => 
-      year.includes(query) || 
-      `Batch '${year.substring(2)}`.toLowerCase().includes(query.toLowerCase())
+      year.includes(query) || `Batch '${year.substring(2)}`.toLowerCase().includes(query.toLowerCase())
     );
   }
 
@@ -56,11 +51,7 @@ async function Folder({
   );
 }
 
-export default function StudentChecklistPage({ 
-  searchParams 
-}: { 
-  searchParams: Promise<{ query?: string }> 
-}) {
+export default function StudentChecklistPage({ searchParams }: { searchParams: Promise<{ query?: string }> }) {
   return (
     <div className="max-w-auto mx-auto">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">

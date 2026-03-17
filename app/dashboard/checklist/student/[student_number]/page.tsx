@@ -176,20 +176,20 @@ async function StudentProfileContent({ student_number }: { student_number: strin
             return (
               <div key={ayLabel} className="space-y-4">
                 {ayLabel !== 'Unknown' && (
-                  <h2 className="text-xl font-black text-maroon-900 tracking-wider uppercase pl-3 border-l-4 border-maroon">
+                  <h2 className="text-xl text-center font-black text-maroon-900 tracking-wider uppercase pl-3 border-b-2 border-maroon">
                     Academic Year {ayLabel}
                   </h2>
                 )}
 
-                <div className={`grid ${gridCols} gap-6 items-start`}>
+                <div className={`grid ${gridCols} gap-6 items-stretch`}>
                   {terms.map(({ termId, data }) => {
                     const termGwa = data.termUnits > 0 
                       ? (data.termWeightedPoints / data.termUnits).toFixed(2) 
                       : "0.00";
 
                     return (
-                      <div key={termId} className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-                        <div className="px-6 py-4 bg-red-50/50 border-b border-gray-100 flex flex-col 2xl:flex-row justify-between 2xl:items-center gap-2">
+                      <div key={termId} className="h-full bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                        <div className="px-6 py-4 bg-red-50/50 border-b border-gray-100 flex flex-col 2xl:flex-row justify-between 2xl:items-center gap-2 shrink-0">
                           <h3 className="font-black text-maroon text-sm uppercase tracking-widest leading-tight">
                             {data.termMetadata 
                               ? `${data.termMetadata.semester} ${data.termMetadata.academic_year}` 
