@@ -97,7 +97,9 @@ export async function uploadCsvAction(formData: FormData) {
   
   const firstRow = rawRows[0];
   const headers = Object.keys(firstRow).map(key => key.trim().replace(/[\r\n]+/g, ''));
-  const requiredHeaders = ["Title", "Author/s", "Year", "Pages", "Adviser", "Summary", "References"];
+  
+  // 1. ADDED "Type" TO REQUIRED HEADERS
+  const requiredHeaders = ["Title", "Author/s", "Year", "Pages", "Adviser", "Summary", "References", "Type"];
   
   const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
   if (missingHeaders.length > 0) return { error: `Invalid CSV format. Missing required columns: ${missingHeaders.join(", ")}` };
@@ -113,6 +115,7 @@ export async function uploadCsvAction(formData: FormData) {
     const adviserStr = row["Adviser"]?.trim();
     const summaryStr = row["Summary"]?.trim(); 
     const referencesStr = row["References"]?.trim();
+    const typeStr = row["Type"]?.trim();
 
     if (!title) continue; 
 
@@ -158,6 +161,7 @@ export async function uploadCsvAction(formData: FormData) {
         adviser_id: adviserId,
         paper_summary: summaryStr,       
         paper_references: referencesStr, 
+        paper_type: typeStr,
       })
       .select("paper_id")
       .single();
