@@ -88,7 +88,7 @@ export default function Page() {
                 className="object-contain"
               />
             </div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            <span className="text-3xl font-semibold uppercase tracking-widest text-muted-foreground">
               Institute of Management
             </span>
           </div>
@@ -99,12 +99,12 @@ export default function Page() {
               <h1 className="text-3xl font-extrabold text-maroon">
                 Institute of Management
               </h1>
-              <p className="text-[14px] text-yellow">
+              <p className="text-[14px] text-red">
                 University of the Philippines Baguio
               </p>
             </div>
 
-            <p className="text-red font-light text-sm mt-[15px] mb-[-10px]">
+            <p className="text-gray-800 font-light text-sm mt-[15px] mb-[-10px]">
               To sign into your account, enter your email and password
             </p>
           </div>
