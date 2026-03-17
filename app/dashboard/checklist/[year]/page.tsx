@@ -6,22 +6,6 @@ import { ArrowLeftIcon, UserIcon, PencilSquareIcon, TrashIcon, ExclamationTriang
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-
-export default function BatchChecklistPage({ params, searchParams }: { 
-  params: Promise<{ year: string }>, searchParams: Promise<{ query?: string; edit?: string; delete?: string }> 
-}) {
-  return (
-    <Suspense fallback={
-      <div className="p-10 flex flex-col items-center justify-center">
-        <div className="h-8 w-8 border-4 border-maroon border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-maroon font-bold">Loading records...</p>
-      </div>
-    }>
-      <BatchChecklistContent params={params} searchParams={searchParams} />
-    </Suspense>
-  );
-}
-
 async function BatchChecklistContent({ params, searchParams 
 }: { 
   params: Promise<{ year: string }>, searchParams: Promise<{ query?: string; edit?: string; delete?: string }> 
@@ -183,14 +167,6 @@ async function BatchChecklistContent({ params, searchParams
 
   return (
     <div className="max-w-auto mx-auto relative">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-        <div className="w-full max-w-3xl">
-          <Suspense fallback={<div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />}>
-            <SearchInput placeholder="Search by Name, Student Number, etc." />
-          </Suspense>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredStudents.length > 0 ? (
           filteredStudents.map((student) => {
@@ -228,8 +204,8 @@ async function BatchChecklistContent({ params, searchParams
             );
           })
         ) : (
-          <div className="col-span-full flex flex-col items-center justify-center py-24 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-200">
-            <p className="text-gray-400 italic text-lg">{query ? `No results for "${query}"` : "No student records found."}</p>
+          <div className="col-span-full flex flex-col items-center justify-center">
+            <p className="text-maroon font-bold tracking-widest uppercase text-sm py-20">{query ? `No results for "${query}"` : "No student records found."}</p>
           </div>
         )}
       </div>
@@ -370,6 +346,28 @@ async function BatchChecklistContent({ params, searchParams
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export default function BatchChecklistPage({ params, searchParams }: { params: Promise<{ year: string }>, searchParams: Promise<{ query?: string; edit?: string; delete?: string }> }) {
+  return (
+    <div className="max-w-auto mx-auto">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+          <div className="w-full max-w-3xl">
+            <Suspense fallback={<div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />}>
+              <SearchInput placeholder="Search by Name, Student Number, etc." />
+            </Suspense>
+          </div>
+        </div>
+      <Suspense fallback={
+        <div className="p-10 flex flex-col items-center justify-center">
+          <div className="h-8 w-8 border-4 border-maroon border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-center animate-pulse text-maroon font-bold tracking-widest uppercase text-sm">Loading students...</p>
+        </div>
+      }>
+        <BatchChecklistContent params={params} searchParams={searchParams} />
+      </Suspense>
     </div>
   );
 }
