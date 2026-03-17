@@ -51,6 +51,7 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        white: "#faf7f5",
         yellow: "#f3aa2c",
         blue: "#132e54",
         green: "#014421",
