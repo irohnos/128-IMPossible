@@ -2,23 +2,14 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { 
-  ArrowLeftIcon,
-  IdentificationIcon, 
-  PhoneIcon,
-  EnvelopeIcon, 
-  AcademicCapIcon, 
-  CalendarIcon
-} from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, IdentificationIcon, PhoneIcon, EnvelopeIcon, AcademicCapIcon, CalendarIcon } from "@heroicons/react/24/outline";
 
 async function StudentProfileContent({ student_number }: { student_number: string }) {
   const supabase = await createClient();
-
   const { data: student, error: studentError } = await supabase
     .from('student')
-    .select(`
-      *, 
-      adviser:adviser_id (adviser_fname, adviser_lname),
+    .select(`*, 
+      adviser:adviser_id (adviser_fname, adviser_mname, adviser_lname, adviser_suffix),
       admission_term:term_admitted (semester, academic_year)
     `)
     .eq('student_number', student_number)
@@ -28,16 +19,9 @@ async function StudentProfileContent({ student_number }: { student_number: strin
 
   const { data: records } = await supabase
     .from('checklist')
-    .select(`
-      *,
-      course:course_id (
-        course_units,
-        course_category
-      ),
-      term:term_taken (
-        semester,
-        academic_year
-      )
+    .select(`*,
+      course:course_id (course_units, course_category),
+      term:term_taken (semester, academic_year)
     `)
     .eq('student_number', student_number)
     .order('term_taken', { ascending: true });
@@ -59,7 +43,6 @@ async function StudentProfileContent({ student_number }: { student_number: strin
     }
     
     groupedRecords[termKey].courses.push(record);
-
     const courseId = record.course_id.toUpperCase();
     const isExcluded = courseId.includes('PE') || courseId.includes('NSTP');
 
@@ -70,7 +53,6 @@ async function StudentProfileContent({ student_number }: { student_number: strin
       if (!isNaN(grade)) {
         groupedRecords[termKey].termUnits += units;
         groupedRecords[termKey].termWeightedPoints += (grade * units);
-
         totalUnits += units;
         weightedPoints += (grade * units);
       }
@@ -86,15 +68,11 @@ async function StudentProfileContent({ student_number }: { student_number: strin
 
     if (termYear) {
       let baseYear = termYear;
-      if (termSem.includes('second') || termSem.includes('short')) {
-        baseYear -= 1;
-      }
+      if (termSem.includes('second') || termSem.includes('short')) baseYear -= 1;
       ayLabel = `${baseYear}-${baseYear + 1}`;
     }
 
-    if (!groupedByAY[ayLabel]) {
-      groupedByAY[ayLabel] = [];
-    }
+    if (!groupedByAY[ayLabel]) groupedByAY[ayLabel] = [];
     groupedByAY[ayLabel].push({ termId, data });
   });
 
@@ -127,25 +105,20 @@ async function StudentProfileContent({ student_number }: { student_number: strin
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
               <div className="flex items-center gap-3 text-sm text-gray-600">
-                <PhoneIcon className="h-4 w-4" />
-                {student.student_contact_no || 'N/A'}
+                <PhoneIcon className="h-4 w-4" /> {student.student_contact_no || 'N/A'}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <EnvelopeIcon className="h-4 w-4" />
-                <span>{student.student_email || 'N/A'}</span>
+                <EnvelopeIcon className="h-4 w-4" /> {student.student_email || 'N/A'}
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
               <div className="flex items-center gap-3 text-sm text-gray-600">
-                <CalendarIcon className="h-4 w-4" />
-                {student.admission_term 
-                  ? `${student.admission_term.semester}, AY ${student.admission_term.academic_year}`
-                  : 'N/A'}
+                <CalendarIcon className="h-4 w-4" /> {`${student.admission_term.semester}, AY ${student.admission_term.academic_year}`}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <AcademicCapIcon className="h-4 w-4" />
-                <span>{student.adviser ? `Prof. ${student.adviser.adviser_fname} ${student.adviser.adviser_lname}` : 'No Adviser'}</span>
+                <span>{`Prof ${student.adviser.adviser_fname} ${student.adviser.adviser_mname[0]}. ${student.adviser.adviser_lname} ${suffix ? student.adviser.adviser_suffix : ''}`}</span>
               </div>
             </div>
           </div>
@@ -166,12 +139,7 @@ async function StudentProfileContent({ student_number }: { student_number: strin
       <div className="space-y-12">
         {Object.keys(groupedByAY).length > 0 ? (
           Object.entries(groupedByAY).map(([ayLabel, terms]) => {
-            
-            const gridCols = terms.length >= 3 
-              ? "grid-cols-1 lg:grid-cols-3" 
-              : terms.length === 2 
-                ? "grid-cols-1 lg:grid-cols-2" 
-                : "grid-cols-1";
+            const gridCols = terms.length >= 3 ? "grid-cols-1 lg:grid-cols-3" : terms.length === 2 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1";
 
             return (
               <div key={ayLabel} className="space-y-4">
@@ -183,19 +151,15 @@ async function StudentProfileContent({ student_number }: { student_number: strin
 
                 <div className={`grid ${gridCols} gap-6 items-stretch`}>
                   {terms.map(({ termId, data }) => {
-                    const termGwa = data.termUnits > 0 
-                      ? (data.termWeightedPoints / data.termUnits).toFixed(2) 
-                      : "0.00";
+                    const termGwa = data.termUnits > 0 ? (data.termWeightedPoints / data.termUnits).toFixed(2) : "0.00";
 
                     return (
                       <div key={termId} className="h-full bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-                        <div className="px-6 py-4 bg-red-50/50 border-b border-gray-100 flex flex-col 2xl:flex-row justify-between 2xl:items-center gap-2 shrink-0">
-                          <h3 className="font-black text-maroon text-sm uppercase tracking-widest leading-tight">
-                            {data.termMetadata 
-                              ? `${data.termMetadata.semester} ${data.termMetadata.academic_year}` 
-                              : `Term ${termId}`}
+                        <div className="px-6 py-4 bg-red-50/50 border-b border-gray-100 flex flex-row justify-between items-center gap-4 shrink-0">
+                          <h3 className="font-black text-maroon text-sm uppercase tracking-widest leading-tight truncate">
+                            {data.termMetadata ? `${data.termMetadata.semester}` : `Term ${termId}`}
                           </h3>
-                          <div className="flex gap-4 text-[10px] font-black uppercase tracking-widest">
+                          <div className="flex gap-4 text-[10px] font-black uppercase tracking-widest shrink-0">
                             <span className="text-gray-400">Units: <span className="text-maroon-900 text-sm">{data.termUnits}</span></span>
                             <span className="text-gray-400">GWA: <span className="text-maroon-900 text-sm">{termGwa}</span></span>
                           </div>
@@ -220,8 +184,7 @@ async function StudentProfileContent({ student_number }: { student_number: strin
                                     <td className="px-5 py-4 font-bold text-sm text-maroon-900">{record.course_id}</td>
                                     <td className="px-5 py-4 text-center text-sm text-gray-500">{record.course?.course_units}</td>
                                     <td className="px-5 py-4 text-right">
-                                      <span className={`font-mono font-bold rounded-lg transition-colors px-2 py-1 
-                                        ${isPassing ? "bg-green/10 text-green": "bg-maroon/10 text-maroon"}`}>
+                                      <span className={`font-mono font-bold rounded-lg transition-colors px-2 py-1 ${isPassing ? "bg-green/10 text-green": "bg-maroon/10 text-maroon"}`}>
                                         {record.grade}
                                       </span>
                                     </td>
@@ -239,9 +202,7 @@ async function StudentProfileContent({ student_number }: { student_number: strin
             );
           })
         ) : (
-          <div className="text-center py-20 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
-            <p className="text-gray-400 font-medium">No academic records found.</p>
-          </div>
+          <p className="text-center text-maroon font-bold tracking-widest uppercase text-sm py-20">No academic records found.</p>
         )}
       </div>
     </>
@@ -249,12 +210,12 @@ async function StudentProfileContent({ student_number }: { student_number: strin
 }
 
 export default async function StudentProfilePage({ params } : { params: Promise<{ student_number: string }> }) {
-
   return (
     <div className="max-w-auto mx-auto">
       <Suspense fallback={
-        <div className="text-center py-20 animate-pulse">
-          <p className="text-maroon font-bold tracking-widest uppercase text-sm">Loading Student Data...</p>
+         <div className="mt-[68px] p-10 flex flex-col items-center justify-center">
+          <div className="h-8 w-8 border-4 border-maroon border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-center animate-pulse text-maroon font-bold tracking-widest uppercase text-sm">Loading Student Data...</p>
         </div>
       }>
         <StudentProfileWrapper params={params} />

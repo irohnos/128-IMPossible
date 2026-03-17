@@ -25,14 +25,14 @@ async function Folder({ searchParams }: { searchParams: Promise<{ query?: string
 
   if (uniqueYears.length === 0) {
     return (
-      <div className="col-span-5 text-center py-20 text-gray-400 italic">
+      <div className="col-span-5 text-center text-maroon font-bold tracking-widest uppercase text-sm py-20">
         {query ? `No batches found matching "${query}"` : "No batches found in the database."}
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-5 gap-y-12 gap-x-6">
+    <div className="grid grid-cols-7 gap-y-12 gap-x-6">
       {uniqueYears.map((year) => (
         <Link href={`/dashboard/checklist/${year}`} key={year}>
           <div className="group flex flex-col items-start px-4 cursor-pointer">
@@ -62,7 +62,12 @@ export default function StudentChecklistPage({ searchParams }: { searchParams: P
         </div>
       </div>
 
-      <Suspense fallback={<div className="text-center py-20 animate-pulse text-maroon font-bold tracking-widest uppercase text-sm">Loading batches...</div>}>
+      <Suspense fallback={
+        <div className="p-10 flex flex-col items-center justify-center">
+          <div className="h-8 w-8 border-4 border-maroon border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-center animate-pulse text-maroon font-bold tracking-widest uppercase text-sm">Loading batches...</p>
+        </div>
+      }>
         <Folder searchParams={searchParams} />
       </Suspense>
     </div>
