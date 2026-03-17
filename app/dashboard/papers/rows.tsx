@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { 
-  ChevronUpIcon, 
-  ChevronDownIcon, 
-  ArrowsUpDownIcon 
-} from "@heroicons/react/24/outline";
+import { ChevronUpIcon, ChevronDownIcon, ArrowsUpDownIcon } from "@heroicons/react/24/outline";
 import { EditAction, DeleteAction, Modal } from "./actions";
+import { formatFullName } from "@/lib/utils";
 import PaginationController from "@/components/pagination-controller";
+import { populateAdvisers } from "@/lib/data";
 
 interface RowProps {
   searchParams: Promise<{ 
@@ -18,40 +16,16 @@ interface RowProps {
   }>;
 }
 
-function formatFullName(fname?: string, mname?: string, lname?: string, suffix?: string) {
-  if (!fname && !lname) return "Unknown";
-  const mInitial = mname ? `${mname.charAt(0)}. ` : "";
-  const suf = suffix ? `, ${suffix}` : "";
-  return `${fname || ""} ${mInitial}${lname || ""}${suf}`.trim();
-}
-
 export default async function PaperRows({ searchParams }: RowProps) {
   const { sort = "paper_title", order = "asc", query = "", type="all", page= "1" } = await searchParams;
   const currentPage = Number(page);
   const itemsPerPage = 10;
   const supabase = await createClient();
-  
-  const { data: rawAdvisers } = await supabase
-    .from("adviser")
-    .select("*")
-    .order("adviser_lname", { ascending: true });
-
-  const advisersList = (rawAdvisers || []).map((adv) => ({
-    id: adv.adviser_id,
-    name: formatFullName(adv.adviser_fname, adv.adviser_mname, adv.adviser_lname, adv.adviser_suffix)
-  }));
+  const advisersList = await populateAdvisers();
 
   let supabaseQuery = supabase
     .from("academic_papers")
-    .select(`
-      paper_id, 
-      paper_title, 
-      paper_summary,
-      paper_year_submitted, 
-      paper_references, 
-      paper_type, 
-      paper_pages,
-      adviser_id,
+    .select(`*,
       adviser!inner (adviser_fname, adviser_mname, adviser_lname, adviser_suffix),
       author (author_fname, author_mname, author_lname, author_suffix)  
     `);
@@ -69,7 +43,7 @@ export default async function PaperRows({ searchParams }: RowProps) {
     papers = rawPapers?.filter((paper) => {
       if (paper.paper_title.toLowerCase().includes(q) || paper.paper_references?.toLowerCase().includes(q)) return true;
       if (paper.paper_year_submitted?.toString().includes(q) || paper.paper_pages?.toString().includes(q)) return true;
-
+      
       const adviser = Array.isArray(paper.adviser) ? paper.adviser[0] : paper.adviser;
       if (adviser && formatFullName(adviser.adviser_fname, adviser.adviser_mname, adviser.adviser_lname, adviser.adviser_suffix).toLowerCase().includes(q)) return true;
 
@@ -155,7 +129,7 @@ export default async function PaperRows({ searchParams }: RowProps) {
 
                 return (
                   <tr key={paper.paper_id} className="hover:bg-red-50/30 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium leading-tight">
+                    <td className="px-6 py-4 text-sm font-medium leading-tight max-w-xs truncate" title={paper.paper_title}>
                       <Modal id={paper.paper_id} title={paper.paper_title} type={paper.paper_type} pages={paper.paper_pages} summary={paper.paper_summary} references={paper.paper_references} />
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={formattedAuthors}>{formattedAuthors}</td>

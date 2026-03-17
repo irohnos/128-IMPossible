@@ -18,33 +18,33 @@ async function Folder({ searchParams }: { searchParams: Promise<{ query?: string
     : [];
 
   if (query) {
+    const q = query.toLowerCase();
     uniqueYears = uniqueYears.filter(year => 
-      year.includes(query) || `Batch '${year.substring(2)}`.toLowerCase().includes(query.toLowerCase())
+      year.includes(q) || `batch ${year}`.includes(q) || `batch '${year.substring(2)}`.includes(q)
     );
   }
 
   if (uniqueYears.length === 0) {
     return (
-      <div className="col-span-5 text-center text-maroon font-bold tracking-widest uppercase text-sm py-20">
-        {query ? `No batches found matching "${query}"` : "No batches found in the database."}
+      <div className="col-span-full flex flex-col items-center justify-center py-20">
+        <p className="text-maroon font-bold tracking-widest uppercase text-sm">
+          {query ? `No batches found matching "${query}"` : "No batches found in the database."}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-7 gap-y-12 gap-x-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
       {uniqueYears.map((year) => (
-        <Link href={`/dashboard/checklist/${year}`} key={year}>
-          <div className="group flex flex-col items-start px-4 cursor-pointer">
-            <div className="relative w-20 h-16 mb-3 transition-transform duration-200 group-hover:-translate-y-1">
-              <div className="absolute top-0 left-0 w-8 h-2 bg-maroon rounded-t-sm transition-colors group-hover:bg-maroon" />
-              <div className="absolute bottom-0 w-full h-14 bg-maroon opacity-50 rounded-tr-sm rounded-b-sm shadow-sm transition-all duration-300 group-hover:opacity-100 group-hover:h-12" />
-              <div className="absolute bottom-0 w-full h-12 bg-red-100 rounded-b-sm origin-bottom transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:skew-x-[-15deg] group-hover:scale-y-[1.1]" />
-            </div>
-            <p className="text-sm font-medium text-maroon opacity-70 text-center transition-colors leading-relaxed">
-              Batch {year}
-            </p>
+        <Link href={`/dashboard/checklist/${year}`} key={year} className="group relative flex flex-col items-center justify-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-red-100 hover:bg-red-50/30 transition-all duration-200">
+          <div className="relative w-16 h-12 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
+            <div className="absolute top-0 left-0 w-6 h-2 bg-maroon rounded-t-sm transition-colors" />
+            <div className="absolute bottom-0 w-full h-10 bg-maroon/70 rounded-tr-sm rounded-b-sm shadow-sm transition-all duration-300 group-hover:bg-maroon" />
+            <div className="absolute bottom-0 w-full h-10 bg-red-100 rounded-b-sm origin-bottom transition-all duration-300 group-hover:skew-x-[-10deg] group-hover:scale-y-[0.9] border-t border-white/20" />
           </div>
+          
+          <h3 className="text-xs font-black text-maroon uppercase tracking-widest transition-colors">Batch {year}</h3>
         </Link>
       ))}
     </div>
