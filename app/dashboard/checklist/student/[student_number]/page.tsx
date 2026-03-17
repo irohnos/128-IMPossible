@@ -27,7 +27,14 @@ async function StudentProfileContent({ student_number }: { student_number: strin
       term:term_taken (semester, academic_year)
     `)
     .eq('student_number', student_number)
-    .order('term_taken', { ascending: true });
+    .order('term_taken', { ascending: true })
+    .order('id', { ascending: true });
+  
+  const takenCourseIds = records?.map(record => record.course_id) || [];
+  const { data: allCourses } = await supabase
+    .from('courses')
+    .select('course_id, course_units')
+    .order('course_id', { ascending: true });
 
   const groupedRecords: Record<string, { 
     courses: any[], 
@@ -150,8 +157,10 @@ async function StudentProfileContent({ student_number }: { student_number: strin
                   </div>
                 )}
 
-                <div className={`grid ${gridCols} items-stretch bg-red-50`}>
-                  {terms.map(({ termId, data }) => (<EditableTerm key={termId} termId={termId} data={data} studentNumber={student.student_number} />))}
+                <div className={`grid ${gridCols} items-start bg-red-50`}>
+                  {terms.map(({ termId, data }) => (
+                    <EditableTerm key={termId} termId={termId} data={data} studentNumber={student.student_number} allCourses={allCourses || []} takenCourseIds={takenCourseIds} />
+                  ))}
                 </div>
               </div>
             );

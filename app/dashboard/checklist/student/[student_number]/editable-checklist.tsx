@@ -2,25 +2,32 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { updateChecklist, deleteChecklistRecord } from '@/app/dashboard/checklist/student/[student_number]/actions';
-import { PencilSquareIcon, CheckIcon, XMarkIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { updateChecklist, deleteChecklistRecord, addChecklistRecord } from '@/app/dashboard/checklist/student/[student_number]/actions';
+import { PencilSquareIcon, CheckIcon, XMarkIcon, ExclamationTriangleIcon, PlusIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { gradesOnly } from "@/lib/utils";
 
-export default function EditableTerm({ termId, data, studentNumber }: { termId: string, data: any, studentNumber: string }) {
+export default function EditableTerm({ termId, data, studentNumber, allCourses, takenCourseIds }: { termId: string, data: any, studentNumber: string, allCourses: any[], takenCourseIds: string[] }) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [editedGrades, setEditedGrades] = useState<Record<string, string>>({});
   const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
+  const [isAddingCourse, setIsAddingCourse] = useState(false);
+  const [newCourseId, setNewCourseId] = useState("");
+  const [newCourseGrade, setNewCourseGrade] = useState("");
   const termGwa = data.termUnits > 0 ? (data.termWeightedPoints / data.termUnits).toFixed(2) : "0.00";
   const handleGradeChange = (recordId: string, value: string) => { setEditedGrades(prev => ({ ...prev, [recordId]: value })); };
+  const selectedCourse = allCourses.find((c) => c.course_id === newCourseId);
+  const newCourseUnits = selectedCourse ? selectedCourse.course_units : "-";
 
   const handleSave = () => {
     startTransition(async () => {
       try {
-        const updatePromises = Object.entries(editedGrades).map(([recordId, newGrade]) => updateChecklist(recordId, newGrade, studentNumber));
+        const promises = Object.entries(editedGrades).map(([recordId, newGrade]) => updateChecklist(recordId, newGrade, studentNumber));
         
-        const results = await Promise.all(updatePromises);
+        if (isAddingCourse && newCourseId && newCourseGrade) promises.push(addChecklistRecord(studentNumber, termId, newCourseId, newCourseGrade));
+
+        const results = await Promise.all(promises);
         const failed = results.find(res => res?.error);
         if (failed) {
           alert(failed.error);
@@ -28,24 +35,32 @@ export default function EditableTerm({ termId, data, studentNumber }: { termId: 
         }
 
         setIsEditing(false);
+        setIsAddingCourse(false);
+        setNewCourseId("");
+        setNewCourseGrade("");
+        setEditedGrades({});
         router.refresh();
       } catch (error) {
-        console.error("Failed to update grades:", error);
-        alert("Failed to save some grades. Please try again.");
+        console.error("Failed to save changes:", error);
+        alert("Failed to save changes. Please try again.");
       }
     });
   };
+
+  const handleCancelEdit = () => {
+    setIsEditing(!isEditing);
+    setIsAddingCourse(false);
+    setNewCourseId("");
+    setNewCourseGrade("");
+    setEditedGrades({});
+  }
 
   const confirmDelete = () => {
     if (!courseToDelete) return;
     startTransition(async () => {
       try {
         const res = await deleteChecklistRecord(courseToDelete, studentNumber);
-        if (res?.error) {
-          alert(res.error);
-          return;
-        }
-
+        if (res?.error) { alert(res.error); return; }
         setCourseToDelete(null); 
         router.refresh();
       } catch (error) {
@@ -56,6 +71,7 @@ export default function EditableTerm({ termId, data, studentNumber }: { termId: 
   };
 
   const courseToDeleteData = data.courses.find((c: any) => c.id === courseToDelete);
+  const availableCourses = allCourses.filter(c => !takenCourseIds.includes(c.course_id));
 
   return (
     <>
@@ -71,7 +87,7 @@ export default function EditableTerm({ termId, data, studentNumber }: { termId: 
                 {isPending && !courseToDelete ? <div className="h-5 w-5 border-2 border-green/30 border-t-green rounded-full animate-spin"></div> : (<><CheckIcon className="h-5 w-5 stroke-[2.5]" /></>) }
               </button>
             ) : (
-              <button onClick={() => setIsEditing(true)}>
+              <button onClick={handleCancelEdit}>
                 <PencilSquareIcon className="h-5 w-5 text-zinc-400 hover:text-yellow transition-colors" />
               </button>
             )}
@@ -102,7 +118,7 @@ export default function EditableTerm({ termId, data, studentNumber }: { termId: 
                         {isEditing ? (
                           <>
                             <input type="text" value={currentGrade} onKeyDown={gradesOnly} onChange={(e) => handleGradeChange(record.id, e.target.value.toUpperCase())}
-                              className={`w-16 text-center text-sm font-mono font-bold rounded-lg border bg-gray-50 focus:bg-white outline-none px-2 py-1.5 transition-all shadow-sm
+                              className={`w-16 text-center text-sm font-mono font-bold rounded-lg border bg-gray-50 focus:bg-white outline-none px-2 py-2 transition-all
                                 ${isPassing ? "text-green border-gray-200 focus:border-green" : "text-maroon border-gray-200 focus:border-maroon"}`}
                             />
                             <button type="button" onClick={() => setCourseToDelete(record.id)} disabled={isPending} className="p-1 text-gray-400 hover:text-maroon hover:bg-red-50 rounded-full transition-all disabled:opacity-50">
@@ -110,7 +126,7 @@ export default function EditableTerm({ termId, data, studentNumber }: { termId: 
                             </button>
                           </>
                         ) : (
-                          <span className={`text-sm font-mono font-bold rounded-lg transition-colors px-2 py-1 ${ isPassing ? "bg-green/10 text-green": "bg-maroon/10 text-maroon" }`}>
+                          <span className={`text-sm font-mono font-bold rounded-lg border transition-colors px-2 py-2 ${ isPassing ? "bg-green/10 text-green border-white": "bg-maroon/10 text-maroon border-white" }`}>
                             {record.grade}
                           </span>
                         )}
@@ -119,9 +135,47 @@ export default function EditableTerm({ termId, data, studentNumber }: { termId: 
                   </tr>
                 );
               })}
+
+              {isEditing && !isAddingCourse && (
+                <tr>
+                  <td colSpan={3} className="px-5 py-3">
+                    <button type="button" onClick={() => setIsAddingCourse(true)} className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold uppercase tracking-widest text-maroon border-2 border-dashed border-red-100 bg-red-50/30 rounded-lg hover:bg-maroon hover:text-white hover:border-maroon transition-all">
+                      <PlusIcon className="w-4 h-4 stroke-[2.5]" /> Add Course
+                    </button>
+                  </td>
+                </tr>
+              )}
+
+              {isEditing && isAddingCourse && (
+                <tr className="bg-red-50/50">
+                  <td className="px-5 py-2.5">
+                    <div className="relative">
+                      <select value={newCourseId} onChange={(e) => setNewCourseId(e.target.value)} className="w-full bg-white text-gray-800 text-sm px-3 py-2 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all appearance-none shadow-sm">
+                        <option value="" disabled>Select a Course</option>
+                        {availableCourses.map(c => ( <option key={c.course_id} value={c.course_id}>{c.course_id}</option> ))}
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                        <ChevronDownIcon className="h-4 w-4" />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-5 py-2.5 text-center text-sm font-bold text-gray-500">
+                    {newCourseUnits}
+                  </td>
+                  <td className="px-3 py-2.5 text-right">
+                    <div className="flex items-center justify-end gap-4">
+                      <input type="text" value={newCourseGrade} onKeyDown={gradesOnly} onChange={(e) => setNewCourseGrade(e.target.value.toUpperCase())} placeholder="Grade" className="w-16 text-center text-sm font-mono font-bold rounded-lg border border-gray-200 bg-white focus:border-maroon outline-none px-2 py-2 shadow-sm"/>
+                      <button type="button" onClick={() => { setIsAddingCourse(false); setNewCourseId(""); setNewCourseGrade(""); }} className="p-1 text-gray-400 hover:text-maroon hover:bg-white rounded-full transition-all shadow-sm">
+                        <XMarkIcon className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
+        <div className="flex-1 bg-white"></div>
       </div>
 
       {courseToDelete && (
@@ -130,9 +184,9 @@ export default function EditableTerm({ termId, data, studentNumber }: { termId: 
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-maroon mb-4 shrink-0">
               <ExclamationTriangleIcon className="h-6 w-6 text-white" />
             </div>
-            
-            <h3 className="text-lg font-black text-maroon text-center uppercase tracking-wider">Confirm Deletion</h3>
 
+            <h3 className="text-lg font-black text-maroon text-center uppercase tracking-wider">Confirm Deletion</h3>
+             
             <div className="mt-2 w-full">
               <p className="text-sm text-gray-500 text-center leading-relaxed break-words">
                 Are you sure you want to delete <br />
