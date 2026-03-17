@@ -4,18 +4,35 @@ import { createClient } from "./supabase/server";
 import { revalidatePath } from "next/cache";
 import Papa from "papaparse";
 
-export async function updatePaperAction(id: number, updates: any) {
+export async function updatePaperAction(paperId: number, data: any) {
   const supabase = await createClient();
-
-  const { error } = await supabase
+  const { authors, ...paperDetails } = data;
+  
+  const { error: paperError } = await supabase
     .from("academic_papers")
-    .update(updates)
-    .eq("paper_id", id);
+    .update(paperDetails)
+    .eq("paper_id", paperId);
 
-  if (error) throw new Error(error.message);
+  if (paperError) throw new Error(paperError.message);
+
+  const { error: deleteError } = await supabase
+    .from("author")
+    .delete()
+    .eq("paper_id", paperId);
+
+  if (deleteError) throw new Error(deleteError.message);
+
+  if (authors && authors.length > 0) {
+    const authorsToInsert = authors.map((a: any) => ({ ...a, paper_id: paperId, }));
+
+    const { error: insertError } = await supabase
+      .from("author")
+      .insert(authorsToInsert);
+
+    if (insertError) throw new Error(insertError.message);
+  }
 
   revalidatePath("/papers"); 
-  return { success: true };
 }
 
 export async function deletePaperAction(id: number) {
@@ -34,39 +51,27 @@ export async function deletePaperAction(id: number) {
 
 export async function addPaperAction(data: any) {
   const supabase = await createClient();
+  const { authors, ...paperDetails } = data;
 
-  const { data: paperData, error: paperError } = await supabase
+  const { data: newPaper, error: paperError } = await supabase
     .from("academic_papers")
-    .insert([{
-      paper_title: data.paper_title,
-      paper_year_submitted: data.paper_year_submitted,
-      paper_pages: data.paper_pages,
-      paper_summary: data.paper_summary,
-      paper_references: data.paper_references || "",
-      paper_type: data.paper_type,
-      adviser_id: data.adviser_id ? Number(data.adviser_id) : null,
-    }])
-    .select()   
-    .single();  
+    .insert(paperDetails)
+    .select("paper_id")
+    .single();
 
-  if (paperError) throw new Error("Paper creation failed: " + paperError.message);
+  if (paperError) throw new Error(paperError.message);
 
-  const authorsToInsert = data.authors.map((a: any) => ({
-    author_fname: a.author_fname,
-    author_lname: a.author_lname,
-    author_mname: a.author_mname || null,
-    author_suffix: a.author_suffix || null,
-    paper_id: paperData.paper_id,
-  }));
+  if (authors && authors.length > 0 && newPaper) {
+    const authorsToInsert = authors.map((a: any) => ({ ...a, paper_id: newPaper.paper_id, }));
 
-  const { error: authorError } = await supabase
-    .from("author")  
-    .insert(authorsToInsert);
+    const { error: insertError } = await supabase
+      .from("author")
+      .insert(authorsToInsert);
 
-  if (authorError) throw new Error("Author creation failed: " + authorError.message);
+    if (insertError) throw new Error(insertError.message);
+  }
 
-  revalidatePath("/papers");
-  return { success: true };
+  revalidatePath("/papers"); 
 }
 
 function parseName(fullName: string) {

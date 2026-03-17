@@ -1,17 +1,33 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { ReactNode } from "react";
 
-export function LogoutButton() {
+interface LogoutButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children?: ReactNode;
+  className?: string;
+}
+
+export function LogoutButton({ children, className, ...props }: LogoutButtonProps) {
   const router = useRouter();
 
   const logout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/auth/login");
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      router.push("/auth/login");
+      router.refresh();
+    } catch (error) {
+      console.error('Failed to logout:', error);
+    }
   };
 
-  return <Button onClick={logout}>Logout</Button>;
+  return (
+    <button onClick={logout} className={className} {...props}>
+      {children || "Logout"}
+    </button>
+  );
 }

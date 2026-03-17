@@ -25,7 +25,6 @@ export interface AuthorInput {
   author_suffix: string;
 }
 
-
 export function getSummaryLabel(type?: string) {
   if (type === "Thesis") return "Abstract";
   if (type === "Strategic Paper") return "Executive Summary";
@@ -98,19 +97,19 @@ function FormFields({ authors, addAuthor, removeAuthor, updateAuthor, advisers, 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div className="sm:col-span-1 text-left">
                 <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">First Name</label>
-                <input value={a.author_fname} onChange={(e) => updateAuthor(index, "author_fname", e.target.value)} required placeholder="John" className="w-full bg-gray-50 text-black text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+                <input value={a.author_fname} onChange={(e) => updateAuthor(index, "author_fname", e.target.value)} required placeholder="John" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
               </div>
               <div className="sm:col-span-1 text-left">
                 <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Middle Name</label>
-                <input value={a.author_mname} onChange={(e) => updateAuthor(index, "author_mname", e.target.value)} placeholder="B." className="w-full bg-gray-50 text-black text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+                <input value={a.author_mname} onChange={(e) => updateAuthor(index, "author_mname", e.target.value)} placeholder="B." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
               </div>
               <div className="sm:col-span-1 text-left">
                 <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Last Name</label>
-                <input value={a.author_lname} onChange={(e) => updateAuthor(index, "author_lname", e.target.value)} required placeholder="Cruz" className="w-full bg-gray-50 text-black text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+                <input value={a.author_lname} onChange={(e) => updateAuthor(index, "author_lname", e.target.value)} required placeholder="Cruz" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
               </div>
               <div className="sm:col-span-1 text-left">
                 <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Suffix</label>
-                <input value={a.author_suffix} onChange={(e) => updateAuthor(index, "author_suffix", e.target.value)} placeholder="Jr." className="w-full bg-gray-50 text-black text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+                <input value={a.author_suffix} onChange={(e) => updateAuthor(index, "author_suffix", e.target.value)} placeholder="Jr." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
               </div>
             </div>
           </div>
@@ -124,14 +123,14 @@ function FormFields({ authors, addAuthor, removeAuthor, updateAuthor, advisers, 
 
         <div className="text-left">
           <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Paper Title</label>
-          <input name="paper_title" defaultValue={defaultValues.paper_title || ""} required placeholder="Enter full title..." className="w-full bg-gray-50 text-black text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all"/>
+          <input name="paper_title" defaultValue={defaultValues.paper_title || ""} required placeholder="Enter full title..." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all"/>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="text-left">
             <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Paper Type</label>
             <div className="relative">
-              <select name="paper_type" value={paperType} onChange={(e) => setPaperType(e.target.value)} required className="w-full bg-gray-50 text-black text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all appearance-none">
+              <select name="paper_type" value={paperType} onChange={(e) => setPaperType(e.target.value)} required className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all appearance-none">
                 <option value="" disabled>Select a Type</option>
                 <option value="Thesis">Thesis</option>
                 <option value="Strategic Paper">Strategic Paper</option>
@@ -145,7 +144,7 @@ function FormFields({ authors, addAuthor, removeAuthor, updateAuthor, advisers, 
           <div className="text-left">
             <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Adviser</label>
             <div className="relative">
-              <select name="adviser_id" defaultValue={defaultValues.adviser_id || ""} required className="w-full bg-gray-50 text-black text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all appearance-none">
+              <select name="adviser_id" defaultValue={defaultValues.adviser_id || ""} required className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all appearance-none">
                 <option value="" disabled>Select an Adviser</option>
                 {advisers.map((adv) => ( <option key={adv.id} value={adv.id}>{adv.name}</option> ))}
               </select>
@@ -159,7 +158,7 @@ function FormFields({ authors, addAuthor, removeAuthor, updateAuthor, advisers, 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="text-left">
             <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Year Submitted</label>
-            <input name="paper_year_submitted" type="number" defaultValue={defaultValues.paper_year_submitted || ""} placeholder="e.g. 2024" className="w-full bg-gray-50 text-black text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" 
+            <input name="paper_year_submitted" type="number" defaultValue={defaultValues.paper_year_submitted || ""} placeholder="e.g. 2024" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" 
               onKeyDown={(e) => {if (["-", ".", "e", "E", "+", "/"].includes(e.key)) {e.preventDefault();}}}
               min={1998} 
               max={new Date().getFullYear()} 
@@ -167,7 +166,7 @@ function FormFields({ authors, addAuthor, removeAuthor, updateAuthor, advisers, 
           </div>
           <div className="text-left">
             <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Total Pages</label>
-            <input name="paper_pages" type="number" defaultValue={defaultValues.paper_pages || ""} placeholder="e.g. 50" className="w-full bg-gray-50 text-black text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" 
+            <input name="paper_pages" type="number" defaultValue={defaultValues.paper_pages || ""} placeholder="e.g. 50" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" 
               min={1}
               onKeyDown={(e) => {if (["-", ".", "e", "E", "+", "/"].includes(e.key)) {e.preventDefault();}}}
             />
@@ -178,12 +177,12 @@ function FormFields({ authors, addAuthor, removeAuthor, updateAuthor, advisers, 
           <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">
             {getSummaryLabel(paperType)}
           </label>
-          <textarea name="paper_summary" rows={5} defaultValue={defaultValues.paper_summary || ""} placeholder="Enter abstract or summary..." className="w-full bg-gray-50 text-black text-sm px-4 py-2.5 rounded-lg border border-gray-200 outline-none focus:border-maroon focus:bg-white transition-all resize-none whitespace-pre-wrap"/>
+          <textarea name="paper_summary" rows={5} defaultValue={defaultValues.paper_summary || ""} placeholder="Enter abstract or summary..." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 outline-none focus:border-maroon focus:bg-white transition-all resize-none whitespace-pre-wrap"/>
         </div>
 
         <div className="text-left">
           <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">References</label>
-          <textarea name="paper_references" rows={5} defaultValue={defaultValues.paper_references || ""} placeholder="List references here..." className="w-full bg-gray-50 text-black text-sm px-4 py-2.5 rounded-lg border border-gray-200 outline-none focus:border-maroon focus:bg-white transition-all break-words resize-none"/>
+          <textarea name="paper_references" rows={5} defaultValue={defaultValues.paper_references || ""} placeholder="List references here..." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 outline-none focus:border-maroon focus:bg-white transition-all break-words resize-none"/>
         </div>
       </div>
     </>
@@ -237,7 +236,7 @@ export function EditAction({ paper, advisers = [] }: { paper: any; advisers?: Pe
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50 shrink-0">
               <h2 className="text-lg font-bold text-maroon">Update Paper Record — #{paper.paper_id}</h2>
-              <button onClick={() => setIsOpen(false)} className="p-2 text-gray-700 hover:text-white hover:bg-maroon rounded-lg transition-colors">
+              <button onClick={() => setIsOpen(false)} className="p-2 text-gray-800 hover:text-white hover:bg-maroon rounded-lg transition-colors">
                 <XMarkIcon className="w-5 h-5" />
               </button>
             </div>
@@ -275,9 +274,7 @@ export function DeleteAction({ paper }: { paper: any }) {
 
   return (
     <>
-      <button onClick={() => setIsOpen(true)} className="text-zinc-400 hover:text-maroon transition-colors">
-        <TrashIcon className="w-5 h-5" />
-      </button>
+      <button onClick={() => setIsOpen(true)} className="text-zinc-400 hover:text-maroon transition-colors"><TrashIcon className="w-5 h-5" /></button>
 
       {isOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/50 transition-opacity backdrop-blur-sm" onClick={() => !isProcessing && setIsOpen(false)}>
@@ -299,7 +296,7 @@ export function DeleteAction({ paper }: { paper: any }) {
             {error && (<p className="mt-3 w-full text-xs text-red font-medium bg-red-50 p-2 rounded border border-red-100 break-words text-center">{error}</p>)}
 
             <div className="mt-8 grid grid-cols-2 w-full gap-3">
-              <button type="button" onClick={() => setIsOpen(false)} disabled={isProcessing} className="w-full rounded-2xl bg-gray-50 px-4 py-3 text-xs uppercase tracking-widest font-bold text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors">
+              <button type="button" onClick={() => setIsOpen(false)} disabled={isProcessing} className="w-full rounded-2xl bg-gray-50 px-4 py-3 text-xs uppercase tracking-widest font-bold text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors">
                 Cancel
               </button>
               <button type="button" onClick={handleDelete} disabled={isProcessing} className="w-full rounded-2xl bg-maroon px-4 py-3 text-xs uppercase tracking-widest font-bold text-white shadow-sm hover:bg-maroon-900 transition-colors disabled:opacity-50">
@@ -361,7 +358,7 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 text-left" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50 shrink-0">
               <h2 className="text-lg font-bold text-maroon">New Paper Submission</h2>
-              <button onClick={() => setIsOpen(false)} className="p-2 text-gray-400 hover:text-black hover:bg-gray-200 rounded-lg transition-colors">
+              <button onClick={() => setIsOpen(false)} className="p-2 text-gray-800 hover:text-white hover:bg-maroon rounded-lg transition-colors">
                 <XMarkIcon className="w-5 h-5" />
               </button>
             </div>
@@ -385,7 +382,7 @@ export function Modal({ id, title, type, pages, summary, references }: ModalProp
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="text-maroon hover:underline text-left font-medium transition-colors">{title}</button>
+      <button onClick={() => setOpen(true)} className="text-maroon hover:underline text-left font-medium transition-colors truncate block w-full">{title}</button>
       {open && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
           <div className="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setOpen(false)}/>
@@ -393,7 +390,7 @@ export function Modal({ id, title, type, pages, summary, references }: ModalProp
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50">
               <h2 className="text-lg font-bold text-maroon">Paper Details — #{id}</h2>
-              <button onClick={() => setOpen(false)} className="p-2 text-gray-700 hover:text-white hover:bg-maroon rounded-lg transition-colors">
+              <button onClick={() => setOpen(false)} className="p-2 text-gray-800 hover:text-white hover:bg-maroon rounded-lg transition-colors">
                 <XMarkIcon className="w-5 h-5" />
               </button>
             </div>
@@ -404,15 +401,15 @@ export function Modal({ id, title, type, pages, summary, references }: ModalProp
               </div>
               <div>
                 <h3 className="text-xs font-bold text-maroon-900 uppercase tracking-widest mb-2">{getSummaryLabel(type)}</h3>
-                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{summary || "No summary available."}</p>
+                <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{summary || "No summary available."}</p>
               </div>
               <div>
                 <h3 className="text-xs font-bold text-maroon-900 uppercase tracking-widest mb-2">References</h3>
-                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{references || "No references listed."}</p>
+                <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{references || "No references listed."}</p>
               </div>
               <div>
                 <h3 className="text-xs font-bold text-maroon-900 uppercase tracking-widest mb-2">Number of Pages</h3>
-                <p className="text-sm text-gray-700 leading-relaxed">{pages}</p>
+                <p className="text-sm text-gray-800 leading-relaxed">{pages}</p>
               </div>
             </div>
           </div>

@@ -3,22 +3,11 @@ import PaperRows, { RowSkeleton } from "./rows";
 import UploadButton from "./upload-button";
 import SearchInput from "@/components/searchinput";
 import { AddPaperActions } from "./actions";
-import { createClient } from "@/lib/supabase/server";
+import { populateAdvisers } from "@/lib/data";
 
 async function AddPaperWrapper() {
-  const supabase = await createClient();
-
-  const { data: adviser } = await supabase
-    .from("adviser")
-    .select("adviser_id, adviser_fname, adviser_mname, adviser_lname, adviser_suffix")
-    .order("adviser_lname", { ascending: true });
-
-  const adviserOptions = (adviser ?? []).map((a) => ({
-    id: a.adviser_id,
-    name: `${a.adviser_fname} ${a.adviser_lname}`,
-  }));
-
-  return <AddPaperActions adviser={adviserOptions} />;
+  const advisersList = await populateAdvisers();
+  return <AddPaperActions adviser={advisersList} />;
 }
 
 export type SearchProps = {

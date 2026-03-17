@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { UserCircleIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
-import { createBrowserClient } from '@supabase/ssr'
+import { LogoutButton } from '@/components/logout-button'; 
 
 const routeTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -12,12 +12,11 @@ const routeTitles: Record<string, string> = {
   '/dashboard/checklist': 'Student Checklist',
   '/dashboard/handbook': 'Student Handbook',
   '/dashboard/profile': 'My Profile',
-  '/dashboard/about' : 'About US'
+  '/dashboard/about' : 'About Us'
 };
 
 export default function TopNav() {
   const pathname = usePathname();
-  const router = useRouter();
 
   const currentTitle = () => {
     if (routeTitles[pathname]) return routeTitles[pathname];
@@ -31,23 +30,6 @@ export default function TopNav() {
     return 'Management System';
   };
 
-  const handleLogout = async () => {
-  try {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-    )
-    
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
-
-    router.push('/auth/login')
-    router.refresh()
-  } catch (error) {
-    console.error('Failed to logout:', error)
-  }
-};
-
   const navItemClassName = (isActive: boolean) =>
     clsx(
       'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200',
@@ -60,29 +42,21 @@ export default function TopNav() {
   return (
     <header className="flex h-16 items-center justify-between border-b border-maroon/10 bg-red-50 px-6">
       <div className="flex items-center">
-        <h2 className="text-2xl font-bold tracking-tight text-maroon">
-          {currentTitle()}
-        </h2>
+        <h2 className="text-2xl font-bold tracking-tight text-maroon">{currentTitle()}</h2>
       </div>
 
       <div className="flex items-center gap-4">
-        <Link 
-          href="/dashboard/profile"
-          className={navItemClassName(pathname === '/dashboard/profile')}
-        >
+        <Link href="/dashboard/profile" className={navItemClassName(pathname === '/dashboard/profile')}>
           <UserCircleIcon className={clsx("w-6 h-6", pathname === '/dashboard/profile' ? "text-white" : "text-maroon")} />
           <span className="hidden md:inline">Profile</span>
         </Link>
 
         <div className="h-6 w-[1px] bg-maroon/20 mx-2" />
 
-        <button
-          onClick={handleLogout}
-          className={navItemClassName(false)}
-        >
+        <LogoutButton className={navItemClassName(false)}>
           <ArrowLeftOnRectangleIcon className="w-6 h-6 text-maroon" />
           <span className="hidden md:inline">Logout</span>
-        </button>
+        </LogoutButton>
       </div>
     </header>
   );

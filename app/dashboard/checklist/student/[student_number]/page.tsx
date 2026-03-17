@@ -4,9 +4,11 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { ArrowLeftIcon, IdentificationIcon, PhoneIcon, EnvelopeIcon, AcademicCapIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import EditableTerm from '@/app/dashboard/checklist/student/[student_number]/editable-checklist';
+import { formatFullName } from "@/lib/utils";
 
 async function StudentProfileContent({ student_number }: { student_number: string }) {
   const supabase = await createClient();
+  
   const { data: student, error: studentError } = await supabase
     .from('student')
     .select(`*, 
@@ -75,7 +77,7 @@ async function StudentProfileContent({ student_number }: { student_number: strin
   });
 
   const overallGwa = totalUnits > 0 ? (weightedPoints / totalUnits).toFixed(2) : "0.00";
-  const suffix = student.student_suffix ? ` ${student.student_suffix}` : "";
+  const studentSuffix = student.student_suffix ? ` ${student.student_suffix}` : "";
 
   return (
     <>
@@ -86,18 +88,16 @@ async function StudentProfileContent({ student_number }: { student_number: strin
         </Link>
       </div>
 
-      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8 mb-10">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-10">
         <div className="flex flex-col lg:flex-row gap-10 items-center">
           <div className="flex-1 space-y-4">
             <div>
               <h1 className="text-3xl font-black text-maroon-900 tracking-tight uppercase">
-                {student.student_lname}{suffix}, {student.student_fname} {student.student_mname}
+                {student.student_lname}{studentSuffix}, {student.student_fname} {student.student_mname || ''}
               </h1>
               <p className="text-maroon font-bold flex items-center gap-2 mt-1 text-sm">
-                <IdentificationIcon className="h-4 w-4" />
-                Student Number: {student.student_number}
-                <span className="text-gray-300 mx-2">|</span>
-                SAIS ID: {student.student_sais_id}
+                <IdentificationIcon className="h-4 w-4" /> Student Number: {student.student_number}
+                <span className="text-gray-300 mx-2">|</span> SAIS ID: {student.student_sais_id || 'N/A'}
               </p>
             </div>
             
@@ -113,22 +113,22 @@ async function StudentProfileContent({ student_number }: { student_number: strin
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
               <div className="flex items-center gap-3 text-sm text-gray-600">
                 <CalendarIcon className="h-4 w-4" /> 
-                {`${student.admission_term.semester}, AY ${student.admission_term.academic_year}`}
+                {`${student.admission_term?.semester || 'Unknown'}, AY ${student.admission_term?.academic_year || 'Unknown'}`}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <AcademicCapIcon className="h-4 w-4" />
-                {`Prof ${student.adviser.adviser_fname} ${student.adviser.adviser_mname[0]}. ${student.adviser.adviser_lname} ${suffix ? student.adviser.adviser_suffix : ''}`}
+                Prof. {student.adviser ? formatFullName(student.adviser.adviser_fname, student.adviser.adviser_mname, student.adviser.adviser_lname, student.adviser.adviser_suffix) : 'N/A'}
               </div>
             </div>
           </div>
 
           <div className="flex gap-4">
-            <div className="bg-maroon text-white p-6 rounded-3xl text-center min-w-[120px]">
-              <p className="text-[10px] uppercase font-bold opacity-80 mb-1">Overall GWA</p>
+            <div className="bg-maroon text-white p-6 rounded-2xl text-center min-w-[120px] shadow-sm">
+              <p className="text-[10px] uppercase tracking-widest font-bold opacity-80 mb-1">Overall GWA</p>
               <p className="text-3xl font-black">{overallGwa}</p>
             </div>
-            <div className="bg-gray-50 border border-gray-100 p-6 rounded-3xl text-center min-w-[120px]">
-              <p className="text-[10px] uppercase font-bold text-gray-400 mb-1">Total Units</p>
+            <div className="bg-gray-50 border border-gray-100 p-6 rounded-2xl text-center min-w-[120px] shadow-sm">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1">Total Units</p>
               <p className="text-3xl font-black text-maroon-900">{totalUnits}</p>
             </div>
           </div>
@@ -141,21 +141,25 @@ async function StudentProfileContent({ student_number }: { student_number: strin
             const gridCols = terms.length >= 3 ? "grid-cols-1 lg:grid-cols-3" : terms.length === 2 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1";
 
             return (
-              <div key={ayLabel} className="space-y-4">
+              <div key={ayLabel} className="bg-red-50 rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
                 {ayLabel !== 'Unknown' && (
-                  <h2 className="text-xl text-center font-black text-maroon-900 tracking-wider uppercase pl-3 border-b-2 border-maroon">
-                    Academic Year {ayLabel}
-                  </h2>
+                  <div className="bg-red-50 py-2 text-center">
+                    <h2 className="text-lg font-black text-maroon-900 uppercase tracking-widest">
+                      Academic Year {ayLabel}
+                    </h2>
+                  </div>
                 )}
 
-                <div className={`grid ${gridCols} gap-6 items-stretch`}>
+                <div className={`grid ${gridCols} items-stretch bg-red-50`}>
                   {terms.map(({ termId, data }) => (<EditableTerm key={termId} termId={termId} data={data} studentNumber={student.student_number} />))}
                 </div>
               </div>
             );
           })
         ) : (
-          <p className="text-center text-maroon font-bold tracking-widest uppercase text-sm py-20">No academic records found.</p>
+          <div className="flex flex-col items-center justify-center py-20">
+            <p className="text-maroon font-bold tracking-widest uppercase text-sm">No academic records found.</p>
+          </div>
         )}
       </div>
     </>

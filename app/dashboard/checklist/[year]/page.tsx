@@ -2,10 +2,12 @@ import { createClient } from '@/lib/supabase/server';
 import { Suspense } from "react";
 import SearchInput from "@/components/searchinput";
 import Link from "next/link";
-import { ArrowLeftIcon, UserIcon, PencilSquareIcon, TrashIcon, ExclamationTriangleIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, UserIcon, PencilSquareIcon, TrashIcon, ExclamationTriangleIcon, ChevronDownIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import AddStudentButton from "./add-student";
+import { formatFullName } from "@/lib/utils";
+import { populateAdvisers } from "@/lib/data";
 
 async function BatchChecklistContent({ params, searchParams }: { params: Promise<{ year: string }>, searchParams: Promise<{ query?: string; edit?: string; delete?: string }> }) {
   const { year } = await params;
@@ -52,22 +54,14 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
     const studentNumber = formData.get('student_number');
     const submittedAdviserName = formData.get('adviser_name')?.toString();
     const submittedTermName = formData.get('term_admitted')?.toString();
-    const { data: advisersData } = await supabaseAction.from('adviser').select('*');
+    const advisersList = await populateAdvisers();
     const { data: termsActionData } = await supabaseAction.from('term').select('*');
     let adviserIdToSave = null;
     let termIdToSave = null;
-    
-    if (advisersData && submittedAdviserName) {
-      const matchedAdviser = advisersData.find(adviser => {
-        const advFullName = [
-          adviser.adviser_fname, 
-          adviser.adviser_mname, 
-          adviser.adviser_lname, 
-          adviser.adviser_suffix
-        ].filter(Boolean).join(' ').trim();
-        return advFullName === submittedAdviserName;
-      });
-      if (matchedAdviser) adviserIdToSave = matchedAdviser.adviser_id;
+ 
+    if (advisersList && submittedAdviserName) {
+      const matchedAdviser = advisersList.find(adv => adv.name === submittedAdviserName);
+      if (matchedAdviser) adviserIdToSave = matchedAdviser.id;
     }
 
     if (termsActionData && submittedTermName) {
@@ -108,18 +102,13 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
     .lte('student_number', endRange)
     .order('student_lname', { ascending: true });
 
-  const { data: advisersData } = await supabase
-    .from('adviser') 
-    .select('*')
-    .order('adviser_lname', { ascending: true }); 
-  const advisers = advisersData || [];
-
   const { data: termsData } = await supabase
     .from('term')
     .select('*')
     .order('academic_year', { ascending: false });
   const terms = termsData || [];
 
+  const advisersList = await populateAdvisers();
   let filteredStudents = students || [];
 
   if (!error && query) {
@@ -150,14 +139,7 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
       studentToEdit = studentData;
       if (studentData.adviser) {
         const adv = Array.isArray(studentData.adviser) ? studentData.adviser[0] : studentData.adviser;
-        if (adv) {
-          defaultAdviser = [
-            adv.adviser_fname, 
-            adv.adviser_mname, 
-            adv.adviser_lname, 
-            adv.adviser_suffix
-          ].filter(Boolean).join(' ').trim();
-        }
+        if (adv) defaultAdviser = formatFullName(adv.adviser_fname, adv.adviser_mname, adv.adviser_lname, adv.adviser_suffix);
       }
 
       if (studentData.admission_term) {
@@ -244,12 +226,15 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
       </div>
 
       {studentToEdit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <Link href={`?${query ? `query=${query}` : ''}`} scroll={false} className="absolute inset-0 cursor-default" />
+          <div className="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50 shrink-0">
               <h2 className="text-lg font-bold text-maroon">Update Student Record — #{studentToEdit.student_number}</h2>
               <Link href={`?${query ? `query=${query}` : ''}`} scroll={false}>
-                <p className="p-2 text-gray-700 hover:text-white hover:bg-maroon rounded-lg transition-colors flex items-center justify-center">✕</p>
+                <p className="p-2 text-gray-700 hover:text-white hover:bg-maroon rounded-lg transition-colors flex items-center justify-center">
+                  <XMarkIcon className="w-5 h-5" />
+                </p>
               </Link>
             </div>
 
@@ -260,30 +245,30 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                   <div className="sm:col-span-1 text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">First Name</label>
-                    <input type="text" name="student_fname" defaultValue={studentToEdit.student_fname || ""} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none transition-all" required />
+                    <input type="text" name="student_fname" defaultValue={studentToEdit.student_fname || ""} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" required />
                   </div>
                   <div className="sm:col-span-1 text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Middle Name</label>
-                    <input type="text" name="student_mname" defaultValue={studentToEdit.student_mname || ""} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none transition-all" />
+                    <input type="text" name="student_mname" defaultValue={studentToEdit.student_mname || ""} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
                   </div>
                   <div className="sm:col-span-1 text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Last Name</label>
-                    <input type="text" name="student_lname" defaultValue={studentToEdit.student_lname || ""} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none transition-all" required />
+                    <input type="text" name="student_lname" defaultValue={studentToEdit.student_lname || ""} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" required />
                   </div>
                   <div className="sm:col-span-1 text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Suffix</label>
-                    <input type="text" name="student_suffix" defaultValue={studentToEdit.student_suffix || ""} placeholder="e.g. Jr." className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none transition-all" />
+                    <input type="text" name="student_suffix" defaultValue={studentToEdit.student_suffix || ""} placeholder="e.g. Jr." className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Email</label>
-                    <input type="email" name="student_email" defaultValue={studentToEdit.student_email || ""} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none transition-all" />
+                    <input type="email" name="student_email" defaultValue={studentToEdit.student_email || ""} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
                   </div>
                   <div className="text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Contact No.</label>
-                    <input type="tel" name="student_contact_no" defaultValue={studentToEdit.student_contact_no || ""} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none transition-all" />
+                    <input type="tel" name="student_contact_no" defaultValue={studentToEdit.student_contact_no || ""} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
                   </div>
                 </div>
 
@@ -291,7 +276,7 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
                   <div className="text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Term Admitted</label>
                     <div className="relative">
-                      <select name="term_admitted" defaultValue={defaultTerm} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none transition-all appearance-none">
+                      <select name="term_admitted" defaultValue={defaultTerm} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all appearance-none">
                         <option value="" disabled>Select a Term</option>
                         {terms.map((term) => {
                           const termFullName = `${term.semester} ${term.academic_year}`.trim();
@@ -308,18 +293,9 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
                   <div className="text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Adviser</label>
                     <div className="relative">
-                      <select name="adviser_name" defaultValue={defaultAdviser} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none transition-all appearance-none">
+                      <select name="adviser_name" defaultValue={defaultAdviser} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all appearance-none">
                         <option value="" disabled>Select an Adviser</option>
-                        {advisers.map((adviser) => {
-                          const advFullName = [
-                            adviser.adviser_fname, 
-                            adviser.adviser_mname, 
-                            adviser.adviser_lname, 
-                            adviser.adviser_suffix
-                          ].filter(Boolean).join(' ').trim();
-                         
-                          return (<option key={adviser.adviser_id} value={advFullName}>{advFullName}</option>);
-                        })}
+                        {advisersList.map((adviser) => ( <option key={adviser.id} value={adviser.name}>{adviser.name}</option> ))}
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
                         <ChevronDownIcon className="h-4 w-4" />
