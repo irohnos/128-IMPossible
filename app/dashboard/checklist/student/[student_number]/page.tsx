@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { ArrowLeftIcon, IdentificationIcon, PhoneIcon, EnvelopeIcon, AcademicCapIcon, CalendarIcon } from "@heroicons/react/24/outline";
+import EditableTerm from '@/app/dashboard/checklist/student/[student_number]/editable-checklist';
 
 async function StudentProfileContent({ student_number }: { student_number: string }) {
   const supabase = await createClient();
@@ -150,53 +151,14 @@ async function StudentProfileContent({ student_number }: { student_number: strin
                 )}
 
                 <div className={`grid ${gridCols} gap-6 items-stretch`}>
-                  {terms.map(({ termId, data }) => {
-                    const termGwa = data.termUnits > 0 ? (data.termWeightedPoints / data.termUnits).toFixed(2) : "0.00";
-
-                    return (
-                      <div key={termId} className="h-full bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-                        <div className="px-6 py-4 bg-red-50/50 border-b border-gray-100 flex flex-row justify-between items-center gap-4 shrink-0">
-                          <h3 className="font-black text-maroon text-sm uppercase tracking-widest leading-tight truncate">
-                            {data.termMetadata ? `${data.termMetadata.semester}` : `Term ${termId}`}
-                          </h3>
-                          <div className="flex gap-4 text-[10px] font-black uppercase tracking-widest shrink-0">
-                            <span className="text-gray-400">Units: <span className="text-maroon-900 text-sm">{data.termUnits}</span></span>
-                            <span className="text-gray-400">GWA: <span className="text-maroon-900 text-sm">{termGwa}</span></span>
-                          </div>
-                        </div>
-                        
-                        <div className="overflow-x-auto flex-1">
-                          <table className="w-full text-left whitespace-nowrap">
-                            <thead>
-                              <tr className="text-[10px] uppercase tracking-widest text-gray-400 font-black border-b border-gray-50">
-                                <th className="px-5 py-3">Course</th>
-                                <th className="px-5 py-3 text-center">Units</th>
-                                <th className="px-5 py-3 text-right">Grade</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50">
-                              {data.courses.map((record) => {
-                                const numericGrade = parseFloat(record.grade);
-                                const isPassing = !isNaN(numericGrade) && numericGrade < 3;
-                                
-                                return (
-                                  <tr key={record.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-5 py-4 font-bold text-sm text-maroon-900">{record.course_id}</td>
-                                    <td className="px-5 py-4 text-center text-sm text-gray-500">{record.course?.course_units}</td>
-                                    <td className="px-5 py-4 text-right">
-                                      <span className={`font-mono font-bold rounded-lg transition-colors px-2 py-1 ${isPassing ? "bg-green/10 text-green": "bg-maroon/10 text-maroon"}`}>
-                                        {record.grade}
-                                      </span>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {terms.map(({ termId, data }) => (
+                    <EditableTerm 
+                      key={termId}
+                      termId={termId} 
+                      data={data} 
+                      studentNumber={student.student_number} 
+                    />
+                  ))}
                 </div>
               </div>
             );
