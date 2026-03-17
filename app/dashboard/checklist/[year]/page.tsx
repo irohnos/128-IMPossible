@@ -6,7 +6,23 @@ import { ArrowLeftIcon, UserIcon, PencilSquareIcon, TrashIcon, ExclamationTriang
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-export default async function BatchChecklistPage({ params, searchParams 
+
+export default function BatchChecklistPage({ params, searchParams }: { 
+  params: Promise<{ year: string }>, searchParams: Promise<{ query?: string; edit?: string; delete?: string }> 
+}) {
+  return (
+    <Suspense fallback={
+      <div className="p-10 flex flex-col items-center justify-center">
+        <div className="h-8 w-8 border-4 border-maroon border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-maroon font-bold">Loading records...</p>
+      </div>
+    }>
+      <BatchChecklistContent params={params} searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function BatchChecklistContent({ params, searchParams 
 }: { 
   params: Promise<{ year: string }>, searchParams: Promise<{ query?: string; edit?: string; delete?: string }> 
 }) {
@@ -23,8 +39,8 @@ export default async function BatchChecklistPage({ params, searchParams
       .eq('student_number', studentNumber);
 
     if (!error) {
-      revalidatePath(`/dashboard/checklist/batch/${year}`); 
-      redirect(`/dashboard/checklist/batch/${year}${query ? `?query=${query}` : ''}`);
+      revalidatePath(`/dashboard/checklist/${year}`); 
+      redirect(`/dashboard/checklist/${year}${query ? `?query=${query}` : ''}`);
     } else {
       console.error("Failed to delete:", error);
     }
