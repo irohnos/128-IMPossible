@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeftIcon, UserIcon, PencilSquareIcon, TrashIcon, ExclamationTriangleIcon, ChevronDownIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import AddStudentButton from "./add-student";
 import { formatFullName } from "@/lib/utils";
 import { populateAdvisers } from "@/lib/data";
 import { parseDatabaseError } from "@/lib/error-handler";
@@ -14,6 +15,26 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
   const { year } = await params;
   const { query = "", edit, delete: deleteParam } = await searchParams;
   const supabase = await createClient();
+
+  const { data: adviserData } = await supabase
+    .from("adviser")
+    .select("adviser_id, adviser_fname, adviser_lname, adviser_suffix")
+    .order("adviser_lname", { ascending: true });
+
+  const adviserOptions = (adviserData ?? []).map((a) => ({
+    id: a.adviser_id,
+    name: `${a.adviser_fname} ${a.adviser_lname} ${a.adviser_suffix || ''}`.trim(),
+  }));
+
+  const { data: termData } = await supabase
+    .from("term")
+    .select("term_id, semester, academic_year")
+    .order("academic_year", { ascending: false });
+
+  const termOptions = (termData ?? []).map((t) => ({
+    id: t.term_id,
+    name: `${t.semester}, AY ${t.academic_year}`,
+  }));
 
   async function deleteStudent(studentNumber: number) {
     "use server";
@@ -150,48 +171,60 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
 
   return (
     <div className="max-w-auto mx-auto relative">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredStudents.length > 0 ? (
-          filteredStudents.map((student) => {
-            const initials = `${student.student_fname?.[0] || ''}${student.student_lname?.[0] || ''}`;
-            const suffix = student.student_suffix ? ` ${student.student_suffix}` : "";
 
-            return (
-              <div key={student.student_number} className="group relative flex items-center justify-between p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-maroon/30 transition-all duration-200">
-                <Link href={`/dashboard/checklist/student/${student.student_number}`} className="flex items-center gap-4 overflow-hidden flex-1">
-                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-maroon font-bold text-sm group-hover:bg-maroon group-hover:text-white transition-colors">
-                    {initials || <UserIcon className="h-5 w-5" />}
-                  </div>
-
-                  <div className="flex flex-col overflow-hidden">
-                    <span className="text-[15px] text-maroon-900 font-bold truncate group-hover:text-maroon transition-colors">
-                      {student.student_lname}{suffix}, {student.student_fname} {student.student_mname}
-                    </span>
-                    <div className="flex flex-col text-[12px] text-gray-500 mt-0.5">
-                      <span className="font-medium">SN: {student.student_number}</span>
-                      <span className="italic opacity-80">SAIS ID: {student.student_sais_id || "N/A"}</span>
-                    </div>
-                  </div>
-                </Link>
-
-                <div className="flex flex-col gap-3 pl-4 ml-2 border-l border-gray-100">
-                  <Link href={`?${new URLSearchParams({ ...(query && { query }), edit: student.student_number.toString() }).toString()}`} scroll={false}>
-                    <PencilSquareIcon className="h-5 w-5 text-zinc-400 hover:text-yellow transition-colors" />
-                  </Link>
-                  
-                  <Link href={`?${new URLSearchParams({ ...(query && { query }), delete: student.student_number.toString() }).toString()}`} scroll={false}>
-                    <TrashIcon className="h-5 w-5 text-zinc-400 hover:text-maroon transition-colors" />
-                  </Link>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="col-span-full flex flex-col items-center justify-center">
-            <p className="text-maroon font-bold tracking-widest uppercase text-sm py-20">{query ? `No results for "${query}"` : "No student records found."}</p>
-          </div>
-        )}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+        <div className="w-full max-w-3xl">
+          <Suspense fallback={<div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />}>
+            <SearchInput placeholder="Search by Name, Student Number, etc." />
+          </Suspense>
+        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <AddStudentButton batchYear={year} advisers={adviserOptions} terms={termOptions} />
+        </div>
       </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredStudents.length > 0 ? (
+            filteredStudents.map((student) => {
+              const initials = `${student.student_fname?.[0] || ''}${student.student_lname?.[0] || ''}`;
+              const suffix = student.student_suffix ? ` ${student.student_suffix}` : "";
+
+              return (
+                <div key={student.student_number} className="group relative flex items-center justify-between p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-maroon/30 transition-all duration-200">
+                  <Link href={`/dashboard/checklist/student/${student.student_number}`} className="flex items-center gap-4 overflow-hidden flex-1">
+                    <div className="flex-shrink-0 h-12 w-12 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-maroon font-bold text-sm group-hover:bg-maroon group-hover:text-white transition-colors">
+                      {initials || <UserIcon className="h-5 w-5" />}
+                    </div>
+
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="text-[15px] text-maroon-900 font-bold truncate group-hover:text-maroon transition-colors">
+                        {student.student_lname}{suffix}, {student.student_fname} {student.student_mname}
+                      </span>
+                      <div className="flex flex-col text-[12px] text-gray-500 mt-0.5">
+                        <span className="font-medium">SN: {student.student_number}</span>
+                        <span className="italic opacity-80">SAIS ID: {student.student_sais_id || "N/A"}</span>
+                      </div>
+                    </div>
+                  </Link>
+
+                  <div className="flex flex-col gap-3 pl-4 ml-2 border-l border-gray-100">
+                    <Link href={`?${new URLSearchParams({ ...(query && { query }), edit: student.student_number.toString() }).toString()}`} scroll={false}>
+                      <PencilSquareIcon className="h-5 w-5 text-zinc-400 hover:text-yellow transition-colors" />
+                    </Link>
+                    
+                    <Link href={`?${new URLSearchParams({ ...(query && { query }), delete: student.student_number.toString() }).toString()}`} scroll={false}>
+                      <TrashIcon className="h-5 w-5 text-zinc-400 hover:text-maroon transition-colors" />
+                    </Link>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="col-span-full flex flex-col items-center justify-center">
+              <p className="text-maroon font-bold tracking-widest uppercase text-sm py-20">{query ? `No results for "${query}"` : "No student records found."}</p>
+            </div>
+          )}
+        </div>
 
       <div className="mt-8">
         <Link href="/dashboard/checklist" className="inline-flex items-center gap-2 text-gray-400 hover:text-maroon transition-colors group">
@@ -336,13 +369,6 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
 export default function BatchChecklistPage({ params, searchParams }: { params: Promise<{ year: string }>, searchParams: Promise<{ query?: string; edit?: string; delete?: string }> }) {
   return (
     <div className="max-w-auto mx-auto">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-        <div className="w-full max-w-3xl">
-          <Suspense fallback={<div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />}>
-            <SearchInput placeholder="Search by Name, Student Number, etc." />
-          </Suspense>
-        </div>
-      </div>
       <Suspense fallback={
         <div className="p-10 flex flex-col items-center justify-center">
           <div className="h-8 w-8 border-4 border-maroon border-t-transparent rounded-full animate-spin mb-4"></div>
