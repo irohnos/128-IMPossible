@@ -21,7 +21,7 @@ export default function UploadButton() {
     // Limit file size to 5MB
     const MAX_FILE_SIZE = 5 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
-      alert("File is too large. Please keep it under 2MB.");
+      alert("File is too large. Please keep it under 5MB.");
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
