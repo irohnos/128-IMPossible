@@ -54,7 +54,7 @@ export function LoginForm({
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="h-10 bg-white border border-maroon rounded-md text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-yellow/60 transition"
+          className=" text-black h-10 bg-red-50 border border-maroon rounded-md text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-yellow/60 transition"
         />
       </div>
 
@@ -69,7 +69,7 @@ export function LoginForm({
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-10 bg-white border border-maroon rounded-md text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-yellow/60 transition"
+            className="text-black h-10 bg-red-50 border border-maroon rounded-md text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-yellow/60 transition"
         />
           <button
             type="button"
@@ -100,7 +100,7 @@ export function LoginForm({
         {/* Submit */}
         <Button 
           type="submit" 
-          className="w-full bg-maroon text-white rounded-md text-sm font-semibold hover:bg-maroon-800 transition-colors shadow-sm" 
+          className="w-full bg-maroon text-red-50 rounded-md text-sm font-semibold hover:bg-maroon-800 transition-colors shadow-sm" 
           disabled={isLoading}
         >
           {isLoading ? "Signing In..." : "Sign In"}

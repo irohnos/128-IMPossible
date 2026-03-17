@@ -20,7 +20,7 @@ export default function Page() {
   ];
 
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center p-4">
+    <main className="min-h-screen bg-red-50 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl bg-card border-2 border-maroon rounded-lg shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[500px]">
 
         {/* Left panel */}
@@ -77,7 +77,7 @@ export default function Page() {
         </div>
 
         {/* Right panel */}
-        <div className="bg-white flex-1 flex flex-col justify-center px-8 py-10 sm:px-12 lg:px-14">
+        <div className="bg-red-50 flex-1 flex flex-col justify-center px-8 py-10 sm:px-12 lg:px-14">
 
           <div className="flex md:hidden items-center gap-3 mb-8">
             <div className="relative w-8 h-8 shrink-0">
