@@ -11,6 +11,21 @@ export default function UploadButton() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // File type checker
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      alert("Invalid file type. Please upload a .csv file.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    // Limit file size to 5MB
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      alert("File is too large. Please keep it under 5MB.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
     setIsUploading(true);
     const formData = new FormData();
     formData.append("file", file);
