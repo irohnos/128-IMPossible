@@ -49,7 +49,7 @@ export function ForgotPasswordForm({
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-4 bg-gray-50 text-gray-700 border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+          className="text-black h-10 bg-red-50 border border-maroon rounded-md text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-yellow/60 transition"
         />
       </div>
 
@@ -58,7 +58,7 @@ export function ForgotPasswordForm({
 
       <Button 
         type="submit" 
-        className="w-full bg-maroon text-white py-4 rounded-lg font-bold hover:bg-maroon-800 transition-colors shadow-lg" 
+        className="w-full bg-maroon text-red-50 rounded-md text-sm font-semibold hover:bg-maroon-800 transition-colors shadow-sm" 
         disabled={isLoading}
       >
         {isLoading ? "Sending..." : "Send Reset Email"}
