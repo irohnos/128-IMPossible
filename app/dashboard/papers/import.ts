@@ -41,6 +41,13 @@ export async function uploadCsvAction(formData: FormData) {
     return { error: "No file uploaded" };
   }
 
+  if (file.size > 5 * 1024 * 1024) {
+    return { error: "Server Error: File exceeds the 5MB limit." };
+  }
+  if (!file.name.toLowerCase().endsWith('.csv')) {
+    return { error: "Server Error: Only .csv files are accepted." };
+  }
+
   const text = await file.text();
   const supabase = await createClient();
 
@@ -50,10 +57,25 @@ export async function uploadCsvAction(formData: FormData) {
   });
 
   if (parsed.errors.length > 0) {
-    return { error: "Failed to parse CSV file properly." };
+    return { error: "Failed to parse CSV file properly. Please check the file formatting." };
   }
 
   const rawRows = parsed.data as Record<string, string>[];
+
+  if (rawRows.length === 0) {
+    return { error: "The CSV file contains no data." };
+  }
+
+  const firstRow = rawRows[0];
+  
+  const headers = Object.keys(firstRow).map(key => key.trim().replace(/[\r\n]+/g, ''));
+  
+  const requiredHeaders = ["Title", "Author/s", "Year", "Pages", "Adviser", "Summary", "References"];
+  const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+
+  if (missingHeaders.length > 0) {
+    return { error: `Invalid CSV format. Missing required columns: ${missingHeaders.join(", ")}` };
+  }
 
   for (const rawRow of rawRows) {
     const row: Record<string, string> = {};
@@ -66,9 +88,8 @@ export async function uploadCsvAction(formData: FormData) {
     const year = parseInt(row["Year"]?.trim(), 10);
     const pages = parseInt(row["Pages"]?.trim(), 10);
     const adviserStr = row["Adviser"]?.trim();
-    
-    const summaryStr = row["Summary"]?.trim() || ""; 
-    const referencesStr = row["References"]?.trim() || "";
+    const summaryStr = row["Summary"]?.trim(); 
+    const referencesStr = row["References"]?.trim();
 
     if (!title) continue; 
 
