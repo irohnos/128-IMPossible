@@ -39,10 +39,7 @@ async function StudentProfileContent({ student_number }: { student_number: strin
 
   records?.forEach((record) => {
     const termKey = `${record.term_taken}`;
-    if (!groupedRecords[termKey]) {
-      groupedRecords[termKey] = { courses: [], termUnits: 0, termWeightedPoints: 0, termMetadata: record.term };
-    }
-    
+    if (!groupedRecords[termKey]) groupedRecords[termKey] = { courses: [], termUnits: 0, termWeightedPoints: 0, termMetadata: record.term };    
     groupedRecords[termKey].courses.push(record);
     const courseId = record.course_id.toUpperCase();
     const isExcluded = courseId.includes('PE') || courseId.includes('NSTP');
@@ -115,11 +112,12 @@ async function StudentProfileContent({ student_number }: { student_number: strin
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
               <div className="flex items-center gap-3 text-sm text-gray-600">
-                <CalendarIcon className="h-4 w-4" /> {`${student.admission_term.semester}, AY ${student.admission_term.academic_year}`}
+                <CalendarIcon className="h-4 w-4" /> 
+                {`${student.admission_term.semester}, AY ${student.admission_term.academic_year}`}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <AcademicCapIcon className="h-4 w-4" />
-                <span>{`Prof ${student.adviser.adviser_fname} ${student.adviser.adviser_mname[0]}. ${student.adviser.adviser_lname} ${suffix ? student.adviser.adviser_suffix : ''}`}</span>
+                {`Prof ${student.adviser.adviser_fname} ${student.adviser.adviser_mname[0]}. ${student.adviser.adviser_lname} ${suffix ? student.adviser.adviser_suffix : ''}`}
               </div>
             </div>
           </div>
@@ -151,14 +149,7 @@ async function StudentProfileContent({ student_number }: { student_number: strin
                 )}
 
                 <div className={`grid ${gridCols} gap-6 items-stretch`}>
-                  {terms.map(({ termId, data }) => (
-                    <EditableTerm 
-                      key={termId}
-                      termId={termId} 
-                      data={data} 
-                      studentNumber={student.student_number} 
-                    />
-                  ))}
+                  {terms.map(({ termId, data }) => (<EditableTerm key={termId} termId={termId} data={data} studentNumber={student.student_number} />))}
                 </div>
               </div>
             );
@@ -175,7 +166,7 @@ export default async function StudentProfilePage({ params } : { params: Promise<
   return (
     <div className="max-w-auto mx-auto">
       <Suspense fallback={
-         <div className="mt-[68px] p-10 flex flex-col items-center justify-center">
+        <div className="mt-[68px] p-10 flex flex-col items-center justify-center">
           <div className="h-8 w-8 border-4 border-maroon border-t-transparent rounded-full animate-spin mb-4"></div>
           <p className="text-center animate-pulse text-maroon font-bold tracking-widest uppercase text-sm">Loading Student Data...</p>
         </div>

@@ -6,10 +6,7 @@ import { ArrowLeftIcon, UserIcon, PencilSquareIcon, TrashIcon, ExclamationTriang
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-async function BatchChecklistContent({ params, searchParams 
-}: { 
-  params: Promise<{ year: string }>, searchParams: Promise<{ query?: string; edit?: string; delete?: string }> 
-}) {
+async function BatchChecklistContent({ params, searchParams }: { params: Promise<{ year: string }>, searchParams: Promise<{ query?: string; edit?: string; delete?: string }> }) {
   const { year } = await params;
   const { query = "", edit, delete: deleteParam } = await searchParams;
   const supabase = await createClient();
@@ -25,9 +22,7 @@ async function BatchChecklistContent({ params, searchParams
     if (!error) {
       revalidatePath(`/dashboard/checklist/${year}`); 
       redirect(`/dashboard/checklist/${year}${query ? `?query=${query}` : ''}`);
-    } else {
-      console.error("Failed to delete:", error);
-    }
+    } else console.error("Failed to delete:", error);
   }
 
   async function updateStudent(formData: FormData) {
@@ -79,9 +74,7 @@ async function BatchChecklistContent({ params, searchParams
     if (!error) {
       revalidatePath(`/dashboard/checklist/${year}`);
       redirect(`/dashboard/checklist/${year}${query ? `?query=${query}` : ''}`);
-    } else {
-      console.error("Failed to update:", error);
-    }
+    } else console.error("Failed to update:", error);
   }
   
   const startRange = parseInt(`${year}000`);
@@ -317,28 +310,29 @@ async function BatchChecklistContent({ params, searchParams
       )}
 
       {studentToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 transition-opacity backdrop-blur-sm">
+          <Link href={`?${query ? `query=${query}` : ''}`} scroll={false} className="absolute inset-0 cursor-default" />
+          <div className="relative bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl flex flex-col items-center transform transition-all animate-in fade-in zoom-in-95 duration-200">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-maroon mb-4 shrink-0">
               <ExclamationTriangleIcon className="h-6 w-6 text-white" />
             </div>
             
-            <h3 className="text-lg font-bold text-maroon text-center">Confirm Deletion</h3>
+            <h3 className="text-lg font-black text-maroon text-center uppercase tracking-wider">Confirm Deletion</h3>
 
             <div className="mt-2 w-full">
               <p className="text-sm text-gray-500 text-center leading-relaxed break-words">
                 Are you sure you want to delete <br />
-                <span className="text-maroon-900 block my-1 px-2 italic">{studentToDelete.student_fname} {studentToDelete.student_lname}?</span>
-                <span className="text-gray-500 block">This action cannot be undone.</span>
+                <span className="text-maroon-900 font-bold text-lg block my-2 px-2">{studentToDelete.student_fname} {studentToDelete.student_lname}?</span>
+                <span className="text-gray-400 block text-xs uppercase tracking-widest font-bold">This action cannot be undone.</span>
               </p>
             </div>
 
-            <div className="flex mt-4 shrink-0 gap-2 items-center">
-              <Link href={`?${query ? `query=${query}` : ''}`} scroll={false} className="px-5 py-2 text-sm font-semibold text-gray-700 hover:text-maroon transition-colors">
+            <div className="mt-8 grid grid-cols-2 w-full gap-3">
+              <Link href={`?${query ? `query=${query}` : ''}`} scroll={false} className="w-full rounded-2xl bg-gray-50 px-4 py-3 text-xs uppercase tracking-widest font-bold text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors flex items-center justify-center">
                 Cancel
               </Link>
-              <form action={deleteStudent.bind(null, studentToDelete.student_number)}>
-                <button type="submit" className="px-6 py-2 bg-maroon text-white rounded-lg text-sm font-bold hover:bg-maroon-800 transition-all active:scale-95 shadow-md">
+              <form action={deleteStudent.bind(null, studentToDelete.student_number)} className="w-full">
+                <button type="submit" className="w-full rounded-2xl bg-maroon px-4 py-3 text-xs uppercase tracking-widest font-bold text-white shadow-sm hover:bg-maroon-900 transition-colors disabled:opacity-50">
                   Delete
                 </button>
               </form>
@@ -354,12 +348,12 @@ export default function BatchChecklistPage({ params, searchParams }: { params: P
   return (
     <div className="max-w-auto mx-auto">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-          <div className="w-full max-w-3xl">
-            <Suspense fallback={<div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />}>
-              <SearchInput placeholder="Search by Name, Student Number, etc." />
-            </Suspense>
-          </div>
+        <div className="w-full max-w-3xl">
+          <Suspense fallback={<div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />}>
+            <SearchInput placeholder="Search by Name, Student Number, etc." />
+          </Suspense>
         </div>
+      </div>
       <Suspense fallback={
         <div className="p-10 flex flex-col items-center justify-center">
           <div className="h-8 w-8 border-4 border-maroon border-t-transparent rounded-full animate-spin mb-4"></div>

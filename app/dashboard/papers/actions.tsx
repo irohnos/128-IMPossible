@@ -51,61 +51,38 @@ export default function PaperActions({ paper }: { paper: any }) {
 
   return (
     <div className="flex justify-end gap-3">
-      <button 
-        onClick={() => setIsEditOpen(true)} 
-        className="text-zinc-400 hover:text-yellow transition-colors"
-      >
+      <button onClick={() => setIsEditOpen(true)} className="text-zinc-400 hover:text-yellow transition-colors">
         <PencilSquareIcon className="w-5 h-5" />
       </button>
 
-      <button 
-        onClick={() => setIsDeleteConfirmOpen(true)} 
-        className="text-zinc-400 hover:text-maroon transition-colors"
-      >
+      <button onClick={() => setIsDeleteConfirmOpen(true)} className="text-zinc-400 hover:text-maroon transition-colors">
         <TrashIcon className="w-5 h-5" />
       </button>
 
       {isDeleteConfirmOpen && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-zinc-900/60 backdrop-blur-sm" 
-            onClick={() => !isProcessing && setIsDeleteConfirmOpen(false)} 
-          />
-
-          <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/50 transition-opacity backdrop-blur-sm" onClick={() => !isProcessing && setIsDeleteConfirmOpen(false)}>
+          <div className="relative bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl flex flex-col items-center transform transition-all animate-in fade-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-maroon mb-4 shrink-0">
               <ExclamationTriangleIcon className="h-6 w-6 text-white" />
             </div>
             
-            <h3 className="text-lg font-bold text-maroon text-center">Confirm Deletion</h3>
+            <h3 className="text-lg font-black text-maroon text-center uppercase tracking-wider">Confirm Deletion</h3>
 
             <div className="mt-2 w-full">
               <p className="text-sm text-gray-500 text-center leading-relaxed break-words">
                 Are you sure you want to delete <br />
-                <span className="text-maroon-900 block my-1 px-2 italic">{paper.paper_title}?</span>
-                <span className="text-gray-500 block">This action cannot be undone.</span>
+                <span className="text-maroon-900 font-bold text-lg block my-2 px-2">{paper.paper_title}?</span>
+                <span className="text-gray-400 block text-xs uppercase tracking-widest font-bold">This action cannot be undone.</span>
               </p>
             </div>
             
-            {error && (
-              <p className="mt-3 w-full text-xs text-red font-medium bg-red-50 p-2 rounded border border-red-100 break-words text-center">
-                {error}
-              </p>
-            )}
+            {error && (<p className="mt-3 w-full text-xs text-red font-medium bg-red-50 p-2 rounded border border-red-100 break-words text-center">{error}</p>)}
 
-            <div className="flex mt-4 shrink-0">
-              <button 
-                onClick={() => setIsDeleteConfirmOpen(false)}
-                disabled={isProcessing}
-                className="px-5 py-2 text-sm font-semibold text-gray-700 hover:text-maroon transition-colors"
-              >
+            <div className="mt-8 grid grid-cols-2 w-full gap-3">
+              <button type="button" onClick={() => setIsDeleteConfirmOpen(false)} disabled={isProcessing} className="w-full rounded-2xl bg-gray-50 px-4 py-3 text-xs uppercase tracking-widest font-bold text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors">
                 Cancel
               </button>
-              <button 
-                onClick={handleDelete}
-                disabled={isProcessing}
-                className="px-6 py-2 bg-maroon text-white rounded-lg text-sm font-bold hover:bg-maroon-800 disabled:bg-zinc-400 transition-all active:scale-95 shadow-md"
-              >
+              <button type="button" onClick={handleDelete} disabled={isProcessing} className="w-full rounded-2xl bg-maroon px-4 py-3 text-xs uppercase tracking-widest font-bold text-white shadow-sm hover:bg-maroon-900 transition-colors disabled:opacity-50">
                 {isProcessing ? "Deleting..." : "Delete"}
               </button>
             </div>
@@ -114,10 +91,8 @@ export default function PaperActions({ paper }: { paper: any }) {
       )}
 
       {isEditOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-zinc-900/40 backdrop-blur-sm" onClick={() => !isProcessing && setIsEditOpen(false)} />
-          
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4 transition-opacity backdrop-blur-sm" onClick={() => !isProcessing && setIsEditOpen(false)}>
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50 shrink-0">
               <h2 className="text-lg font-bold text-maroon">Update Paper Record — #{paper.paper_id}</h2>
               <button onClick={() => setIsEditOpen(false)} className="p-2 text-gray-700 hover:text-white hover:bg-maroon rounded-lg transition-colors">✕</button>
@@ -126,65 +101,40 @@ export default function PaperActions({ paper }: { paper: any }) {
             <form action={handleEdit} className="flex flex-col flex-1 overflow-hidden">
               <div className="flex-1 overflow-y-auto p-6 space-y-5">
                 {error && (
-                  <div className="p-3 bg-red-50 text-red text-sm rounded-lg border border-red-100 break-words">
-                    {error}
-                  </div>
+                  <div className="p-3 bg-red-50 text-red text-sm rounded-lg border border-red-100 break-words">{error}</div>
                 )}
                 
                 <div className="text-left">
                   <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Paper Title</label>
-                  <input 
-                    name="paper_title"
-                    defaultValue={paper.paper_title}
-                    required
-                    className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none transition-all"
-                  />
+                  <input name="paper_title" defaultValue={paper.paper_title} required className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none transition-all"/>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Year Submitted</label>
-                    <input 
-                      name="paper_year_submitted" 
-                      type="number" 
-                      defaultValue={paper.paper_year_submitted} 
+                    <input name="paper_year_submitted" type="number" defaultValue={paper.paper_year_submitted} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none" 
                       onKeyDown={(e) => {if (["-", ".", "e", "E", "+", "/"].includes(e.key)) {e.preventDefault();}}}
                       min={1998} 
                       max={new Date().getFullYear()} 
-                      className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none" 
                     />
                   </div>
                   <div className="text-left">
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Total Pages</label>
-                    <input 
-                      name="paper_pages" 
-                      type="number" 
-                      defaultValue={paper.paper_pages} 
+                    <input name="paper_pages" type="number" defaultValue={paper.paper_pages} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none" 
                       min={1}
                       onKeyDown={(e) => {if (["-", ".", "e", "E", "+", "/"].includes(e.key)) {e.preventDefault();}}}
-                      className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 focus:border-zinc-500 focus:bg-white outline-none" 
                     />
                   </div>
                 </div>
 
                 <div className="text-left">
                   <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Summary</label>
-                  <textarea 
-                    name="paper_summary"
-                    rows={5}
-                    defaultValue={paper.paper_summary}
-                    className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 outline-none focus:border-zinc-300 resize-none whitespace-pre-wrap"
-                  />
+                  <textarea name="paper_summary" rows={5} defaultValue={paper.paper_summary} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 outline-none focus:border-zinc-300 resize-none whitespace-pre-wrap"/>
                 </div>
 
                 <div className="text-left">
                   <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">References</label>
-                  <textarea 
-                    name="paper_references"
-                    rows={5}
-                    defaultValue={paper.paper_references}
-                    className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 outline-none focus:border-zinc-500 break-words resize-none"
-                  />
+                  <textarea name="paper_references" rows={5} defaultValue={paper.paper_references} className="w-full bg-gray-50 text-black px-4 py-2.5 rounded-lg border border-gray-200 outline-none focus:border-zinc-500 break-words resize-none"/>
                 </div>
               </div>
 
@@ -206,21 +156,13 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [authors, setAuthors] = useState([
-    { author_fname: "", author_mname: "", author_lname: "", author_suffix: "" }
-  ]);
+  const [authors, setAuthors] = useState([{ author_fname: "", author_mname: "", author_lname: "", author_suffix: "" }]);
 
-  const addAuthor = () => {
-    setAuthors([...authors, { author_fname: "", author_mname: "", author_lname: "", author_suffix: "" }]);
-  };
+  const addAuthor = () => { setAuthors([...authors, { author_fname: "", author_mname: "", author_lname: "", author_suffix: "" }]); };
 
-  const removeAuthor = (index: number) => {
-    setAuthors(authors.filter((_, i) => i !== index));
-  };
+  const removeAuthor = (index: number) => { setAuthors(authors.filter((_, i) => i !== index)); };
 
-  const updateAuthor = (index: number, field: string, value: string) => {
-    setAuthors(authors.map((a, i) => i === index ? { ...a, [field]: value } : a));
-  };
+  const updateAuthor = (index: number, field: string, value: string) => { setAuthors(authors.map((a, i) => i === index ? { ...a, [field]: value } : a)); };
 
   const handleAdd = async (formData: FormData) => {
     setIsProcessing(true);
@@ -260,10 +202,8 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-zinc-900/40 backdrop-blur-sm" onClick={() => !isProcessing && setIsOpen(false)} />
-          
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 text-left">
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 p-4 transition-opacity backdrop-blur-sm" onClick={() => !isProcessing && setIsOpen(false)}>
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 text-left" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
               <h2 className="text-lg font-bold text-gray-900">New Paper Submission</h2>
               <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-black">✕</button>
@@ -276,11 +216,7 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-b pb-1">
                     <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Authors</h3>
-                    <button
-                      type="button"
-                      onClick={addAuthor}
-                      className="flex items-center gap-1 text-xs font-bold text-zinc-600 hover:text-green transition-colors"
-                    >
+                    <button type="button" onClick={addAuthor} className="flex items-center gap-1 text-xs font-bold text-zinc-600 hover:text-green transition-colors">
                       <PlusIcon className="w-3.5 h-3.5" /> Add Author
                     </button>
                   </div>
@@ -327,9 +263,7 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
                       <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Adviser</label>
                       <select name="adviser_id" required className="w-full bg-gray-50 px-3 py-2.5 rounded-md border border-gray-200 outline-none text-sm">
                         <option value="">Select Adviser</option>
-                        {adviser.map((adv) => (
-                          <option key={adv.id} value={adv.id}>{adv.name}</option>
-                        ))}
+                        {adviser.map((adv) => (<option key={adv.id} value={adv.id}>{adv.name}</option>))}
                       </select>
                     </div>
                     <div className="sm:col-span-1">
