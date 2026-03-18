@@ -242,7 +242,7 @@ export function EditAction({ paper, advisers = [] }: { paper: any; advisers?: Pe
               </button>
             </div>
 
-            <form action={handleEdit} className="flex flex-col flex-1 overflow-hidden">
+            <form action={handleEdit} autoComplete="off" className="flex flex-col flex-1 overflow-hidden">
               <div className="flex-1 overflow-y-auto p-6 space-y-8">
                 {error && ( <div className="p-3 bg-red-50 text-red text-sm rounded-lg border border-red-100 break-words">{error}</div> )}
                 <FormFields authors={authors} addAuthor={addAuthor} removeAuthor={removeAuthor} updateAuthor={updateAuthor} advisers={advisers} defaultValues={paper} />
@@ -373,7 +373,7 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
               </button>
             </div>
 
-            <form action={handleAdd} className="flex flex-col flex-1 overflow-hidden">
+            <form action={handleAdd} autoComplete="off" className="flex flex-col flex-1 overflow-hidden">
               <div className="flex-1 overflow-y-auto p-6 space-y-8">
                 {error && <div className="p-3 bg-red-50 text-red text-sm rounded-lg border border-red-100">{error}</div>}
                 <FormFields authors={authors} addAuthor={addAuthor} removeAuthor={removeAuthor} updateAuthor={updateAuthor} advisers={adviser} />
