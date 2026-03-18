@@ -69,6 +69,16 @@ function SearchInputInner<T>({
 
   // Sync URL 
   useEffect(() => {
+    // 1. Check what is CURRENTLY in the URL bar
+    const currentUrlValue = searchParams.get(queryParam) ?? "";
+    
+    // 2. THE CIRCUIT BREAKER: If the URL already matches what we typed, do absolutely nothing!
+    // This instantly breaks the infinite loop.
+    if (debouncedTerm === currentUrlValue) {
+      return;
+    }
+
+    // 3. Otherwise, update the URL safely
     const params = new URLSearchParams(searchParams.toString());
     if (debouncedTerm) {
       params.set(queryParam, debouncedTerm);
@@ -76,7 +86,9 @@ function SearchInputInner<T>({
       params.delete(queryParam);
     }
     params.delete("page");
+    
     replace(`${pathname}?${params.toString()}`, { scroll: false });
+    
   }, [debouncedTerm, pathname, queryParam, replace, searchParams]);
 
   // Fetch Suggestions

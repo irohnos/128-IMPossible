@@ -123,21 +123,15 @@ export default function AddStudentButton({ batchYear, advisers, terms }: AddStud
                   <div>
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Term Admitted *</label>
                     <div className="relative">
-                      
-                      {/* 1. THE HIDDEN INPUT: This actually sends the term.id to your server action */}
                       {defaultTerm && (
                         <input type="hidden" name="term_admitted" value={defaultTerm.id} />
                       )}
-
-                      {/* 2. THE VISUAL INPUT: This is the greyed-out box the user sees */}
                       <input 
                         type="text" 
                         disabled 
                         defaultValue={defaultTerm?.name || targetTermName} 
                         className="w-full bg-gray-200 text-gray-500 text-sm px-4 py-2.5 rounded-lg border border-gray-200 cursor-not-allowed outline-none"
                       />
-                      
-                      {/* Warning just in case the term doesn't exist in your database yet */}
                       {!defaultTerm && (
                          <p className="absolute -bottom-5 left-0 text-[10px] text-red font-bold">
                            Warning: This term does not exist in the database yet.
