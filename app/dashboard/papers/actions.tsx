@@ -294,7 +294,7 @@ export function DeleteAction({ paper }: { paper: any }) {
             <div className="mt-2 w-full">
               <p className="text-sm text-gray-500 text-center leading-relaxed break-words">
                 Are you sure you want to delete <br />
-                <span className="text-maroon-900 font-bold text-lg block my-2 px-2">{paper.paper_title}?</span>
+                <span className="text-maroon-900 font-bold text-lg block my-2 px-2 truncate">{paper.paper_title}?</span>
                 <span className="text-gray-400 block text-xs uppercase tracking-widest font-bold">This action cannot be undone.</span>
               </p>
             </div>
@@ -407,7 +407,7 @@ export function Modal({ id, title, type, pages, summary, references }: ModalProp
             <div className="p-6 overflow-y-auto space-y-6">
               <div>
                 <h3 className="text-xs font-bold text-maroon-900 uppercase tracking-widest mb-2">Title</h3>
-                <p className="text-sm font-semibold text-gray-900 leading-snug">{title}</p>
+                <p className="text-sm font-semibold text-gray-900 leading-snug truncate">{title}</p>
               </div>
               <div>
                 <h3 className="text-xs font-bold text-maroon-900 uppercase tracking-widest mb-2">{getSummaryLabel(type)}</h3>
