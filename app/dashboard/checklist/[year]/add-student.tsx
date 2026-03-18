@@ -87,10 +87,10 @@ export default function AddStudentButton({ batchYear, advisers, terms }: AddStud
                   <div>
                     <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Contact Number</label>
                     <RestrictedInput restrictionType="number" type="tel" name="student_contact_no" placeholder="09XXXXXXXXX" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all text-left" 
-                      minLength={10} 
-                      maxLength={10} 
-                      pattern="[9]{1}[0-9]{9}" 
-                      title="Contact number must start with 9 and be exactly 10 digits"
+                      minLength={11} 
+                      maxLength={11} 
+                      pattern="[0]{1}[9]{1}[0-9]{9}" 
+                      title="Contact number must start with 09 and be exactly 11 digits"
                     />
                   </div>
                 </div>
