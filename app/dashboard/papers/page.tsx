@@ -27,7 +27,8 @@ export default async function AcademicPapersPage({ searchParams }: SearchProps) 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
         <div className="w-full max-w-3xl">
           <Suspense fallback={<div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />}>
-            <SearchInput placeholder="Search Titles, Authors, Etc..." />
+            <SearchInput placeholder="Search Titles, Authors, Etc..." 
+            configKey="papers"/>
           </Suspense>
         </div>
 

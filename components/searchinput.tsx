@@ -3,86 +3,83 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search as SearchIcon, Loader2, X } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { searchConfigRegistry, type SearchConfigKey, type SearchConfig } from "@/lib/search-config";
 
 interface SearchInputProps {
+  configKey: SearchConfigKey;
   placeholder?: string;
-}
-
-interface Suggestion {
-  paper_title: string;
+  queryParam?: string;
+  onSelect?: (value: string, label: string) => boolean | void;
 }
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedValue(value), delay);
     return () => clearTimeout(timer);
   }, [value, delay]);
-
   return debouncedValue;
 }
 
-async function fetchSuggestions(query: string): Promise<Suggestion[]> {
-  if (!query.trim()) return [];
- 
-  const supabase = createClient();
- 
-  const { data, error } = await supabase
-    .from("academic_papers") 
-    .select("paper_title")
-    .ilike("paper_title", `%${query}%`)
-    .order("paper_title", { ascending: true })
-    .limit(7);
- 
-  if (error) {
-    console.error("[SearchInput] Supabase suggestion error:", error.message);
-    return [];
-  }
-
-  const seen = new Set<string>();
-
-  return (data as Suggestion[]).filter(({ paper_title }) => {
-    if (seen.has(paper_title)) return false;
-    seen.add(paper_title);
-    return true;
-  });
+function highlightMatch(text: string, query: string) {
+  if (!query.trim()) return <span>{text}</span>;
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`(${escaped})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <mark key={i} className="bg-transparent text-maroon font-semibold italic">
+            {part}
+          </mark>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
 }
 
-export default function SearchInput({
-  placeholder = "Search papers…",
-  }: SearchInputProps) {
-    const searchParams = useSearchParams();
-    const pathname = usePathname();
-    const { replace } = useRouter();
+function SearchInputInner<T>({
+  config,
+  placeholder,
+  queryParam,
+  onSelect,
+}: {
+  config: SearchConfig<T>;
+  placeholder: string;
+  queryParam: string;
+  onSelect?: (value: string, label: string) => boolean | void;
+}) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
 
-    const [searchTerm, setSearchTerm] = useState(
-      searchParams.get("query")?.toString() ?? ""
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get(queryParam)?.toString() ?? ""
   );
-    const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isOpen, setIsOpen] = useState(false);
+  const [suggestions, setSuggestions] = useState<T[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
   const debouncedTerm = useDebounce(searchTerm, 300);
 
+  // Sync URL 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
-
     if (debouncedTerm) {
-      params.set("query", debouncedTerm);
+      params.set(queryParam, debouncedTerm);
     } else {
-      params.delete("query");
+      params.delete(queryParam);
     }
-
-    params.delete("page"); 
-
+    params.delete("page");
     replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [debouncedTerm]); 
+  }, [debouncedTerm, pathname, queryParam, replace, searchParams]);
 
+  // Fetch Suggestions
   useEffect(() => {
     if (!debouncedTerm.trim()) {
       setSuggestions([]);
@@ -91,161 +88,158 @@ export default function SearchInput({
     }
 
     let cancelled = false;
-
     (async () => {
       setIsLoading(true);
-      const results = await fetchSuggestions(debouncedTerm);
-      if (!cancelled) {
-        setSuggestions(results);
-        setIsOpen(results.length > 0);
+      try {
+        const results = await config.fetchSuggestions(debouncedTerm);
+        if (!cancelled) {
+          setSuggestions(results);
+          setIsOpen(results.length > 0);
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
-      setIsLoading(false);
     })();
+    return () => { cancelled = true; };
+  }, [debouncedTerm, config]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [debouncedTerm]);
-
-
+  // Close on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-
   const commitSuggestion = useCallback(
-    (title: string) => {
-      setSearchTerm(title);
+    (item: T) => {
+      const label = config.getLabel(item);
+      const value = config.getValue ? config.getValue(item) : label;
+
+      setSearchTerm(label);
       setIsOpen(false);
       setSuggestions([]);
-
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("query", title);
-      params.delete("page");
-      replace(`${pathname}?${params.toString()}`, { scroll: false });
-
       inputRef.current?.focus();
-    },
-    [pathname, replace, searchParams]
-  );
 
+      // Dont update url when onselect is fakse
+      const shouldUpdateUrl = onSelect?.(value, label) !== false;
+
+      if (shouldUpdateUrl) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set(queryParam, value);
+        params.delete("page");
+        replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    },
+    [config, onSelect, pathname, queryParam, replace, searchParams]
+  );
 
   function handleClear() {
     setSearchTerm("");
     setSuggestions([]);
     setIsOpen(false);
+    
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete(queryParam);
+    replace(`${pathname}?${params.toString()}`, { scroll: false });
+    
     inputRef.current?.focus();
   }
 
-  function highlightMatch(text: string, query: string) {
-    if (!query.trim()) return <span>{text}</span>;
-
-    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
-    const parts = text.split(regex);
-
-    return (
-      <>
-        {parts.map((part, i) =>
-          regex.test(part) ? (
-            <mark
-              key={i}
-              className="bg-transparent text-green font-semibold"
-            >
-              {part}
-            </mark>
-          ) : (
-            <span key={i}>{part}</span>
-          )
-        )}
-      </>
-    );
-  }
-
   return (
-    <div ref={containerRef} className="relative flex-grow">
-      {/* Search icon */}
-      <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6b7280] pointer-events-none z-10" />
-      {/* Input */}
-      <input
-        ref={inputRef}
-        type="text"
-        role="combobox"
-        aria-autocomplete="list"
-        aria-expanded={isOpen}
-        aria-controls="suggestions-listbox"
-        placeholder={placeholder}
-        className="flex h-9 w-full rounded-md border border-[#d1d5db] bg-transparent pl-9 pr-8 py-1 text-sm shadow-sm transition-colors placeholder:text-[#6b7280] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-maroon hover:border-maroon focus:border-maroon"
-        value={searchTerm}
-        onChange={(e) => {
-          setSearchTerm(e.target.value);
-          if (e.target.value === "") setIsOpen(false);
-        }}
-        onFocus={() => {
-          if (suggestions.length > 0) setIsOpen(true);
-        }}
-        autoComplete="off"
-        spellCheck={false}
-      />
+    <div ref={containerRef} className="relative w-full max-w-md">
+      <div className="relative">
+        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6b7280] pointer-events-none z-10" />
 
-      {/* Right-side indicator: spinner or clear button */}
-      <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center">
-        {isLoading ? (
-          <Loader2 className="h-3.5 w-3.5 text-[#6b7280] animate-spin" />
-        ) : searchTerm ? (
-          <button
-            type="button"
-            onClick={handleClear}
-            aria-label="Clear search"
-            className="text-[#6b7280] hover:text-maroon transition-colors"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        ) : null}
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder={placeholder}
+          className="flex h-10 w-full rounded-md border border-[#d1d5db] bg-white pl-10 pr-10 py-2 text-sm shadow-sm transition-all placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-maroon/20 focus:border-maroon"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            if (!e.target.value) setIsOpen(false);
+          }}
+          onFocus={() => {
+            if (suggestions.length > 0) setIsOpen(true);
+          }}
+          autoComplete="off"
+          spellCheck={false}
+        />
+
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          {isLoading && <Loader2 className="h-4 w-4 text-[#6b7280] animate-spin" />}
+          {searchTerm && !isLoading && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="text-[#9ca3af] hover:text-maroon transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Suggestions dropdown */}
       {isOpen && suggestions.length > 0 && (
-        <ul
-          id="suggestions-listbox"
-          role="listbox"
-          aria-label="Search suggestions"
-          className="absolute z-50 mt-1 w-full rounded-md border border-[#d1d5db] bg-white shadow-lg overflow-hidden"
-        >
-          {suggestions.map((suggestion, index) => (
-          <li
-            key={suggestion.paper_title}
-            id={`suggestion-${index}`}
-            role="option"
-            aria-selected={false}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              commitSuggestion(suggestion.paper_title);
-            }}
-            className={`
-              flex items-center gap-2.5 px-3 py-2 text-sm cursor-pointer
-              transition-colors duration-75 select-none text-[#111827] hover:bg-[#fdf5f5] hover:text-maroon
-              ${index !== suggestions.length - 1 ? "border-b border-[#f3f4f6]" : ""}
-            `}
-          >
-            <SearchIcon className="h-3.5 w-3.5 shrink-0 text-[#9ca3af]" />
-            <span className="truncate">
-              {highlightMatch(suggestion.paper_title, searchTerm)}
-            </span>
-          </li>
+        <ul className="absolute z-[60] mt-2 w-full max-h-[300px] overflow-auto rounded-lg border border-[#d1d5db] bg-white shadow-xl py-1 animate-in fade-in zoom-in-95 duration-100">
+          {suggestions.map((item, index) => (
+            <li
+              key={index}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                commitSuggestion(item);
+              }}
+              className="group flex flex-col px-4 py-2.5 cursor-pointer hover:bg-[#fff5f5] transition-colors border-b border-[#f3f4f6] last:border-0"
+            >
+              <div className="flex items-center gap-3">
+                <SearchIcon className="h-3.5 w-3.5 shrink-0 text-[#9ca3af] group-hover:text-maroon" />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-medium text-[#111827] truncate group-hover:text-maroon">
+                    {highlightMatch(config.getLabel(item), searchTerm)}
+                  </span>
+                  {config.getSubLabel && (
+                    <span className="text-[11px] text-[#6b7280] truncate mt-0.5">
+                      {highlightMatch(config.getSubLabel(item), searchTerm)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </li>
           ))}
-
         </ul>
       )}
     </div>
+  );
+}
+
+export default function SearchInput<K extends SearchConfigKey>({
+  configKey,
+  placeholder = "Search...",
+  queryParam = "query",
+  onSelect,
+}: {
+  configKey: K;
+  placeholder?: string;
+  queryParam?: string;
+  onSelect?: (value: string, label: string) => boolean | void;
+}) {
+  type Item = Awaited<ReturnType<typeof searchConfigRegistry[K]["fetchSuggestions"]>>[number];
+  
+  const config = searchConfigRegistry[configKey] as unknown as SearchConfig<Item>;
+
+  return (
+    <SearchInputInner
+      config={config}
+      placeholder={placeholder}
+      queryParam={queryParam}
+      onSelect={onSelect}
+    />
   );
 }
