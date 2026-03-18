@@ -8,7 +8,7 @@ async function Folder({ searchParams }: { searchParams: Promise<{ query?: string
   const supabase = await createClient();
 
   const { data: checklistData } = await supabase
-    .from('checklist')
+    .from('student')
     .select('student_number');
 
   let uniqueYears = checklistData 
