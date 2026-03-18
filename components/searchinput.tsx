@@ -5,13 +5,6 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search as SearchIcon, Loader2, X } from "lucide-react";
 import { searchConfigRegistry, type SearchConfigKey, type SearchConfig } from "@/lib/search-config";
 
-interface SearchInputProps {
-  configKey: SearchConfigKey;
-  placeholder?: string;
-  queryParam?: string;
-  onSelect?: (value: string, label: string) => boolean | void;
-}
-
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
   useEffect(() => {
@@ -47,7 +40,7 @@ function SearchInputInner<T>({
   queryParam,
   onSelect,
 }: {
-  config: SearchConfig<T>;
+  config?: SearchConfig<T>;
   placeholder: string;
   queryParam: string;
   onSelect?: (value: string, label: string) => boolean | void;
@@ -70,10 +63,7 @@ function SearchInputInner<T>({
   // Sync URL 
   useEffect(() => {
     const currentUrlValue = searchParams.get(queryParam) ?? "";
-    
-    if (debouncedTerm === currentUrlValue) {
-      return;
-    }
+    if (debouncedTerm === currentUrlValue) return;
 
     const params = new URLSearchParams(searchParams.toString());
     if (debouncedTerm) {
@@ -87,9 +77,8 @@ function SearchInputInner<T>({
     
   }, [debouncedTerm, pathname, queryParam, replace, searchParams]);
 
-  // Fetch Suggestions
   useEffect(() => {
-    if (!debouncedTerm.trim()) {
+    if (!debouncedTerm.trim() || !config) {
       setSuggestions([]);
       setIsOpen(false);
       return;
@@ -126,6 +115,8 @@ function SearchInputInner<T>({
 
   const commitSuggestion = useCallback(
     (item: T) => {
+      if (!config) return;
+
       const label = config.getLabel(item);
       const value = config.getValue ? config.getValue(item) : label;
 
@@ -134,7 +125,6 @@ function SearchInputInner<T>({
       setSuggestions([]);
       inputRef.current?.focus();
 
-      // Dont update url when onselect is fakse
       const shouldUpdateUrl = onSelect?.(value, label) !== false;
 
       if (shouldUpdateUrl) {
@@ -194,8 +184,7 @@ function SearchInputInner<T>({
           )}
         </div>
       </div>
-
-      {isOpen && suggestions.length > 0 && (
+      {isOpen && suggestions.length > 0 && config && (
         <ul className="absolute z-[60] mt-2 w-full max-h-[300px] overflow-auto rounded-lg border border-[#d1d5db] bg-white shadow-xl py-1 animate-in fade-in zoom-in-95 duration-100">
           {suggestions.map((item, index) => (
             <li
@@ -233,18 +222,16 @@ export default function SearchInput<K extends SearchConfigKey>({
   queryParam = "query",
   onSelect,
 }: {
-  configKey: K;
+  configKey?: K;
   placeholder?: string;
   queryParam?: string;
   onSelect?: (value: string, label: string) => boolean | void;
 }) {
-  type Item = Awaited<ReturnType<typeof searchConfigRegistry[K]["fetchSuggestions"]>>[number];
-  
-  const config = searchConfigRegistry[configKey] as unknown as SearchConfig<Item>;
+  const config = configKey ? searchConfigRegistry[configKey] : undefined;
 
   return (
     <SearchInputInner
-      config={config}
+      config={config as any}
       placeholder={placeholder}
       queryParam={queryParam}
       onSelect={onSelect}
