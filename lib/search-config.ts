@@ -118,126 +118,23 @@ export interface StudentSuggestion {
 export const studentSearchConfig: SearchConfig<StudentSuggestion> = {
   fetchSuggestions: async (term) => {
     const supabase = createClient();
-    const isNumber = !isNaN(Number(term)) && term.trim() !== "";
-
-    const namePromise = supabase
+    const { data, error } = await supabase
       .from("student")
       .select("student_fname, student_lname, student_number")
-      .or(`student_fname.ilike.%${term}%,student_lname.ilike.%${term}%`)
+      .or(`student_fname.ilike.%${term}%,student_lname.ilike.%${term}%,student_number.ilike.%${term}%`)
       .order("student_lname", { ascending: true })
-      .limit(15);
+      .limit(7);
 
-    const numberPromise = isNumber
-      ? supabase
-          .from("student")
-          .select("student_fname, student_lname, student_number")
-          .eq("student_number", Number(term))
-          .limit(15)
-      : Promise.resolve({ data: [], error: null });
-
-    const [nameRes, numberRes] = await Promise.all([namePromise, numberPromise]);
-
-    if (nameRes.error) console.error("Student name search error:", nameRes.error.message);
-    if (numberRes.error) console.error("Student number search error:", numberRes.error.message);
-
-    const combined = [
-      ...((nameRes.data as StudentSuggestion[]) ?? []),
-      ...((numberRes.data as StudentSuggestion[]) ?? []),
-    ];
-
-    const seen = new Set<number>();
-    return combined.filter((row) => {
-      if (seen.has(row.student_number)) return false;
-      seen.add(row.student_number);
-      return true;
-    }).slice(0, 7);
+    if (error) {
+      console.error("Student search error:", error.message);
+      return [];
+    }
+    return (data as StudentSuggestion[]) ?? [];
   },
   getLabel: (item) => `${item.student_fname} ${item.student_lname}`,
   getValue: (item) => String(item.student_number),
   getSubLabel: (item) => `ID: ${item.student_number}`,
 };
-
-export const batchYearSearchConfig: SearchConfig<{ year: string }> = {
-  fetchSuggestions: async (term) => {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("checklist")
-      .select("student_number");
-
-    if (error) {
-      console.error("Batch year search error:", error.message);
-      return [];
-    }
-
-    const allYears = Array.from(
-      new Set(
-        (data ?? [])
-          .map((s) => String(s.student_number).substring(0, 4))
-          .filter((y) => y.length === 4)
-      )
-    ).sort().reverse();
-
-    const q = term.toLowerCase();
-    return allYears
-      .filter((year) =>
-        year.includes(q) ||
-        `batch ${year}`.includes(q) ||
-        `batch '${year.substring(2)}`.includes(q)
-      )
-      .map((year) => ({ year }))
-      .slice(0, 7);
-  },
-  getLabel: (item) => `Batch ${item.year}`,
-  getValue: (item) => item.year,
-};
-
-export function createBatchStudentSearchConfig(batchYear: string): SearchConfig<StudentSuggestion> {
-  return {
-    fetchSuggestions: async (term) => {
-      const supabase = createClient();
-      const isNumber = !isNaN(Number(term)) && term.trim() !== "";
-
-      const namePromise = supabase
-        .from("student")
-        .select("student_fname, student_lname, student_number")
-        .or(`student_fname.ilike.%${term}%,student_lname.ilike.%${term}%`)
-        .gte("student_number", Number(`${batchYear}00000`))  // filter by batch year
-        .lt("student_number", Number(`${Number(batchYear) + 1}00000`))
-        .order("student_lname", { ascending: true })
-        .limit(15);
-
-      const numberPromise = isNumber
-        ? supabase
-            .from("student")
-            .select("student_fname, student_lname, student_number")
-            .eq("student_number", Number(term))
-            .gte("student_number", Number(`${batchYear}00000`))
-            .lt("student_number", Number(`${Number(batchYear) + 1}00000`))
-            .limit(15)
-        : Promise.resolve({ data: [], error: null });
-
-      const [nameRes, numberRes] = await Promise.all([namePromise, numberPromise]);
-
-      if (nameRes.error) console.error("Batch student name search error:", nameRes.error.message);
-      if (numberRes.error) console.error("Batch student number search error:", numberRes.error.message);
-
-      const combined = [
-        ...((nameRes.data as StudentSuggestion[]) ?? []),
-        ...((numberRes.data as StudentSuggestion[]) ?? []),
-      ];
-
-      const seen = new Set<number>();
-      return combined.filter((row) => {
-        if (seen.has(row.student_number)) return false;
-        seen.add(row.student_number);
-        return true;
-      }).slice(0, 7);
-    },
-    getLabel: (item) => `${item.student_fname} ${item.student_lname}`,
-    getValue: (item) => String(item.student_number),
-    getSubLabel: (item) => `SN: ${item.student_number}`,
-  };
-}
 
 // advisers
 //export interface AdviserSuggestion {
@@ -276,7 +173,6 @@ export const searchConfigRegistry = {
   papers: paperSearchConfig,
   students: studentSearchConfig,
   courses: courseSearchConfig,
-  batchYear: batchYearSearchConfig,
 } as const;
 
 export type SearchConfigKey = keyof typeof searchConfigRegistry;

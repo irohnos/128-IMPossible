@@ -43,8 +43,8 @@ function highlightMatch(text: string, query: string) {
 
 function SearchInputInner<T>({
   config,
-  placeholder = "Search...",
-  queryParam = "query",
+  placeholder,
+  queryParam,
   onSelect,
 }: {
   config: SearchConfig<T>;
@@ -243,5 +243,3 @@ export default function SearchInput<K extends SearchConfigKey>({
     />
   );
 }
-
-export { SearchInputInner };
