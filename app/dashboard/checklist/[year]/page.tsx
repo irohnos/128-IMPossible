@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { Suspense } from "react";
-import SearchInput from "@/components/searchinput";
+import BatchStudentSearch from "@/components/batchStudentSearch";
 import Link from "next/link";
 import { ArrowLeftIcon, UserIcon, PencilSquareIcon, TrashIcon, ExclamationTriangleIcon, ChevronDownIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { revalidatePath } from "next/cache";
@@ -157,9 +157,7 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
         <div className="w-full max-w-3xl">
-          <Suspense fallback={<div className="h-9 w-full rounded-md bg-gray-200 animate-pulse" />}>
-            <SearchInput placeholder="Search by Name, Student Number, etc." />
-          </Suspense>
+          <BatchStudentSearch batchYear={year} />
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           <AddStudentButton batchYear={year} advisers={advisersList} terms={termOptions} />
