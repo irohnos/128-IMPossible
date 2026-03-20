@@ -22,7 +22,7 @@ export type SearchProps = {
 export default async function AcademicPapersPage({ searchParams }: SearchProps) {
   
   return (
-    <div className="max-w-auto mx-auto">
+    <div className="max-w-auto mx-auto h-0">
       {/* Action Bar: Search, Add */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
         <div className="w-full max-w-3xl">

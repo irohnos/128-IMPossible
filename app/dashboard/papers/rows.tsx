@@ -19,7 +19,7 @@ interface RowProps {
 export default async function PaperRows({ searchParams }: RowProps) {
   const { sort = "paper_title", order = "asc", query = "", type="all", page= "1" } = await searchParams;
   const currentPage = Number(page);
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
   const supabase = await createClient();
   const advisersList = await populateAdvisers();
 
