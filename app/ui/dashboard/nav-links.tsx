@@ -26,7 +26,9 @@ export default function NavLinks({ isCollapsed }: { isCollapsed: boolean }) {
     <div className="flex flex-col gap-1">
       {links.map((link) => {
         const LinkIcon = link.icon;
-        const isActive = pathname === link.href;
+        const isActive = link.href === '/dashboard' 
+          ? pathname === link.href 
+          : pathname.startsWith(link.href);
         
         return (
           <Link
