@@ -79,20 +79,6 @@ export default function Page() {
         {/* Right panel */}
         <div className="bg-red-50 flex-1 flex flex-col justify-center px-8 py-10 sm:px-12 lg:px-14">
 
-          <div className="flex md:hidden items-center gap-3 mb-8">
-            <div className="relative w-8 h-8 shrink-0">
-              <Image
-                src="/IM-TRANSPARENT.png"
-                alt="Institute of Management logo"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <span className="text-3xl font-semibold uppercase tracking-widest text-muted-foreground">
-              Institute of Management
-            </span>
-          </div>
-
           {/* Heading */}
           <div className="mb-7">
             <div className="space-y-[-5px]">

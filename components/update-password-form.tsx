@@ -74,12 +74,12 @@ export function UpdatePasswordForm({
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-4 bg-gray-50 text-gray-700 border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+            className=" text-black h-10 bg-red-50 border border-maroon rounded-md text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-yellow/60 transition"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition hover:text-yellow"
           >
             {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
           </button>
@@ -96,12 +96,12 @@ export function UpdatePasswordForm({
             required
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full p-4 bg-gray-50 text-gray-700 border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+            className=" text-black h-10 bg-red-50 border border-maroon rounded-md text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-yellow/60 transition"
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition hover:text-yellow"
           >
             {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
           </button>
@@ -113,7 +113,7 @@ export function UpdatePasswordForm({
 
       <Button 
         type="submit" 
-        className="w-full bg-maroon text-white py-4 rounded-lg font-bold hover:bg-maroon-800 transition-colors shadow-lg" 
+        className="w-full bg-maroon text-red-50 rounded-md text-sm font-semibold hover:bg-maroon-800 transition-colors shadow-sm" 
         disabled={isLoading}
       >
         {isLoading ? "Saving New Password..." : "Save New Password"}
