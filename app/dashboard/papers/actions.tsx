@@ -159,14 +159,34 @@ function FormFields({ authors, addAuthor, removeAuthor, updateAuthor, advisers, 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="text-left">
             <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Year Submitted *</label>
-            <input name="paper_year_submitted" type="number" onKeyDown={numbersOnly} defaultValue={defaultValues.paper_year_submitted || ""} required placeholder="2024" className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" 
+            <input name="paper_year_submitted" type="number" onKeyDown={numbersOnly} 
+              onInput={(e) => {
+                const target = e.target as HTMLInputElement;
+                if (target.value.length > 4) {
+                  target.value = target.value.slice(0, 4);
+                }
+              }}
+              defaultValue={defaultValues.paper_year_submitted || ""} 
+              required 
+              placeholder="2024" 
+              className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" 
               min={1998} 
               max={new Date().getFullYear()} 
             />
           </div>
           <div className="text-left">
             <label className="block text-xs font-bold text-maroon-900 uppercase tracking-widest mb-1.5">Total Pages</label>
-            <input name="paper_pages" type="number" onKeyDown={numbersOnly} defaultValue={defaultValues.paper_pages || ""} placeholder="50" min={1} className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
+            <input name="paper_pages" type="number" onKeyDown={numbersOnly} 
+              onInput={(e) => {
+                const target = e.target as HTMLInputElement;
+                if (target.value.length > 4) {
+                  target.value = target.value.slice(0, 4);
+                }
+              }}
+            defaultValue={defaultValues.paper_pages || ""} 
+            placeholder="50" 
+            min={1} 
+            className="w-full bg-gray-50 text-gray-800 text-sm px-4 py-2.5 rounded-lg border border-gray-200 focus:border-maroon focus:bg-white outline-none transition-all" />
           </div>
         </div>
 

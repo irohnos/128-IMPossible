@@ -98,7 +98,7 @@ export async function uploadCsvAction(formData: FormData) {
   const firstRow = rawRows[0];
   const headers = Object.keys(firstRow).map(key => key.trim().replace(/[\r\n]+/g, ''));
   
-  // 1. ADDED "Type" TO REQUIRED HEADERS
+  // Headers
   const requiredHeaders = ["Title", "Author/s", "Year", "Pages", "Adviser", "Summary", "References", "Type"];
   
   const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
