@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PencilSquareIcon, TrashIcon, ExclamationTriangleIcon, PlusIcon, XMarkIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon, TrashIcon, ExclamationTriangleIcon, PlusIcon, XMarkIcon, ChevronDownIcon, UserIcon, DocumentTextIcon, AcademicCapIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import { updatePaperAction, deletePaperAction, addPaperAction } from "@/lib/actions";
 import { namesOnly, numbersOnly } from "@/lib/utils";
 
@@ -15,8 +15,11 @@ export interface ModalProps {
   title: string;
   type: string;
   pages: number;
+  year: number,
   summary: string;
   references: string;
+  author: string;
+  adviser: string;
 }
 
 export interface AuthorInput {
@@ -406,41 +409,136 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
     </>
   );
 }
-
-export function Modal({ id, title, type, pages, summary, references }: ModalProps) {
+export function Modal({ id, title, type, pages, summary, references, author, adviser, year }: any) {
   const [open, setOpen] = useState(false);
+
+  const summaryLabel = type?.toLowerCase() === 'thesis' ? 'Abstract' : 'Executive Summary';
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="text-maroon hover:underline text-left font-medium transition-colors truncate block w-full">{title}</button>
+      <button
+        onClick={() => setOpen(true)}
+        className="text-maroon hover:text-red-800 hover:underline text-left font-semibold transition-all truncate block w-full"
+      >
+        {title}
+      </button>
+
       {open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setOpen(false)}/>
-          
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50">
-              <h2 className="text-lg font-bold text-maroon">Paper Details — #{id}</h2>
-              <button onClick={() => setOpen(false)} className="p-2 text-gray-800 hover:text-white hover:bg-maroon rounded-lg transition-colors">
-                <XMarkIcon className="w-5 h-5" />
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-6 py-5 border-b border-gray-100 flex items-start justify-between gap-4">
+              <div className="space-y-1 min-w-0 flex-1">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-maroon uppercase tracking-wider">
+                  Paper #{id}
+                </span>
+                <h2 className="text-xl font-bold text-gray-900 leading-tight break-words whitespace-normal">
+                  {title}
+                </h2>
+              </div>
+              <button
+                onClick={() => setOpen(false)}
+                className="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-colors shrink-0"
+              >
+                <XMarkIcon className="w-6 h-6" />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto space-y-6">
-              <div>
-                <h3 className="text-xs font-bold text-maroon-900 uppercase tracking-widest mb-2">Title</h3>
-                <p className="text-sm font-semibold text-gray-900 leading-snug truncate">{title}</p>
+
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8 custom-scrollbar">
+              
+              {/* Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-5 rounded-xl border border-gray-100">
+                <div className="space-y-4">
+                  
+                  {/* Author */}
+                  <div className="flex gap-3">
+                    <UserIcon className="w-5 h-5 text-maroon shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                        Author/s
+                      </p>
+                      <p className="text-sm font-semibold text-gray-800 leading-snug break-all whitespace-normal">
+                        {author || "Unknown"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Adviser */}
+                  <div className="flex gap-3">
+                    <AcademicCapIcon className="w-5 h-5 text-maroon shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                        Adviser
+                      </p>
+                      <p className="text-sm font-semibold text-gray-800 leading-snug break-all whitespace-normal">
+                        {adviser || "Not assigned"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 md:border-l md:pl-6 border-gray-200">
+                  <div className="flex gap-3">
+                    <DocumentTextIcon className="w-5 h-5 text-maroon shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                        Length
+                      </p>
+                      <p className="text-sm font-semibold text-gray-800">{pages} Pages</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <CalendarIcon className="w-5 h-5 text-maroon shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                        Year Published
+                      </p>
+                      <p className="text-sm font-semibold text-gray-800">{year || "—"}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xs font-bold text-maroon-900 uppercase tracking-widest mb-2">{getSummaryLabel(type)}</h3>
-                <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{summary || "No summary available."}</p>
-              </div>
-              <div>
-                <h3 className="text-xs font-bold text-maroon-900 uppercase tracking-widest mb-2">References</h3>
-                <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{references || "No references listed."}</p>
-              </div>
-              <div>
-                <h3 className="text-xs font-bold text-maroon-900 uppercase tracking-widest mb-2">Number of Pages</h3>
-                <p className="text-sm text-gray-800 leading-relaxed">{pages}</p>
-              </div>
+
+              {/* Summary */}
+              <section className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-1 bg-maroon rounded-full" />
+                  <h3 className="text-xs font-bold text-gray-900 uppercase tracking-widest">
+                    {summaryLabel}
+                  </h3>
+                </div>
+                <div className="text-sm text-gray-700 leading-relaxed bg-white pl-3 whitespace-pre-wrap">
+                  {summary || "No summary available."}
+                </div>
+              </section>
+
+              {/* References */}
+              <section className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-1 bg-gray-300 rounded-full" />
+                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                    References
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-500 italic border-l-2 border-gray-100 pl-4 break-all">
+                  {references || "No references listed."}
+                </p>
+              </section>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end shrink-0">
+              <button
+                onClick={() => setOpen(false)}
+                className="px-8 py-2.5 bg-maroon text-white text-sm font-bold rounded-xl hover:bg-red-900 transition-all active:scale-95 shadow-lg shadow-red-900/20"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

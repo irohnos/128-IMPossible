@@ -131,7 +131,7 @@ export default async function PaperRows({ searchParams }: RowProps) {
                 return (
                   <tr key={paper.paper_id} className="hover:bg-red-50/30 transition-colors">
                     <td className="px-6 py-4 text-sm font-medium leading-tight max-w-xs truncate w-[350px] min-w-[350px]" title={paper.paper_title}>
-                      <Modal id={paper.paper_id} title={paper.paper_title} type={paper.paper_type} pages={paper.paper_pages} summary={paper.paper_summary} references={paper.paper_references} />
+                      <Modal id={paper.paper_id} title={paper.paper_title} type={paper.paper_type} pages={paper.paper_pages} year={paper.paper_year_submitted} summary={paper.paper_summary} references={paper.paper_references} author={formattedAuthors} adviser={formattedAdviser}/>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate w-[200px] min-w-[200px]" title={formattedAuthors}>{formattedAuthors}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 w-[200px] min-w-[200px]">{paper.paper_year_submitted}</td>
