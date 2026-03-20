@@ -53,11 +53,6 @@ export default function SideNav() {
       </div>
 
       <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden py-4">
-        <div className="px-6 mb-2">
-          <p className={`text-[10px] font-bold uppercase tracking-[0.2em] opacity-50 text-maroon ${isCollapsed ? 'text-center' : ''}`}>
-            {isCollapsed ? ' ' : 'Main Menu'}
-          </p>
-        </div>
         
         <nav className="space-y-1">
           <Suspense fallback = {<NavLinksSkeleton />}>
