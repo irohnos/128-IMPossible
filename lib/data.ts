@@ -6,7 +6,7 @@ export async function populateAdvisers() {
   
   const { data: rawAdvisers, error } = await supabase
     .from("adviser")
-    .select("*")
+    .select("adviser_id, adviser_fname, adviser_mname, adviser_lname, adviser_suffix")
     .order("adviser_lname", { ascending: true });
 
   if (error) {
