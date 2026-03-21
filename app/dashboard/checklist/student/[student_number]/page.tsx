@@ -75,7 +75,7 @@ async function StudentProfileContent({ student_number }: { student_number: strin
 
     if (termYear) {
       let baseYear = termYear;
-      if (termSem.includes('second') || termSem.includes('short')) baseYear -= 1;
+      if (termSem.includes('second') || termSem.includes('midyear')) baseYear -= 1;
       ayLabel = `${baseYear}-${baseYear + 1}`;
     }
 
