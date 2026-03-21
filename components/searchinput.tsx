@@ -137,6 +137,7 @@ function SearchInputInner<T>({
     [config, onSelect, pathname, queryParam, replace, searchParams]
   );
 
+  // press enter
   const handleKeyDown = (e:React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter"){
       setIsOpen(false);

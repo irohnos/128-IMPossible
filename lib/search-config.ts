@@ -103,6 +103,8 @@ fetchSuggestions: async (term) => {
     if (item.author?.length > 0) {
         const names = item.author.map(a => `${a.author_fname} ${a.author_lname}`).join(", ");
         parts.push(`Author/s: ${names}`);
+    } else {
+      parts.push(`Author/s: Unkown`)
     }
     return parts.join(" · ");
   },
