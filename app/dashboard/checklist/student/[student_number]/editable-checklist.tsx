@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateChecklist, deleteChecklistRecord, addChecklistRecord } from '@/app/dashboard/checklist/student/[student_number]/actions';
 import { PencilSquareIcon, CheckIcon, XMarkIcon, ExclamationTriangleIcon, PlusIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
-import { gradesOnly } from "@/lib/utils";
+import { gradesOnly, isValidGrade, formatGrade } from "@/lib/utils";
 
 export default function EditableTerm({ termId, data, studentNumber, allCourses, takenCourseIds }: { termId: string, data: any, studentNumber: string, allCourses: any[], takenCourseIds: string[] }) {
   const router = useRouter();
@@ -19,13 +19,16 @@ export default function EditableTerm({ termId, data, studentNumber, allCourses, 
   const handleGradeChange = (recordId: string, value: string) => { setEditedGrades(prev => ({ ...prev, [recordId]: value })); };
   const selectedCourse = allCourses.find((c) => c.course_id === newCourseId);
   const newCourseUnits = selectedCourse ? selectedCourse.course_units : "-";
+  const hasInvalidEditedGrade = Object.values(editedGrades).some(grade => !isValidGrade(grade));
+  const hasInvalidNewCourse = isAddingCourse && (!newCourseId || !isValidGrade(newCourseGrade));
+  const isSaveDisabled = isPending || hasInvalidEditedGrade || hasInvalidNewCourse;
 
   const handleSave = () => {
     startTransition(async () => {
       try {
-        const promises = Object.entries(editedGrades).map(([recordId, newGrade]) => updateChecklist(recordId, newGrade, studentNumber));
+        const promises = Object.entries(editedGrades).map(([recordId, newGrade]) => updateChecklist(recordId, formatGrade(newGrade), studentNumber));
         
-        if (isAddingCourse && newCourseId && newCourseGrade) promises.push(addChecklistRecord(studentNumber, termId, newCourseId, newCourseGrade));
+        if (isAddingCourse && newCourseId && newCourseGrade) promises.push(addChecklistRecord(studentNumber, termId, newCourseId, formatGrade(newCourseGrade)));
 
         const results = await Promise.all(promises);
         const failed = results.find(res => res?.error);
@@ -83,7 +86,7 @@ export default function EditableTerm({ termId, data, studentNumber, allCourses, 
             <span className="text-gray-400">GWA: <span className="text-maroon-900 text-sm">{termGwa}</span></span>
             <div className="w-px h-4 bg-gray-300 mx-1"></div>
             {isEditing ? (
-              <button onClick={handleSave} disabled={isPending} className="flex items-center gap-1 text-zinc-400 rounded-md hover:text-green transition-colors">
+              <button onClick={handleSave} disabled={isSaveDisabled} className="flex items-center gap-1 text-zinc-400 rounded-md hover:text-green transition-all disabled:opacity-30 disabled:hover:text-zinc-400 cursor-pointer disabled:cursor-not-allowed">
                 {isPending && !courseToDelete ? <div className="h-5 w-5 border-2 border-green/30 border-t-green rounded-full animate-spin"></div> : (<><CheckIcon className="h-5 w-5 stroke-[2.5]" /></>) }
               </button>
             ) : (
@@ -117,8 +120,11 @@ export default function EditableTerm({ termId, data, studentNumber, allCourses, 
                       <div className="flex items-center justify-end gap-4">
                         {isEditing ? (
                           <>
-                            <input type="text" value={currentGrade} onKeyDown={gradesOnly} onChange={(e) => handleGradeChange(record.id, e.target.value.toUpperCase())}
-                              className={`w-16 text-center text-sm font-mono font-bold rounded-lg border bg-gray-50 focus:bg-white outline-none px-2 py-2 transition-all
+                            <input type="text" value={currentGrade} 
+                              onKeyDown={gradesOnly} 
+                              onChange={(e) => handleGradeChange(record.id, e.target.value.toUpperCase())}
+                              onBlur={(e) => handleGradeChange(record.id, formatGrade(e.target.value))}
+                              className={`w-16 text-center text-sm font-mono font-bold rounded-lg border bg-gray-50 focus:bg-white outline-none px-2 py-2 transition-all shadow-sm
                                 ${isPassing ? "text-green border-gray-200 focus:border-green" : "text-maroon border-gray-200 focus:border-maroon"}`}
                             />
                             <button type="button" onClick={() => setCourseToDelete(record.id)} disabled={isPending} className="p-1 text-gray-400 hover:text-maroon hover:bg-red-50 rounded-full transition-all disabled:opacity-50">
@@ -139,7 +145,7 @@ export default function EditableTerm({ termId, data, studentNumber, allCourses, 
               {isEditing && !isAddingCourse && (
                 <tr>
                   <td colSpan={3} className="px-5 py-3">
-                    <button type="button" onClick={() => setIsAddingCourse(true)} className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold uppercase tracking-widest text-maroon border-2 border-dashed border-red-100 bg-red-50/30 rounded-lg hover:bg-maroon hover:text-white hover:border-maroon transition-all">
+                    <button type="button" onClick={() => setIsAddingCourse(true)} className="w-full flex items-center justify-center gap-2 py-3 text-xs font-bold uppercase tracking-widest text-maroon border-2 border-dashed border-red-100 bg-red-50/30 rounded-lg hover:bg-maroon hover:text-white hover:border-maroon transition-all">
                       <PlusIcon className="w-4 h-4 stroke-[2.5]" /> Add Course
                     </button>
                   </td>
@@ -164,7 +170,13 @@ export default function EditableTerm({ termId, data, studentNumber, allCourses, 
                   </td>
                   <td className="px-3 py-2.5 text-right">
                     <div className="flex items-center justify-end gap-4">
-                      <input type="text" value={newCourseGrade} onKeyDown={gradesOnly} onChange={(e) => setNewCourseGrade(e.target.value.toUpperCase())} placeholder="Grade" className="w-16 text-center text-sm font-mono font-bold rounded-lg border border-gray-200 bg-white focus:border-maroon outline-none px-2 py-2 shadow-sm"/>
+                      <input type="text" value={newCourseGrade} 
+                        onKeyDown={gradesOnly} 
+                        onChange={(e) => setNewCourseGrade(e.target.value.toUpperCase())}
+                        onBlur={(e) => setNewCourseGrade(formatGrade(e.target.value))}
+                        placeholder="1.50" 
+                        className="w-16 text-center text-sm font-mono font-bold rounded-lg border border-gray-200 bg-white focus:border-maroon outline-none px-2 py-2 shadow-sm"
+                      />
                       <button type="button" onClick={() => { setIsAddingCourse(false); setNewCourseId(""); setNewCourseGrade(""); }} className="p-1 text-gray-400 hover:text-maroon hover:bg-white rounded-full transition-all shadow-sm">
                         <XMarkIcon className="h-5 w-5" />
                       </button>

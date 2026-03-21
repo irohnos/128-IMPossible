@@ -50,9 +50,25 @@ export function gradesOnly(e: React.KeyboardEvent<HTMLInputElement>) {
   const start = target.selectionStart || 0;
   const end = target.selectionEnd || 0;
   const nextValue = target.value.substring(0, start) + e.key + target.value.substring(end);
-  const validGradePattern = /^([0-9]+(\.[0-9]*)?|I(N(C)?)?|D(R(P)?)?)$/i;
+  const validGradePattern = /^([12](\.(0|00?|25?|50?|75?)?)?|[345](\.(0|00?)?)?|I(N(C)?)?|D(R(P)?)?)$/i;
 
   if (!validGradePattern.test(nextValue)) {
     e.preventDefault(); 
   }
+}
+
+export function isValidGrade(grade: string) {
+  if (!grade) return false;
+  return /^([12](\.(0|00|25|5|50|75))?|[345](\.(0|00))?|INC|DRP)$/i.test(grade.trim());
+}
+
+export function formatGrade(grade: string) {
+  if (!grade) return grade;
+  const g = grade.trim().toUpperCase();
+  const num = parseFloat(g);
+
+  if (g === 'INC' || g === 'DRP') return g;
+  if (!isNaN(num)) return num.toFixed(2);
+
+  return g;
 }

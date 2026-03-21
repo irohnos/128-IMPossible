@@ -497,7 +497,7 @@ export function Modal({ id, title, type, pages, summary, references, author, adv
                     <CalendarIcon className="w-5 h-5 text-maroon shrink-0 mt-0.5" />
                     <div className="min-w-0 flex-1">
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
-                        Year Published
+                        Year Submitted
                       </p>
                       <p className="text-sm font-semibold text-gray-800">{year || "—"}</p>
                     </div>
