@@ -51,10 +51,10 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-6 h-full p-4 overflow-y-auto bg-white">
       {/* Top row stats working */}
       <div className="grid grid-cols-4 gap-4 text-left">
-        <StatCard title="No. of Students in Database" value={stats.students} icon={<Users size={20} />} />
-        <StatCard title="No. of Thesis Papers" value={stats.thesis} icon={<FileText size={20} />} />
-        <StatCard title="No. of Strategic Paper" value={stats.strat} icon={<FileBarChart size={20} />} />
-        <StatCard title="No. of Students on Probation" value={stats.probation} icon={<AlertTriangle size={20} />} />
+        <StatCard title="Number of Students in Database" value={stats.students} icon={<Users size={20} />} />
+        <StatCard title="Number of Thesis Papers" value={stats.thesis} icon={<FileText size={20} />} />
+        <StatCard title="Number of Strategic Paper" value={stats.strat} icon={<FileBarChart size={20} />} />
+        <StatCard title="Number of Students on Probation" value={stats.probation} icon={<AlertTriangle size={20} />} />
       </div>
 
       <div className="grid grid-cols-4 gap-6">
