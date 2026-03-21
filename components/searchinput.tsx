@@ -137,6 +137,14 @@ function SearchInputInner<T>({
     [config, onSelect, pathname, queryParam, replace, searchParams]
   );
 
+  const handleKeyDown = (e:React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter"){
+      setIsOpen(false);
+      setSuggestions([]);
+      inputRef.current?.blur();
+    }
+  };
+
   function handleClear() {
     setSearchTerm("");
     setSuggestions([]);
@@ -167,6 +175,7 @@ function SearchInputInner<T>({
           onFocus={() => {
             if (suggestions.length > 0) setIsOpen(true);
           }}
+          onKeyDown={handleKeyDown}
           autoComplete="off"
           spellCheck={false}
         />
