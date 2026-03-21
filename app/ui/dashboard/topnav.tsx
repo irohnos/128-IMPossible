@@ -42,7 +42,7 @@ export default function TopNav() {
   return (
     <header className="flex h-16 items-center justify-between border-b border-maroon/10 bg-red-50 px-6">
       <div className="flex items-center">
-        <h2 className="text-2xl font-bold tracking-tight text-maroon">{currentTitle()}</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-maroon pt-1.5">{currentTitle()}</h2>
       </div>
 
       <div className="flex items-center gap-4">

@@ -10,8 +10,7 @@ export async function populateAdvisers() {
     .order("adviser_lname", { ascending: true });
 
   if (error) {
-    console.error("Error fetching advisers:", error);
-    return [];
+    console.error("Error fetching advisers:", error.message, error.details, error.hint);    return [];
   }
 
   return (rawAdvisers || []).map((adv) => ({
