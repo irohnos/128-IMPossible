@@ -154,6 +154,12 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
 
   return (
     <div className="max-w-auto mx-auto relative">
+      <div className="mb-8">
+        <Link href="/dashboard/checklist" className="inline-flex items-center gap-2 text-gray-400 hover:text-maroon transition-colors group">
+          <ArrowLeftIcon className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-xs font-bold uppercase tracking-widest">Back to Batch Folders</span>
+        </Link>
+      </div>
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
         <div className="w-full max-w-3xl">
@@ -206,13 +212,6 @@ async function BatchChecklistContent({ params, searchParams }: { params: Promise
             <p className="text-maroon font-bold tracking-widest uppercase text-sm py-20">{query ? `No results for "${query}"` : "No student records found."}</p>
           </div>
         )}
-      </div>
-
-      <div className="mt-8">
-        <Link href="/dashboard/checklist" className="inline-flex items-center gap-2 text-gray-400 hover:text-maroon transition-colors group">
-          <ArrowLeftIcon className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-xs font-bold uppercase tracking-widest">Back to Batch Folders</span>
-        </Link>
       </div>
 
       {studentToEdit && (
