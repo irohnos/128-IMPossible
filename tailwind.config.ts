@@ -53,10 +53,14 @@ export default {
         },
         yellow: "#f3aa2c",
         blue: "#132e54",
-        green: "#014421",
         olive: "#565422",
         ygreen: "#335628",
         orange: "#B43c25",
+        green: {
+          DEFAULT: "#014421",
+          50: "#e6f2e9",
+          800: "#002d14",
+        },
         red: {
           DEFAULT: "#8e171a",
           50: "#faf7f5",

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { PencilSquareIcon, TrashIcon, ExclamationTriangleIcon, PlusIcon, XMarkIcon, ChevronDownIcon, UserIcon, DocumentTextIcon, AcademicCapIcon, CalendarIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon, TrashIcon, ExclamationTriangleIcon, PlusIcon, XMarkIcon, ChevronDownIcon, UserIcon, DocumentTextIcon, AcademicCapIcon, CalendarIcon, CheckBadgeIcon } from "@heroicons/react/24/outline";
 import { updatePaperAction, deletePaperAction, addPaperAction } from "@/lib/actions";
 import { namesOnly, numbersOnly } from "@/lib/utils";
+import { set } from "date-fns";
 
 export interface Person {
   id: number;
@@ -214,10 +215,16 @@ export function EditAction({ paper, advisers = [] }: { paper: any; advisers?: Pe
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { authors, addAuthor, removeAuthor, updateAuthor } = authorActions(paper.author);
-
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [updatedTitle, setUpdatedTitle] = useState<string>("");
+  
   const handleEdit = async (formData: FormData) => {
     setIsProcessing(true);
     setError(null);
+    setSuccessMessage(null);
+
+    const title = formData.get("paper_title") as string;
+    setUpdatedTitle(title);
     
     const updates = {
       paper_title: formData.get("paper_title"),
@@ -241,7 +248,7 @@ export function EditAction({ paper, advisers = [] }: { paper: any; advisers?: Pe
         setError(res.error);
         return; 
       }
-      setIsOpen(false);
+      setSuccessMessage("Paper updated successfully!");
     } catch (err: any) {
       setError("An unexpected system error occurred.");
     } finally {
@@ -256,28 +263,46 @@ export function EditAction({ paper, advisers = [] }: { paper: any; advisers?: Pe
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4 transition-opacity backdrop-blur-sm" onClick={() => !isProcessing && setIsOpen(false)}>
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50 shrink-0">
-              <h2 className="text-lg font-bold text-maroon">Update Paper Record — #{paper.paper_id}</h2>
-              <button onClick={() => setIsOpen(false)} className="p-2 text-gray-800 hover:text-white hover:bg-maroon rounded-lg transition-colors">
-                <XMarkIcon className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form action={handleEdit} autoComplete="off" className="flex flex-col flex-1 overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-6 space-y-8">
-                {error && ( <div className="p-3 bg-red-50 text-red text-sm rounded-lg border border-red-100 break-words">{error}</div> )}
-                <FormFields authors={authors} addAuthor={addAuthor} removeAuthor={removeAuthor} updateAuthor={updateAuthor} advisers={advisers} defaultValues={paper} />
+        <div 
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4 transition-opacity backdrop-blur-sm" 
+          onClick={successMessage ? (e) => e.stopPropagation() : () => !isProcessing && setIsOpen(false)}
+        >
+          {successMessage ? (
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col items-center animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+              <CheckBadgeIcon className="w-12 h-12 text-green mb-4" />
+              <h2 className="text-lg font-black text-green text-center uppercase tracking-wider">Success!</h2>
+              <div className="mt-2 space-y-1">
+                <p className="text-center text-green text-xl font-bold italic line-clamp-2 px-2">"{updatedTitle}"</p>
+                <p className="text-center text-xs text-gray-500">has been updated in the library.</p>
               </div>
-              <FormFooter onCancel={() => setIsOpen(false)} isProcessing={isProcessing} submitText="Save Updates" />
-            </form>
-          </div>
+              <button onClick={() => setIsOpen(false)} className="mt-6 px-4 py-2 bg-green text-white rounded-lg text-sm font-bold hover:bg-green-800 transition-colors">
+                Done
+              </button>
+            </div> 
+          ) : (
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+              <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50 shrink-0">
+                <h2 className="text-lg font-bold text-maroon">Update Paper Record — #{paper.paper_id}</h2>
+                <button onClick={() => setIsOpen(false)} className="p-2 text-gray-800 hover:text-white hover:bg-maroon rounded-lg transition-colors">
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form action={handleEdit} autoComplete="off" className="flex flex-col flex-1 overflow-hidden">
+                <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                  {error && ( <div className="p-3 bg-red-50 text-red text-sm rounded-lg border border-red-100 break-words">{error}</div> )}
+                  <FormFields authors={authors} addAuthor={addAuthor} removeAuthor={removeAuthor} updateAuthor={updateAuthor} advisers={advisers} defaultValues={paper} />
+                </div>
+                <FormFooter onCancel={() => setIsOpen(false)} isProcessing={isProcessing} submitText="Save Updates" />
+              </form>
+            </div>
+          )}
         </div>
       )}
     </>
   );
 }
+
 
 export function DeleteAction({ paper }: { paper: any }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -343,11 +368,17 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { authors, setAuthors, addAuthor, removeAuthor, updateAuthor } = authorActions();
+  const {authors, setAuthors, addAuthor, removeAuthor, updateAuthor } = authorActions();
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [addedTitle, setAddedTitle] = useState<string>("");
 
   const handleAdd = async (formData: FormData) => {
     setIsProcessing(true);
     setError(null);
+    setSuccessMessage(null);
+
+    const title = formData.get("paper_title") as string;
+    setAddedTitle(title);
 
     const newPaper = {
       paper_title: formData.get("paper_title"),
@@ -371,7 +402,9 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
         setError(res.error);
         return;
       }
-      setIsOpen(false);
+
+      setSuccessMessage("Paper added successfully!");
+
       setAuthors([{ author_fname: "", author_mname: "", author_lname: "", author_suffix: "" }]);
     } catch (err: any) {
       setError("An unexpected system error occurred.");
@@ -380,14 +413,27 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
     }
   };
 
-  return (
-    <>
-      <button onClick={() => setIsOpen(true)} className="flex items-center gap-2 bg-maroon text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-maroon-800 transition-all active:scale-95 shadow-sm">
-        <PlusIcon className="w-5 h-5" /> Add Paper
-      </button>
+return (
+  <>
+    <button onClick={() => setIsOpen(true)} className="flex items-center gap-2 bg-maroon text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-maroon-800 transition-all active:scale-95 shadow-sm">
+      <PlusIcon className="w-5 h-5" /> Add Paper
+    </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 p-4 transition-opacity backdrop-blur-sm" onClick={() => !isProcessing && setIsOpen(false)}>
+    {isOpen && (
+      <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 p-4 transition-opacity backdrop-blur-sm" onClick={() => !isProcessing && setIsOpen(false)}>
+        {successMessage ? (
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col items-center animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+            <CheckBadgeIcon className="w-12 h-12 text-green mb-4" />
+            <h2 className="text-lg font-black text-green text-center uppercase tracking-wider">Success!</h2>
+            <div className="mt-2 space-y-1">
+              <p className="text-center text-green text-xl font-bold italic line-clamp-2 px-2">"{addedTitle}"</p>
+              <p className="text-center text-xs text-gray-500">has been added to the library.</p>
+            </div>
+            <button onClick={() => setIsOpen(false)} className="mt-6 px-4 py-2 bg-green text-white rounded-lg text-sm font-bold hover:bg-green-800 transition-colors">
+              Done
+            </button>
+          </div> 
+        ) : (
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 text-left" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-red-50 shrink-0">
               <h2 className="text-lg font-bold text-maroon">New Paper Submission</h2>
@@ -398,17 +444,22 @@ export function AddPaperActions({ adviser }: { adviser: Person[] }) {
 
             <form action={handleAdd} autoComplete="off" className="flex flex-col flex-1 overflow-hidden">
               <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                {successMessage && <div className="p-3 bg-green-50 text-green text-sm rounded-lg border border-green-100">{successMessage}</div>}
                 {error && <div className="p-3 bg-red-50 text-red text-sm rounded-lg border border-red-100">{error}</div>}
-                <FormFields authors={authors} addAuthor={addAuthor} removeAuthor={removeAuthor} updateAuthor={updateAuthor} advisers={adviser} />
+                {!successMessage && (
+                  <FormFields authors={authors} addAuthor={addAuthor} removeAuthor={removeAuthor} updateAuthor={updateAuthor} advisers={adviser} />
+                )}
               </div>
               <FormFooter onCancel={() => setIsOpen(false)} isProcessing={isProcessing} submitText="Create Paper" />
             </form>
-          </div>
-        </div>
-      )}
-    </>
-  );
+          </div> 
+        )}
+      </div> 
+    )} 
+  </> 
+);
 }
+
 export function Modal({ id, title, type, pages, summary, references, author, adviser, year }: any) {
   const [open, setOpen] = useState(false);
 
@@ -546,3 +597,4 @@ export function Modal({ id, title, type, pages, summary, references, author, adv
     </>
   );
 }
+
